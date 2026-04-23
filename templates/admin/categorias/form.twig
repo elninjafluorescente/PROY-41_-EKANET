@@ -32,11 +32,10 @@
             <label class="ek-field ek-field--wide">
                 <span>Categoría padre *</span>
                 <select name="id_parent" required>
-                    {% for p in parents %}
+                    {% for p in parents if not p.is_root_category %}
                         <option value="{{ p.id_category }}"
                                 {{ p.id_category == category.id_parent ? 'selected' : '' }}>
-                            {% if p.level_depth > 0 %}{% for _ in 1..p.level_depth %}— {% endfor %}{% endif %}{{ p.name }}
-                            {% if p.id_category == 2 %} (Inicio){% endif %}
+                            {% if p.level_depth > 1 %}{% for _ in 2..p.level_depth %}— {% endfor %}{% endif %}{{ p.name }}
                         </option>
                     {% endfor %}
                 </select>

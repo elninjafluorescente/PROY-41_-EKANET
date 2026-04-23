@@ -28,14 +28,13 @@
             </tr>
         </thead>
         <tbody>
-            {% for c in categories %}
+            {% for c in categories if not c.is_root_category %}
             <tr>
                 <td class="mono">{{ c.id_category }}</td>
                 <td>
-                    <span style="display:inline-block; padding-left: {{ (c.level_depth - 1) * 22 }}px">
-                        {% if c.level_depth >= 1 %}<span class="ek-tree-dash">└</span>{% endif %}
+                    <span style="display:inline-block; padding-left: {{ max(0, (c.level_depth - 1) * 22) }}px">
+                        {% if c.level_depth >= 2 %}<span class="ek-tree-dash">└</span>{% endif %}
                         <strong>{{ c.name }}</strong>
-                        {% if c.is_root_category %}<span class="ek-pill ek-pill--blue">root</span>{% endif %}
                         {% if c.id_category == 2 %}<span class="ek-pill ek-pill--gold">inicio</span>{% endif %}
                     </span>
                 </td>
