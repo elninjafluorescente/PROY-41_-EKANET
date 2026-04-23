@@ -37,26 +37,26 @@ final class Permissions
             'abonos'   => 'Facturas por abono',
         ],
         'Catálogo' => [
-            'productos'       => 'Productos',
-            'categorias'      => 'Categorías',
-            'marcas'          => 'Marcas',
-            'proveedores'     => 'Proveedores',
-            'descuentos'      => 'Descuentos',
-            'stock'           => 'Stock',
-            'atributos'       => 'Atributos',
-            'caracteristicas' => 'Características',
+            'productos'                 => 'Productos',
+            'categorias'                => 'Categorías',
+            'marcas_proveedores'        => 'Marcas y proveedores',
+            'descuentos'                => 'Descuentos',
+            'stock'                     => 'Stock',
+            'atributos_caracteristicas' => 'Atributos y características',
         ],
         'Clientes' => [
             'clientes'    => 'Clientes',
             'direcciones' => 'Direcciones',
-            'grupos'      => 'Grupos',
         ],
         'Transporte' => [
             'transportistas' => 'Transportistas',
-            'zonas'          => 'Zonas y tarifas',
         ],
         'Pago' => [
             'metodos_pago' => 'Métodos de pago',
+        ],
+        'Marketing' => [
+            'pixeles' => 'Píxeles y scripts',
+            'banners' => 'Banners',
         ],
         'Administración' => [
             'usuarios'      => 'Usuarios',

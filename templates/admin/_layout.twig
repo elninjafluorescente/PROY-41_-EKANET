@@ -28,24 +28,24 @@
         <div class="ek-sidebar__group">Catálogo</div>
         <a href="{{ admin_url('productos') }}" class="{{ active == 'productos' ? 'is-active' : '' }}">Productos</a>
         <a href="{{ admin_url('categorias') }}" class="{{ active == 'categorias' ? 'is-active' : '' }}">Categorías</a>
-        <a href="{{ admin_url('marcas') }}" class="{{ active == 'marcas' ? 'is-active' : '' }}">Marcas</a>
-        <a href="{{ admin_url('proveedores') }}" class="{{ active == 'proveedores' ? 'is-active' : '' }}">Proveedores</a>
+        <a href="{{ admin_url('marcas_proveedores') }}" class="{{ active == 'marcas_proveedores' ? 'is-active' : '' }}">Marcas y proveedores</a>
         <a href="{{ admin_url('descuentos') }}" class="{{ active == 'descuentos' ? 'is-active' : '' }}">Descuentos</a>
         <a href="{{ admin_url('stock') }}" class="{{ active == 'stock' ? 'is-active' : '' }}">Stock</a>
-        <a href="{{ admin_url('atributos') }}" class="{{ active == 'atributos' ? 'is-active' : '' }}">Atributos</a>
-        <a href="{{ admin_url('caracteristicas') }}" class="{{ active == 'caracteristicas' ? 'is-active' : '' }}">Características</a>
+        <a href="{{ admin_url('atributos_caracteristicas') }}" class="{{ active == 'atributos_caracteristicas' ? 'is-active' : '' }}">Atributos y características</a>
 
         <div class="ek-sidebar__group">Clientes</div>
         <a href="{{ admin_url('clientes') }}" class="{{ active == 'clientes' ? 'is-active' : '' }}">Clientes</a>
         <a href="{{ admin_url('direcciones') }}" class="{{ active == 'direcciones' ? 'is-active' : '' }}">Direcciones</a>
-        <a href="{{ admin_url('grupos') }}" class="{{ active == 'grupos' ? 'is-active' : '' }}">Grupos</a>
 
         <div class="ek-sidebar__group">Transporte</div>
         <a href="{{ admin_url('transportistas') }}" class="{{ active == 'transportistas' ? 'is-active' : '' }}">Transportistas</a>
-        <a href="{{ admin_url('zonas') }}" class="{{ active == 'zonas' ? 'is-active' : '' }}">Zonas y tarifas</a>
 
         <div class="ek-sidebar__group">Pago</div>
-        <a href="{{ admin_url('metodos-pago') }}" class="{{ active == 'metodos-pago' ? 'is-active' : '' }}">Métodos de pago</a>
+        <a href="{{ admin_url('metodos_pago') }}" class="{{ active == 'metodos_pago' ? 'is-active' : '' }}">Métodos de pago</a>
+
+        <div class="ek-sidebar__group">Marketing</div>
+        <a href="{{ admin_url('pixeles') }}" class="{{ active == 'pixeles' ? 'is-active' : '' }}">Píxeles y scripts</a>
+        <a href="{{ admin_url('banners') }}" class="{{ active == 'banners' ? 'is-active' : '' }}">Banners</a>
 
         <div class="ek-sidebar__group">Administración</div>
         <a href="{{ admin_url('usuarios') }}" class="{{ active == 'usuarios' ? 'is-active' : '' }}">Usuarios</a>
