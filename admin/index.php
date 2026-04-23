@@ -38,7 +38,9 @@ use Ekanet\Core\Database;
 use Ekanet\Core\Router;
 use Ekanet\Core\Session;
 use Ekanet\Core\View;
+use Ekanet\Controllers\Admin\AtributosController;
 use Ekanet\Controllers\Admin\AuthController;
+use Ekanet\Controllers\Admin\CaracteristicasController;
 use Ekanet\Controllers\Admin\CategoriasController;
 use Ekanet\Controllers\Admin\DashboardController;
 use Ekanet\Controllers\Admin\MarcasController;
@@ -94,6 +96,28 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/proveedores/{id}/editar',      [ProveedoresController::class, 'edit']);
     $r->post('/proveedores/{id}/editar',     [ProveedoresController::class, 'update']);
     $r->post('/proveedores/{id}/eliminar',   [ProveedoresController::class, 'destroy']);
+
+    // Atributos (grupos + valores)
+    $r->get('/atributos',                                [AtributosController::class, 'index']);
+    $r->get('/atributos/nuevo',                          [AtributosController::class, 'create']);
+    $r->post('/atributos/nuevo',                         [AtributosController::class, 'store']);
+    $r->get('/atributos/{id}/editar',                    [AtributosController::class, 'edit']);
+    $r->post('/atributos/{id}/editar',                   [AtributosController::class, 'update']);
+    $r->post('/atributos/{id}/eliminar',                 [AtributosController::class, 'destroy']);
+    $r->post('/atributos/{id}/valores/nuevo',            [AtributosController::class, 'storeValue']);
+    $r->post('/atributos/{id}/valores/{vid}/editar',     [AtributosController::class, 'updateValue']);
+    $r->post('/atributos/{id}/valores/{vid}/eliminar',   [AtributosController::class, 'destroyValue']);
+
+    // Características (features + valores)
+    $r->get('/caracteristicas',                                [CaracteristicasController::class, 'index']);
+    $r->get('/caracteristicas/nuevo',                          [CaracteristicasController::class, 'create']);
+    $r->post('/caracteristicas/nuevo',                         [CaracteristicasController::class, 'store']);
+    $r->get('/caracteristicas/{id}/editar',                    [CaracteristicasController::class, 'edit']);
+    $r->post('/caracteristicas/{id}/editar',                   [CaracteristicasController::class, 'update']);
+    $r->post('/caracteristicas/{id}/eliminar',                 [CaracteristicasController::class, 'destroy']);
+    $r->post('/caracteristicas/{id}/valores/nuevo',            [CaracteristicasController::class, 'storeValue']);
+    $r->post('/caracteristicas/{id}/valores/{vid}/editar',     [CaracteristicasController::class, 'updateValue']);
+    $r->post('/caracteristicas/{id}/valores/{vid}/eliminar',   [CaracteristicasController::class, 'destroyValue']);
 
     // Roles
     $r->get('/roles',                [RolesController::class, 'index']);

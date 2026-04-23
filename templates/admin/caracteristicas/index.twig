@@ -1,0 +1,51 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_atributos_caracteristicas.twig' with {tab: 'caracteristicas'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Características</h1>
+        <p class="ek-page-header__subtitle">
+            Datos <strong>informativos</strong> del producto (potencia, material, dimensiones…).
+            No crean variantes, sólo describen.
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('caracteristicas/nuevo') }}">+ Nueva característica</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th style="width:80px">Valores</th>
+                <th style="width:160px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in features %}
+            <tr>
+                <td class="mono">{{ f.id_feature }}</td>
+                <td><strong>{{ f.name }}</strong></td>
+                <td class="mono">{{ f.value_count }}</td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('caracteristicas/' ~ f.id_feature ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('caracteristicas/' ~ f.id_feature ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar la característica \'{{ f.name }}\' y todos sus valores?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="ek-table__empty">No hay características todavía.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

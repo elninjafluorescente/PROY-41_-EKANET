@@ -1,0 +1,107 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_atributos_caracteristicas.twig' with {tab: 'atributos'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nuevo grupo de atributos' : 'Editar grupo' }}
+        </h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">ID #{{ group.id_attribute_group }}</p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('atributos') }}">← Volver</a>
+    </div>
+</div>
+
+{# ===== Form del grupo ===== #}
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('atributos/nuevo')
+          : admin_url('atributos/' ~ group.id_attribute_group ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Datos del grupo</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Nombre (interno) *</span>
+                <input type="text" name="name" required maxlength="128" value="{{ group.name }}">
+                <small class="ek-field__hint">Cómo ves el grupo en el back office.</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Nombre público</span>
+                <input type="text" name="public_name" maxlength="64" value="{{ group.public_name }}"
+                       placeholder="igual que el interno si se deja en blanco">
+                <small class="ek-field__hint">Cómo aparece al cliente en la tienda.</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Tipo de selector</span>
+                <select name="group_type">
+                    {% for key, label in types %}
+                        <option value="{{ key }}" {{ group.group_type == key ? 'selected' : '' }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+
+        <div class="ek-form__actions" style="margin-top:10px">
+            <button type="submit" class="ek-btn ek-btn--primary">
+                {{ mode == 'create' ? 'Crear grupo' : 'Guardar cambios' }}
+            </button>
+        </div>
+    </div>
+</form>
+
+{% if mode == 'edit' %}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Valores del grupo</h2>
+    <p class="ek-panel__hint">
+        Añade los valores concretos (si el grupo es <em>Color</em>: Rojo, Azul, Verde…).
+    </p>
+
+    {% if values|length > 0 %}
+        <div class="ek-values-list">
+            {% for v in values %}
+                <div class="ek-values-row">
+                    <form method="post" class="ek-values-form"
+                          action="{{ admin_url('atributos/' ~ group.id_attribute_group ~ '/valores/' ~ v.id_attribute ~ '/editar') }}">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <span class="ek-values-row__id mono">#{{ v.id_attribute }}</span>
+                        <input type="text" name="name" value="{{ v.name }}" required maxlength="128" class="ek-values-row__input">
+                        {% if group.group_type == 'color' %}
+                            <input type="color" name="color" value="{{ v.color ?: '#cccccc' }}" class="ek-values-row__color">
+                        {% endif %}
+                        <button type="submit" class="ek-action">Guardar</button>
+                    </form>
+                    <form method="post"
+                          action="{{ admin_url('atributos/' ~ group.id_attribute_group ~ '/valores/' ~ v.id_attribute ~ '/eliminar') }}"
+                          onsubmit="return confirm('¿Eliminar el valor \'{{ v.name }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: var(--ek-ink-3); margin:6px 0 14px">Aún no hay valores en este grupo.</p>
+    {% endif %}
+
+    {# Form para añadir un valor nuevo #}
+    <form method="post" class="ek-values-add"
+          action="{{ admin_url('atributos/' ~ group.id_attribute_group ~ '/valores/nuevo') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <input type="text" name="name" required placeholder="Nuevo valor (ej. Rojo)" maxlength="128" class="ek-values-row__input">
+        {% if group.group_type == 'color' %}
+            <input type="color" name="color" value="#cccccc" class="ek-values-row__color">
+        {% endif %}
+        <button type="submit" class="ek-btn ek-btn--primary">+ Añadir</button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

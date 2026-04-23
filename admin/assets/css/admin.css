@@ -482,6 +482,44 @@ html,body{ margin:0; padding:0; }
 }
 .ek-check input:disabled + span{ opacity: .5; cursor: not-allowed; }
 
+/* =========== Values list (atributos / características) =========== */
+.ek-values-list{
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 14px;
+}
+.ek-values-row{
+    display:flex; gap:8px; align-items:center;
+    padding: 6px 10px;
+    background: var(--ek-line-2);
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r-sm);
+}
+.ek-values-form{ display:flex; gap:8px; align-items:center; flex: 1; margin: 0; }
+.ek-values-row__id{
+    font-size: 11px; color: var(--ek-ink-3);
+    min-width: 40px;
+}
+.ek-values-row__input{
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r-sm);
+    font-family: inherit; font-size: 13px;
+    background: var(--ek-surface);
+}
+.ek-values-row__color{
+    width: 42px; height: 32px;
+    padding: 2px;
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r-sm);
+    cursor: pointer;
+}
+.ek-values-add{
+    display:flex; gap:8px; align-items:center;
+    margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid var(--ek-line);
+}
+
 /* =========== Tree indicator (categories) =========== */
 .ek-tree-dash{
     display:inline-block;

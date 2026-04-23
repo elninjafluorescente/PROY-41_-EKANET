@@ -1,0 +1,5 @@
+{# Pestañas compartidas: Atributos / Características. Var: tab = 'atributos' | 'caracteristicas' #}
+<div class="ek-tabs">
+    <a class="ek-tabs__tab {{ tab == 'atributos' ? 'is-active' : '' }}" href="{{ admin_url('atributos') }}">Atributos</a>
+    <a class="ek-tabs__tab {{ tab == 'caracteristicas' ? 'is-active' : '' }}" href="{{ admin_url('caracteristicas') }}">Características</a>
+</div>

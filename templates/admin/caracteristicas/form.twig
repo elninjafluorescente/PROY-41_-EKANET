@@ -1,0 +1,83 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_atributos_caracteristicas.twig' with {tab: 'caracteristicas'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nueva característica' : 'Editar característica' }}
+        </h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">ID #{{ feature.id_feature }}</p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('caracteristicas') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('caracteristicas/nuevo')
+          : admin_url('caracteristicas/' ~ feature.id_feature ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Datos de la característica</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Nombre *</span>
+                <input type="text" name="name" required maxlength="128" value="{{ feature.name }}">
+                <small class="ek-field__hint">Ej: Potencia, Material, Dimensiones, Número de puertos…</small>
+            </label>
+        </div>
+        <div class="ek-form__actions" style="margin-top:10px">
+            <button type="submit" class="ek-btn ek-btn--primary">
+                {{ mode == 'create' ? 'Crear característica' : 'Guardar cambios' }}
+            </button>
+        </div>
+    </div>
+</form>
+
+{% if mode == 'edit' %}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Valores predefinidos</h2>
+    <p class="ek-panel__hint">
+        Valores típicos que usarás al asignar esta característica a productos (ej. <em>Metal, Plástico, Fibra</em>).
+        Si no añades ninguno, al editar un producto podrás escribir un valor libre.
+    </p>
+
+    {% if values|length > 0 %}
+        <div class="ek-values-list">
+            {% for v in values %}
+                <div class="ek-values-row">
+                    <form method="post" class="ek-values-form"
+                          action="{{ admin_url('caracteristicas/' ~ feature.id_feature ~ '/valores/' ~ v.id_feature_value ~ '/editar') }}">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <span class="ek-values-row__id mono">#{{ v.id_feature_value }}</span>
+                        <input type="text" name="value" value="{{ v.value }}" required maxlength="255" class="ek-values-row__input">
+                        <button type="submit" class="ek-action">Guardar</button>
+                    </form>
+                    <form method="post"
+                          action="{{ admin_url('caracteristicas/' ~ feature.id_feature ~ '/valores/' ~ v.id_feature_value ~ '/eliminar') }}"
+                          onsubmit="return confirm('¿Eliminar el valor \'{{ v.value }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: var(--ek-ink-3); margin:6px 0 14px">Aún no hay valores predefinidos.</p>
+    {% endif %}
+
+    <form method="post" class="ek-values-add"
+          action="{{ admin_url('caracteristicas/' ~ feature.id_feature ~ '/valores/nuevo') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <input type="text" name="value" required placeholder="Nuevo valor (ej. Metal)" maxlength="255" class="ek-values-row__input">
+        <button type="submit" class="ek-btn ek-btn--primary">+ Añadir</button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}
