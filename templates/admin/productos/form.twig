@@ -1,0 +1,268 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nuevo producto' : 'Editar producto' }}
+        </h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">
+                ID #{{ item.id_product }} · ref. {{ item.reference|default('—') }}
+            </p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('productos') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('productos/nuevo')
+          : admin_url('productos/' ~ item.id_product ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    {# ============ Básico ============ #}
+    <div class="ek-panel">
+        <h2>Información básica</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Nombre *</span>
+                <input type="text" name="name" required maxlength="128"
+                       value="{{ item.name }}" id="ek-prod-name">
+            </label>
+
+            <label class="ek-field">
+                <span>Referencia (SKU)</span>
+                <input type="text" name="reference" maxlength="64" value="{{ item.reference }}">
+                <small class="ek-field__hint">Identificador interno único.</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Ref. proveedor</span>
+                <input type="text" name="supplier_reference" maxlength="64" value="{{ item.supplier_reference }}">
+            </label>
+
+            <label class="ek-field">
+                <span>EAN-13</span>
+                <input type="text" name="ean13" maxlength="13" value="{{ item.ean13 }}">
+            </label>
+
+            <label class="ek-field">
+                <span>MPN</span>
+                <input type="text" name="mpn" maxlength="40" value="{{ item.mpn }}">
+                <small class="ek-field__hint">Part number del fabricante.</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Estado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="active" value="1" {{ item.active ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Producto visible en la tienda</span>
+                </label>
+            </label>
+
+            <label class="ek-field">
+                <span>Tipo</span>
+                <select name="product_type">
+                    {% for k, label in product_types %}
+                        <option value="{{ k }}" {{ item.product_type == k ? 'selected' : '' }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+    </div>
+
+    {# ============ Asociaciones ============ #}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Asociaciones</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Categoría principal *</span>
+                <select name="id_category_default" required>
+                    {% for c in categories %}
+                        {% if not c.is_root_category %}
+                        <option value="{{ c.id_category }}"
+                                {{ c.id_category == item.id_category_default ? 'selected' : '' }}>
+                            {% if c.level_depth > 1 %}{% for _ in 2..c.level_depth %}— {% endfor %}{% endif %}{{ c.name }}
+                        </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="ek-field">
+                <span>Marca</span>
+                <select name="id_manufacturer">
+                    <option value="0">— Sin marca —</option>
+                    {% for m in manufacturers %}
+                        <option value="{{ m.id_manufacturer }}"
+                                {{ m.id_manufacturer == item.id_manufacturer ? 'selected' : '' }}>
+                            {{ m.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="ek-field">
+                <span>Proveedor</span>
+                <select name="id_supplier">
+                    <option value="0">— Sin proveedor —</option>
+                    {% for s in suppliers %}
+                        <option value="{{ s.id_supplier }}"
+                                {{ s.id_supplier == item.id_supplier ? 'selected' : '' }}>
+                            {{ s.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+    </div>
+
+    {# ============ Precio y stock ============ #}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Precio y stock</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Precio sin IVA *</span>
+                <input type="text" name="price" required inputmode="decimal"
+                       value="{{ item.price|number_format(2, '.', '') }}">
+                <small class="ek-field__hint">Usa punto como separador decimal.</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Precio mayorista</span>
+                <input type="text" name="wholesale_price" inputmode="decimal"
+                       value="{{ item.wholesale_price|default(0)|number_format(2, '.', '') }}">
+                <small class="ek-field__hint">Precio de coste. Informativo.</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Stock disponible</span>
+                <input type="number" name="stock" min="0" value="{{ item.stock|default(0) }}">
+            </label>
+
+            <label class="ek-field">
+                <span>Cantidad mínima de compra</span>
+                <input type="number" name="minimal_quantity" min="1" value="{{ item.minimal_quantity|default(1) }}">
+            </label>
+
+            <label class="ek-field">
+                <span>Visibilidad</span>
+                <select name="visibility">
+                    {% for k, label in visibilities %}
+                        <option value="{{ k }}" {{ item.visibility == k ? 'selected' : '' }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="ek-field">
+                <span>Estado del producto</span>
+                <select name="condition">
+                    {% for k, label in conditions %}
+                        <option value="{{ k }}" {{ item.condition == k ? 'selected' : '' }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+    </div>
+
+    {# ============ Descripciones ============ #}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Descripciones</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Descripción corta</span>
+                <textarea name="description_short" rows="3" maxlength="800">{{ item.description_short }}</textarea>
+                <small class="ek-field__hint">Aparece en listados y en la parte superior de la ficha.</small>
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Descripción completa</span>
+                <textarea name="description" rows="10">{{ item.description }}</textarea>
+            </label>
+        </div>
+    </div>
+
+    {# ============ SEO y dimensiones ============ #}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>SEO</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Slug (link_rewrite)</span>
+                <input type="text" name="link_rewrite" maxlength="128"
+                       value="{{ item.link_rewrite }}"
+                       placeholder="se generará desde el nombre"
+                       id="ek-prod-slug">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Meta título</span>
+                <input type="text" name="meta_title" maxlength="255" value="{{ item.meta_title }}">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Meta descripción</span>
+                <textarea name="meta_description" rows="2" maxlength="512">{{ item.meta_description }}</textarea>
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Meta keywords</span>
+                <input type="text" name="meta_keywords" maxlength="255" value="{{ item.meta_keywords }}">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Dimensiones físicas</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Peso (kg)</span>
+                <input type="text" name="weight" inputmode="decimal" value="{{ item.weight|default(0) }}">
+            </label>
+            <label class="ek-field">
+                <span>Ancho (cm)</span>
+                <input type="text" name="width" inputmode="decimal" value="{{ item.width|default(0) }}">
+            </label>
+            <label class="ek-field">
+                <span>Alto (cm)</span>
+                <input type="text" name="height" inputmode="decimal" value="{{ item.height|default(0) }}">
+            </label>
+            <label class="ek-field">
+                <span>Profundidad (cm)</span>
+                <input type="text" name="depth" inputmode="decimal" value="{{ item.depth|default(0) }}">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('productos') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear producto' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+
+<script>
+(function () {
+    const nameEl = document.getElementById('ek-prod-name');
+    const slugEl = document.getElementById('ek-prod-slug');
+    if (!nameEl || !slugEl) return;
+
+    let slugTouched = slugEl.value.trim() !== '';
+    slugEl.addEventListener('input', () => { slugTouched = true; });
+
+    const slugify = (s) => s
+        .toLowerCase().trim()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+    nameEl.addEventListener('input', () => {
+        if (!slugTouched) slugEl.value = slugify(nameEl.value);
+    });
+})();
+</script>
+{% endblock %}

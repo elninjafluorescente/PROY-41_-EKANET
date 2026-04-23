@@ -482,6 +482,53 @@ html,body{ margin:0; padding:0; }
 }
 .ek-check input:disabled + span{ opacity: .5; cursor: not-allowed; }
 
+/* =========== Search bar =========== */
+.ek-search-bar{
+    display:flex; gap:8px; align-items:center;
+    background: var(--ek-surface);
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r);
+    padding: 10px 12px;
+    margin-bottom: 14px;
+}
+.ek-search-bar input[type="search"]{
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r-sm);
+    font-family: inherit; font-size: 13px;
+    background: var(--ek-surface);
+}
+.ek-search-bar input[type="search"]:focus{
+    outline:none;
+    border-color: var(--ek-blue);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ek-blue) 18%, transparent);
+}
+
+/* =========== Pagination =========== */
+.ek-pagination{
+    display:flex; gap:4px; flex-wrap:wrap;
+    margin-top: 16px;
+    justify-content: center;
+}
+.ek-pagination__page{
+    display:inline-block;
+    padding: 6px 11px;
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r-sm);
+    text-decoration:none;
+    font-size: 13px;
+    color: var(--ek-ink-2);
+    background: var(--ek-surface);
+    transition: .12s;
+}
+.ek-pagination__page:hover{ border-color: var(--ek-blue); color: var(--ek-blue-deep); }
+.ek-pagination__page.is-active{
+    background: var(--ek-blue);
+    color: #fff;
+    border-color: var(--ek-blue);
+}
+
 /* =========== Values list (atributos / características) =========== */
 .ek-values-list{
     display: flex; flex-direction: column; gap: 6px;

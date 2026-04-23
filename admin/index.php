@@ -44,6 +44,7 @@ use Ekanet\Controllers\Admin\CaracteristicasController;
 use Ekanet\Controllers\Admin\CategoriasController;
 use Ekanet\Controllers\Admin\DashboardController;
 use Ekanet\Controllers\Admin\MarcasController;
+use Ekanet\Controllers\Admin\ProductosController;
 use Ekanet\Controllers\Admin\ProveedoresController;
 use Ekanet\Controllers\Admin\RolesController;
 use Ekanet\Controllers\Admin\UsuariosController;
@@ -72,6 +73,14 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/usuarios/{id}/editar',      [UsuariosController::class, 'edit']);
     $r->post('/usuarios/{id}/editar',     [UsuariosController::class, 'update']);
     $r->post('/usuarios/{id}/eliminar',   [UsuariosController::class, 'destroy']);
+
+    // Productos
+    $r->get('/productos',                  [ProductosController::class, 'index']);
+    $r->get('/productos/nuevo',            [ProductosController::class, 'create']);
+    $r->post('/productos/nuevo',           [ProductosController::class, 'store']);
+    $r->get('/productos/{id}/editar',      [ProductosController::class, 'edit']);
+    $r->post('/productos/{id}/editar',     [ProductosController::class, 'update']);
+    $r->post('/productos/{id}/eliminar',   [ProductosController::class, 'destroy']);
 
     // Categorías
     $r->get('/categorias',                  [CategoriasController::class, 'index']);
