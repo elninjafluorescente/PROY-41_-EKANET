@@ -19,11 +19,15 @@ final class Product
         int $idLang = 1, int $idShop = 1,
         int $limit = 50, int $offset = 0, string $search = ''
     ): array {
-        $where = 'ps.id_shop = :shop';
-        $params = ['shop' => $idShop, 'lang' => $idLang];
+        $where = 'ps.id_shop = :shop1';
+        $params = [
+            'shop1' => $idShop, 'shop2' => $idShop, 'shop3' => $idShop, 'shop4' => $idShop,
+            'lang1' => $idLang, 'lang2' => $idLang,
+        ];
         if ($search !== '') {
-            $where .= ' AND (pl.name LIKE :q OR p.reference LIKE :q)';
-            $params['q'] = '%' . $search . '%';
+            $where .= ' AND (pl.name LIKE :q OR p.reference LIKE :q2)';
+            $params['q']  = '%' . $search . '%';
+            $params['q2'] = '%' . $search . '%';
         }
 
         $sql = "SELECT p.id_product, p.reference, p.price, p.active, p.id_category_default,
@@ -35,15 +39,15 @@ final class Product
                        COALESCE((SELECT sa.quantity FROM `{P}stock_available` sa
                                  WHERE sa.id_product = p.id_product
                                    AND sa.id_product_attribute = 0
-                                   AND sa.id_shop = :shop
+                                   AND sa.id_shop = :shop4
                                  LIMIT 1), 0) AS stock
                 FROM `{P}product` p
                 INNER JOIN `{P}product_shop` ps
-                  ON ps.id_product = p.id_product AND ps.id_shop = :shop
+                  ON ps.id_product = p.id_product AND ps.id_shop = :shop1
                 LEFT JOIN `{P}product_lang` pl
-                  ON pl.id_product = p.id_product AND pl.id_lang = :lang AND pl.id_shop = :shop
+                  ON pl.id_product = p.id_product AND pl.id_lang = :lang1 AND pl.id_shop = :shop2
                 LEFT JOIN `{P}category_lang` cl
-                  ON cl.id_category = p.id_category_default AND cl.id_lang = :lang AND cl.id_shop = :shop
+                  ON cl.id_category = p.id_category_default AND cl.id_lang = :lang2 AND cl.id_shop = :shop3
                 LEFT JOIN `{P}manufacturer` m
                   ON m.id_manufacturer = p.id_manufacturer
                 LEFT JOIN `{P}supplier` s
@@ -61,8 +65,9 @@ final class Product
                   ON pl.id_product = p.id_product AND pl.id_lang = 1 AND pl.id_shop = 1';
         $params = [];
         if ($search !== '') {
-            $sql .= ' WHERE (pl.name LIKE :q OR p.reference LIKE :q)';
-            $params['q'] = '%' . $search . '%';
+            $sql .= ' WHERE (pl.name LIKE :q1 OR p.reference LIKE :q2)';
+            $params['q1'] = '%' . $search . '%';
+            $params['q2'] = '%' . $search . '%';
         }
         $row = Database::run($sql, $params)->fetch();
         return (int)($row['c'] ?? 0);
@@ -75,14 +80,17 @@ final class Product
                        COALESCE((SELECT sa.quantity FROM `{P}stock_available` sa
                                  WHERE sa.id_product = p.id_product
                                    AND sa.id_product_attribute = 0
-                                   AND sa.id_shop = :shop
+                                   AND sa.id_shop = :shop2
                                  LIMIT 1), 0) AS stock
                 FROM `{P}product` p
                 LEFT JOIN `{P}product_lang` pl
-                  ON pl.id_product = p.id_product AND pl.id_lang = :lang AND pl.id_shop = :shop
+                  ON pl.id_product = p.id_product AND pl.id_lang = :lang AND pl.id_shop = :shop1
                 WHERE p.id_product = :id
                 LIMIT 1';
-        $row = Database::run($sql, ['id' => $id, 'lang' => $idLang, 'shop' => $idShop])->fetch();
+        $row = Database::run($sql, [
+            'id' => $id, 'lang' => $idLang,
+            'shop1' => $idShop, 'shop2' => $idShop,
+        ])->fetch();
         return $row ?: null;
     }
 
