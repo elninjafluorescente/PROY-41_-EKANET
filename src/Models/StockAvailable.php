@@ -38,9 +38,9 @@ final class StockAvailable
         if ($exists) {
             Database::run(
                 'UPDATE `{P}stock_available`
-                 SET quantity = :q, physical_quantity = :q
+                 SET quantity = :q1, physical_quantity = :q2
                  WHERE id_stock_available = :id',
-                ['q' => $quantity, 'id' => (int)$exists['id_stock_available']]
+                ['q1' => $quantity, 'q2' => $quantity, 'id' => (int)$exists['id_stock_available']]
             );
         } else {
             Database::run(
@@ -49,8 +49,11 @@ final class StockAvailable
                     quantity, physical_quantity, reserved_quantity,
                     depends_on_stock, out_of_stock)
                  VALUES
-                   (:p, :pa, :s, 0, :q, :q, 0, 0, 0)',
-                ['p' => $idProduct, 'pa' => $idProductAttribute, 's' => $idShop, 'q' => $quantity]
+                   (:p, :pa, :s, 0, :q1, :q2, 0, 0, 0)',
+                [
+                    'p' => $idProduct, 'pa' => $idProductAttribute, 's' => $idShop,
+                    'q1' => $quantity, 'q2' => $quantity,
+                ]
             );
         }
     }
