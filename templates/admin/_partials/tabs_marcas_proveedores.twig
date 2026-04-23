@@ -1,0 +1,5 @@
+{# Pestañas compartidas por Marcas y Proveedores. Var: tab = 'marcas' | 'proveedores' #}
+<div class="ek-tabs">
+    <a class="ek-tabs__tab {{ tab == 'marcas' ? 'is-active' : '' }}" href="{{ admin_url('marcas') }}">Marcas</a>
+    <a class="ek-tabs__tab {{ tab == 'proveedores' ? 'is-active' : '' }}" href="{{ admin_url('proveedores') }}">Proveedores</a>
+</div>

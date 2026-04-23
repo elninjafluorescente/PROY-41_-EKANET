@@ -1,0 +1,81 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_marcas_proveedores.twig' with {tab: 'marcas'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nueva marca' : 'Editar marca' }}
+        </h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">ID #{{ item.id_manufacturer }}</p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('marcas') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('marcas/nuevo')
+          : admin_url('marcas/' ~ item.id_manufacturer ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Datos de la marca</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Nombre *</span>
+                <input type="text" name="name" required maxlength="64" value="{{ item.name }}">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Descripción corta</span>
+                <textarea name="short_description" rows="2" maxlength="254">{{ item.short_description }}</textarea>
+                <small class="ek-field__hint">Aparece en listados. Máximo 254 caracteres.</small>
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Descripción completa</span>
+                <textarea name="description" rows="6">{{ item.description }}</textarea>
+            </label>
+
+            <label class="ek-field">
+                <span>Estado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="active" value="1" {{ item.active ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Marca activa</span>
+                </label>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>SEO</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Meta título</span>
+                <input type="text" name="meta_title" maxlength="255" value="{{ item.meta_title }}">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Meta descripción</span>
+                <textarea name="meta_description" rows="2" maxlength="512">{{ item.meta_description }}</textarea>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Meta keywords</span>
+                <input type="text" name="meta_keywords" maxlength="255" value="{{ item.meta_keywords }}">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('marcas') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear marca' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

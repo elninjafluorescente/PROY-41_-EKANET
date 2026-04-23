@@ -1,0 +1,56 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_marcas_proveedores.twig' with {tab: 'marcas'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Marcas</h1>
+        <p class="ek-page-header__subtitle">Fabricantes distribuidos por Ekanet (ej. Monolyth, Netgear, Legrand).</p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('marcas/nuevo') }}">+ Nueva marca</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th>Descripción corta</th>
+                <th style="width:90px">Estado</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in manufacturers %}
+            <tr>
+                <td class="mono">{{ m.id_manufacturer }}</td>
+                <td><strong>{{ m.name }}</strong></td>
+                <td style="color: var(--ek-ink-3); font-size:12px">{{ m.short_description|default('—')|slice(0, 80) }}</td>
+                <td>
+                    {% if m.active %}
+                        <span class="ek-badge ek-badge--ok">Activa</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactiva</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('marcas/' ~ m.id_manufacturer ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('marcas/' ~ m.id_manufacturer ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar la marca \'{{ m.name }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="ek-table__empty">No hay marcas todavía.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

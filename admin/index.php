@@ -41,6 +41,8 @@ use Ekanet\Core\View;
 use Ekanet\Controllers\Admin\AuthController;
 use Ekanet\Controllers\Admin\CategoriasController;
 use Ekanet\Controllers\Admin\DashboardController;
+use Ekanet\Controllers\Admin\MarcasController;
+use Ekanet\Controllers\Admin\ProveedoresController;
 use Ekanet\Controllers\Admin\RolesController;
 use Ekanet\Controllers\Admin\UsuariosController;
 
@@ -76,6 +78,22 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/categorias/{id}/editar',      [CategoriasController::class, 'edit']);
     $r->post('/categorias/{id}/editar',     [CategoriasController::class, 'update']);
     $r->post('/categorias/{id}/eliminar',   [CategoriasController::class, 'destroy']);
+
+    // Marcas
+    $r->get('/marcas',                  [MarcasController::class, 'index']);
+    $r->get('/marcas/nuevo',            [MarcasController::class, 'create']);
+    $r->post('/marcas/nuevo',           [MarcasController::class, 'store']);
+    $r->get('/marcas/{id}/editar',      [MarcasController::class, 'edit']);
+    $r->post('/marcas/{id}/editar',     [MarcasController::class, 'update']);
+    $r->post('/marcas/{id}/eliminar',   [MarcasController::class, 'destroy']);
+
+    // Proveedores
+    $r->get('/proveedores',                  [ProveedoresController::class, 'index']);
+    $r->get('/proveedores/nuevo',            [ProveedoresController::class, 'create']);
+    $r->post('/proveedores/nuevo',           [ProveedoresController::class, 'store']);
+    $r->get('/proveedores/{id}/editar',      [ProveedoresController::class, 'edit']);
+    $r->post('/proveedores/{id}/editar',     [ProveedoresController::class, 'update']);
+    $r->post('/proveedores/{id}/eliminar',   [ProveedoresController::class, 'destroy']);
 
     // Roles
     $r->get('/roles',                [RolesController::class, 'index']);
