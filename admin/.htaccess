@@ -1,0 +1,13 @@
+# === /admin — front controller ===
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /admin/
+
+    # Permitir acceso directo a archivos y carpetas existentes (assets, etc.)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Todo lo demás va al front controller
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>

@@ -1,0 +1,20 @@
+# === Ekanet — raíz ===
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Bloquear acceso directo a código fuente, config y vendor
+    RewriteRule ^(src|config|templates|storage|vendor)(/|$) - [F,L]
+
+    # Forzar HTTPS
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>
+
+# Cabeceras de seguridad básicas
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

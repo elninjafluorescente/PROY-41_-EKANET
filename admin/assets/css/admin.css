@@ -1,0 +1,227 @@
+/* =====================================================
+   Ekanet Admin — CSS
+   Derivado de los design tokens oficiales de Ekanet
+   (paleta periwinkle + oro, Inter Tight, JetBrains Mono)
+   ===================================================== */
+
+:root{
+    --ek-blue: oklch(0.65 0.09 265);
+    --ek-blue-deep: oklch(0.52 0.11 265);
+    --ek-blue-soft: oklch(0.92 0.03 265);
+    --ek-blue-ink: oklch(0.32 0.08 265);
+    --ek-gold: oklch(0.78 0.14 78);
+    --ek-gold-soft: oklch(0.94 0.06 82);
+
+    --ek-ink: oklch(0.18 0.015 260);
+    --ek-ink-2: oklch(0.32 0.012 260);
+    --ek-ink-3: oklch(0.52 0.008 260);
+    --ek-ink-4: oklch(0.7 0.006 260);
+    --ek-line: oklch(0.9 0.006 260);
+    --ek-line-2: oklch(0.94 0.004 260);
+    --ek-bg: oklch(0.985 0.003 260);
+    --ek-surface: #ffffff;
+
+    --ek-ok: oklch(0.72 0.13 150);
+    --ek-warn: oklch(0.78 0.14 78);
+    --ek-err: oklch(0.65 0.18 25);
+
+    --ek-r-sm: 4px;
+    --ek-r: 8px;
+    --ek-r-lg: 14px;
+
+    --ek-font-sans: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --ek-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+
+.ek{
+    font-family: var(--ek-font-sans);
+    color: var(--ek-ink);
+    background: var(--ek-bg);
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+    -webkit-font-smoothing: antialiased;
+}
+.ek .mono{ font-family: var(--ek-font-mono); font-feature-settings: "ss01", "cv11"; }
+
+.ek-node{ width:8px; height:8px; border-radius:50%; background:var(--ek-blue); display:inline-block; }
+.ek-node.gold{ background: var(--ek-gold); }
+
+/* =========== Layout =========== */
+.ek-admin{ display:grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+.ek-sidebar{
+    background: var(--ek-surface);
+    border-right: 1px solid var(--ek-line);
+    padding: 20px 0;
+    position: sticky; top: 0;
+    height: 100vh; overflow-y: auto;
+}
+.ek-sidebar__brand{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 18px 18px;
+    border-bottom: 1px solid var(--ek-line);
+}
+.ek-sidebar__logo{
+    width: 110px; height: auto;
+    object-fit: contain; display:block;
+}
+.ek-sidebar__tag{
+    font-size: 9px; letter-spacing: .14em;
+    color: var(--ek-blue);
+    background: var(--ek-blue-soft);
+    padding: 2px 7px;
+    border-radius: 20px;
+    border: 1px solid color-mix(in oklch, var(--ek-blue) 20%, transparent);
+}
+.ek-sidebar__nav{ display:flex; flex-direction:column; padding: 10px 0; }
+.ek-sidebar__nav a{
+    display:flex; align-items:center; gap:8px;
+    padding: 7px 18px;
+    color: var(--ek-ink-2);
+    text-decoration:none;
+    font-size: 13px;
+    border-left: 2px solid transparent;
+    transition: .12s;
+}
+.ek-sidebar__nav a:hover{
+    color: var(--ek-blue-deep);
+    background: var(--ek-blue-soft);
+}
+.ek-sidebar__nav a.is-active{
+    color: var(--ek-blue-deep);
+    background: var(--ek-blue-soft);
+    border-left-color: var(--ek-blue);
+    font-weight: 500;
+}
+.ek-sidebar__group{
+    padding: 16px 18px 5px;
+    font-family: var(--ek-font-mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    color: var(--ek-ink-4);
+    text-transform: uppercase;
+}
+
+.ek-main{ display:flex; flex-direction:column; min-width:0; }
+.ek-topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 16px 28px;
+    background: var(--ek-surface);
+    border-bottom: 1px solid var(--ek-line);
+}
+.ek-topbar__title{ font-size:18px; font-weight:600; }
+.ek-topbar__actions{ display:flex; align-items:center; gap:14px; font-size:12px; color: var(--ek-ink-3); }
+.ek-content{ padding: 24px 28px; flex:1; }
+
+/* =========== Cards =========== */
+.ek-grid{ display:grid; gap:14px; margin-bottom:20px; }
+.ek-grid--4{ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.ek-card{
+    background: var(--ek-surface);
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r);
+    padding: 18px;
+}
+.ek-card__label{
+    font-size: 10px;
+    color: var(--ek-ink-3);
+    letter-spacing: .1em;
+    margin-bottom: 8px;
+}
+.ek-card__value{
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.ek-panel{
+    background: var(--ek-surface);
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r);
+    padding: 22px 24px;
+}
+.ek-panel h2{ margin-top:0; font-size: 16px; }
+
+/* =========== Buttons =========== */
+.ek-btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding: 9px 16px;
+    border-radius: var(--ek-r-sm);
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    text-decoration:none;
+    border: 1px solid transparent;
+    cursor:pointer;
+    transition: .12s;
+}
+.ek-btn--primary{ background: var(--ek-blue-deep); color:#fff; }
+.ek-btn--primary:hover{ background: var(--ek-ink); }
+.ek-btn--ghost{ background: transparent; border-color: var(--ek-line); color: var(--ek-ink-2); }
+.ek-btn--ghost:hover{ background: var(--ek-bg); color: var(--ek-ink); }
+.ek-btn--block{ display:flex; width: 100%; }
+
+/* =========== Forms =========== */
+.ek-field{ display:block; margin-bottom: 14px; }
+.ek-field span{ display:block; font-size:12px; color: var(--ek-ink-2); margin-bottom:4px; font-weight:500; }
+.ek-field input,
+.ek-field select,
+.ek-field textarea{
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r-sm);
+    font-family: inherit; font-size: 14px;
+    background: var(--ek-surface);
+    color: var(--ek-ink);
+    transition: .12s;
+}
+.ek-field input:focus,
+.ek-field select:focus,
+.ek-field textarea:focus{
+    outline:none;
+    border-color: var(--ek-blue);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ek-blue) 18%, transparent);
+}
+
+/* =========== Alerts =========== */
+.ek-alert{
+    padding: 10px 14px;
+    border-radius: var(--ek-r-sm);
+    margin: 0 28px 14px;
+    font-size: 13px;
+    border: 1px solid;
+}
+.ek-alert--ok { background: color-mix(in oklch, var(--ek-ok)  10%, #fff); border-color: var(--ek-ok);  color: oklch(.32 .12 150); }
+.ek-alert--err{ background: color-mix(in oklch, var(--ek-err) 10%, #fff); border-color: var(--ek-err); color: oklch(.36 .12 25);  }
+
+/* =========== Login screen =========== */
+.ek-login{
+    min-height: 100vh;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(160deg, var(--ek-blue-soft), var(--ek-bg));
+    padding: 20px;
+}
+.ek-login__card{
+    background: var(--ek-surface);
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r-lg);
+    padding: 32px;
+    width: 100%; max-width: 380px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.06);
+}
+.ek-login__brand{ display:flex; align-items:center; justify-content:center; margin-bottom: 24px; }
+.ek-login__logo{ width: 160px; height: auto; display: block; }
+.ek-login__tag{ margin-left:auto; font-size:10px; letter-spacing:.12em; color: var(--ek-ink-3); }
+.ek-login__title{ margin: 0 0 18px; font-size: 20px; font-weight: 600; }
+.ek-login__foot{ text-align:center; margin-top: 20px; font-size: 10px; color: var(--ek-ink-3); letter-spacing: .08em; }
+.ek-login .ek-alert{ margin: 0 0 14px; }
+
+/* =========== Responsive =========== */
+@media (max-width: 860px){
+    .ek-admin{ grid-template-columns: 1fr; }
+    .ek-sidebar{ position: fixed; left:-240px; top:0; width:240px; z-index: 20; transition: left .2s; }
+    .ek-sidebar.is-open{ left: 0; }
+}

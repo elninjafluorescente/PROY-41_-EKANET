@@ -1,0 +1,35 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<section class="ek-grid ek-grid--4">
+    <div class="ek-card">
+        <div class="ek-card__label mono">PRODUCTOS</div>
+        <div class="ek-card__value">{{ metrics.total_products }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">CLIENTES</div>
+        <div class="ek-card__value">{{ metrics.total_customers }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">PEDIDOS</div>
+        <div class="ek-card__value">{{ metrics.total_orders }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">USUARIOS ADMIN</div>
+        <div class="ek-card__value">{{ metrics.total_employees }}</div>
+    </div>
+</section>
+
+<section class="ek-panel">
+    <h2>Bienvenido al panel de Ekanet</h2>
+    <p>
+        Esta es la base de la <strong>Fase 1</strong> del back office. El esquema de base de datos es
+        compatible con PrestaShop 8.1.6, por lo que podrás migrar clientes, productos, pedidos y
+        categorías sin transformaciones complejas.
+    </p>
+    <p>
+        Las secciones del menú lateral (pedidos, catálogo, clientes, transporte, pago, usuarios y
+        roles) se irán implementando progresivamente en los próximos pasos.
+    </p>
+</section>
+{% endblock %}

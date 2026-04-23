@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Acceso · {{ app.name }}</title>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+</head>
+<body class="ek ek-login">
+    <div class="ek-login__card">
+        <div class="ek-login__brand">
+            <img src="{{ asset('img/logo-ekanet.png') }}" alt="Ekanet" class="ek-login__logo">
+        </div>
+
+        <h1 class="ek-login__title">Acceso al panel</h1>
+
+        {% if error %}
+            <div class="ek-alert ek-alert--err">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="{{ admin_url('login') }}" autocomplete="off">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+            <label class="ek-field">
+                <span>Email</span>
+                <input type="email" name="email" required autofocus>
+            </label>
+
+            <label class="ek-field">
+                <span>Contraseña</span>
+                <input type="password" name="password" required>
+            </label>
+
+            <button type="submit" class="ek-btn ek-btn--primary ek-btn--block">Entrar</button>
+        </form>
+
+        <p class="ek-login__foot mono">v1.0 · {{ 'now'|date('Y') }} Ekanet</p>
+    </div>
+</body>
+</html>

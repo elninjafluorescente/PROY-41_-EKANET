@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title|default('Panel') }} · {{ app.name }}</title>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+</head>
+<body class="ek ek-admin">
+
+<aside class="ek-sidebar">
+    <div class="ek-sidebar__brand">
+        <img src="{{ asset('img/logo-ekanet.png') }}" alt="Ekanet" class="ek-sidebar__logo">
+        <span class="ek-sidebar__tag mono">ADMIN</span>
+    </div>
+
+    <nav class="ek-sidebar__nav">
+        <a href="{{ admin_url('dashboard') }}" class="{{ active == 'dashboard' ? 'is-active' : '' }}">
+            <span class="ek-node"></span> Dashboard
+        </a>
+
+        <div class="ek-sidebar__group">Pedidos</div>
+        <a href="{{ admin_url('pedidos') }}" class="{{ active == 'pedidos' ? 'is-active' : '' }}">Pedidos</a>
+        <a href="{{ admin_url('facturas') }}" class="{{ active == 'facturas' ? 'is-active' : '' }}">Facturas</a>
+        <a href="{{ admin_url('abonos') }}" class="{{ active == 'abonos' ? 'is-active' : '' }}">Facturas por abono</a>
+
+        <div class="ek-sidebar__group">Catálogo</div>
+        <a href="{{ admin_url('productos') }}" class="{{ active == 'productos' ? 'is-active' : '' }}">Productos</a>
+        <a href="{{ admin_url('categorias') }}" class="{{ active == 'categorias' ? 'is-active' : '' }}">Categorías</a>
+        <a href="{{ admin_url('marcas') }}" class="{{ active == 'marcas' ? 'is-active' : '' }}">Marcas</a>
+        <a href="{{ admin_url('proveedores') }}" class="{{ active == 'proveedores' ? 'is-active' : '' }}">Proveedores</a>
+        <a href="{{ admin_url('descuentos') }}" class="{{ active == 'descuentos' ? 'is-active' : '' }}">Descuentos</a>
+        <a href="{{ admin_url('stock') }}" class="{{ active == 'stock' ? 'is-active' : '' }}">Stock</a>
+        <a href="{{ admin_url('atributos') }}" class="{{ active == 'atributos' ? 'is-active' : '' }}">Atributos</a>
+        <a href="{{ admin_url('caracteristicas') }}" class="{{ active == 'caracteristicas' ? 'is-active' : '' }}">Características</a>
+
+        <div class="ek-sidebar__group">Clientes</div>
+        <a href="{{ admin_url('clientes') }}" class="{{ active == 'clientes' ? 'is-active' : '' }}">Clientes</a>
+        <a href="{{ admin_url('direcciones') }}" class="{{ active == 'direcciones' ? 'is-active' : '' }}">Direcciones</a>
+        <a href="{{ admin_url('grupos') }}" class="{{ active == 'grupos' ? 'is-active' : '' }}">Grupos</a>
+
+        <div class="ek-sidebar__group">Transporte</div>
+        <a href="{{ admin_url('transportistas') }}" class="{{ active == 'transportistas' ? 'is-active' : '' }}">Transportistas</a>
+        <a href="{{ admin_url('zonas') }}" class="{{ active == 'zonas' ? 'is-active' : '' }}">Zonas y tarifas</a>
+
+        <div class="ek-sidebar__group">Pago</div>
+        <a href="{{ admin_url('metodos-pago') }}" class="{{ active == 'metodos-pago' ? 'is-active' : '' }}">Métodos de pago</a>
+
+        <div class="ek-sidebar__group">Administración</div>
+        <a href="{{ admin_url('usuarios') }}" class="{{ active == 'usuarios' ? 'is-active' : '' }}">Usuarios</a>
+        <a href="{{ admin_url('roles') }}" class="{{ active == 'roles' ? 'is-active' : '' }}">Roles y permisos</a>
+        <a href="{{ admin_url('configuracion') }}" class="{{ active == 'configuracion' ? 'is-active' : '' }}">Configuración</a>
+    </nav>
+</aside>
+
+<main class="ek-main">
+    <header class="ek-topbar">
+        <div class="ek-topbar__title">{{ page_title|default('Panel de administración') }}</div>
+        <div class="ek-topbar__actions">
+            {% set u = current_user() %}
+            {% if u %}
+                <span class="mono">{{ u.email }}</span>
+                <a class="ek-btn ek-btn--ghost" href="{{ admin_url('logout') }}">Salir</a>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if flash('success') %}<div class="ek-alert ek-alert--ok">{{ flash('success') }}</div>{% endif %}
+    {% if flash('error')   %}<div class="ek-alert ek-alert--err">{{ flash('error')   }}</div>{% endif %}
+
+    <div class="ek-content">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<script src="{{ asset('js/admin.js') }}"></script>
+</body>
+</html>

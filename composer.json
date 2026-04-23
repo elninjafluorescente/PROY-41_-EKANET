@@ -1,0 +1,20 @@
+{
+    "name": "ekanet/backoffice",
+    "description": "Ekanet back office — Fase 1 (compatible con PrestaShop 8.1.6)",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.1",
+        "phpmailer/phpmailer": "^6.9",
+        "twig/twig": "^3.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ekanet\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
