@@ -28,7 +28,8 @@
             </tr>
         </thead>
         <tbody>
-            {% for c in categories if not c.is_root_category %}
+            {% for c in categories %}
+                {% if not c.is_root_category %}
             <tr>
                 <td class="mono">{{ c.id_category }}</td>
                 <td>
@@ -67,6 +68,7 @@
                     {% endif %}
                 </td>
             </tr>
+                {% endif %}
             {% else %}
             <tr><td colspan="7" class="ek-table__empty">No hay categorías todavía.</td></tr>
             {% endfor %}
