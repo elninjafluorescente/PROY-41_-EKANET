@@ -39,6 +39,7 @@ use Ekanet\Core\Router;
 use Ekanet\Core\Session;
 use Ekanet\Core\View;
 use Ekanet\Controllers\Admin\AuthController;
+use Ekanet\Controllers\Admin\CategoriasController;
 use Ekanet\Controllers\Admin\DashboardController;
 use Ekanet\Controllers\Admin\RolesController;
 use Ekanet\Controllers\Admin\UsuariosController;
@@ -67,6 +68,14 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/usuarios/{id}/editar',      [UsuariosController::class, 'edit']);
     $r->post('/usuarios/{id}/editar',     [UsuariosController::class, 'update']);
     $r->post('/usuarios/{id}/eliminar',   [UsuariosController::class, 'destroy']);
+
+    // Categorías
+    $r->get('/categorias',                  [CategoriasController::class, 'index']);
+    $r->get('/categorias/nuevo',            [CategoriasController::class, 'create']);
+    $r->post('/categorias/nuevo',           [CategoriasController::class, 'store']);
+    $r->get('/categorias/{id}/editar',      [CategoriasController::class, 'edit']);
+    $r->post('/categorias/{id}/editar',     [CategoriasController::class, 'update']);
+    $r->post('/categorias/{id}/eliminar',   [CategoriasController::class, 'destroy']);
 
     // Roles
     $r->get('/roles',                [RolesController::class, 'index']);

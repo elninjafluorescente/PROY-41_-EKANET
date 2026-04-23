@@ -1,0 +1,132 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nueva categoría' : 'Editar categoría' }}
+        </h1>
+        <p class="ek-page-header__subtitle">
+            {% if mode == 'create' %}
+                Rellena los datos. El slug se genera automáticamente desde el nombre si lo dejas en blanco.
+            {% else %}
+                ID #{{ category.id_category }}
+            {% endif %}
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('categorias') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('categorias/nuevo')
+          : admin_url('categorias/' ~ category.id_category ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Datos de la categoría</h2>
+
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Categoría padre *</span>
+                <select name="id_parent" required>
+                    {% for p in parents %}
+                        <option value="{{ p.id_category }}"
+                                {{ p.id_category == category.id_parent ? 'selected' : '' }}>
+                            {% if p.level_depth > 0 %}{% for _ in 1..p.level_depth %}— {% endfor %}{% endif %}{{ p.name }}
+                            {% if p.id_category == 2 %} (Inicio){% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Nombre *</span>
+                <input type="text" name="name" required maxlength="128"
+                       value="{{ category.name }}" id="ek-cat-name">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Slug (link_rewrite)</span>
+                <input type="text" name="link_rewrite" maxlength="128"
+                       value="{{ category.link_rewrite }}"
+                       placeholder="se generará desde el nombre"
+                       id="ek-cat-slug">
+                <small class="ek-field__hint">Solo letras, números y guiones. Se normaliza automáticamente.</small>
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Descripción</span>
+                <textarea name="description" rows="5">{{ category.description }}</textarea>
+            </label>
+
+            <label class="ek-field">
+                <span>Posición</span>
+                <input type="number" name="position" min="0" value="{{ category.position }}">
+                <small class="ek-field__hint">Orden entre hermanas (menor primero).</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Estado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="active" value="1" {{ category.active ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Categoría activa</span>
+                </label>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>SEO</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Meta título</span>
+                <input type="text" name="meta_title" maxlength="255" value="{{ category.meta_title }}">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Meta descripción</span>
+                <textarea name="meta_description" rows="2" maxlength="512">{{ category.meta_description }}</textarea>
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Meta keywords</span>
+                <input type="text" name="meta_keywords" maxlength="255" value="{{ category.meta_keywords }}">
+                <small class="ek-field__hint">Separadas por comas. Uso limitado hoy día pero se mantiene por compatibilidad PrestaShop.</small>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('categorias') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear categoría' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+
+<script>
+(function () {
+    // Auto-slug mientras se escribe el nombre (solo si el slug está vacío o sin tocar por el usuario)
+    const nameEl = document.getElementById('ek-cat-name');
+    const slugEl = document.getElementById('ek-cat-slug');
+    if (!nameEl || !slugEl) return;
+
+    let slugTouched = slugEl.value.trim() !== '';
+    slugEl.addEventListener('input', () => { slugTouched = true; });
+
+    const slugify = (s) => s
+        .toLowerCase().trim()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+    nameEl.addEventListener('input', () => {
+        if (!slugTouched) slugEl.value = slugify(nameEl.value);
+    });
+})();
+</script>
+{% endblock %}

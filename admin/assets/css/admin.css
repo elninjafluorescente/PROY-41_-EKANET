@@ -482,6 +482,14 @@ html,body{ margin:0; padding:0; }
 }
 .ek-check input:disabled + span{ opacity: .5; cursor: not-allowed; }
 
+/* =========== Tree indicator (categories) =========== */
+.ek-tree-dash{
+    display:inline-block;
+    margin-right: 6px;
+    color: var(--ek-ink-4);
+    font-family: var(--ek-font-mono);
+}
+
 /* =========== Info alert (blue) =========== */
 .ek-alert--info{
     background: var(--ek-blue-soft);
