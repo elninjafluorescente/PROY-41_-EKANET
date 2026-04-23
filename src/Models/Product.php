@@ -311,11 +311,11 @@ final class Product
                 'INSERT INTO `{P}product_shop`
                    (id_product, id_shop, id_category_default, id_tax_rules_group,
                     price, wholesale_price, active, minimal_quantity,
-                    visibility, `condition`, date_add, date_upd, available_for_order, show_price, product_type)
+                    visibility, `condition`, date_add, date_upd, available_for_order, show_price)
                  VALUES
                    (:id, :shop, :id_cat, 0,
                     :price, :wholesale, :active, :min_qty,
-                    :visibility, :condition, NOW(), NOW(), 1, 1, "standard")',
+                    :visibility, :condition, NOW(), NOW(), 1, 1)',
                 $payload
             );
         }
