@@ -40,6 +40,8 @@ use Ekanet\Core\Session;
 use Ekanet\Core\View;
 use Ekanet\Controllers\Admin\AuthController;
 use Ekanet\Controllers\Admin\DashboardController;
+use Ekanet\Controllers\Admin\RolesController;
+use Ekanet\Controllers\Admin\UsuariosController;
 
 Session::start();
 Database::init($config['db']);
@@ -57,6 +59,22 @@ $router->get('/logout', [AuthController::class, 'logout']);
 $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/',          [DashboardController::class, 'index']);
     $r->get('/dashboard', [DashboardController::class, 'index']);
+
+    // Usuarios
+    $r->get('/usuarios',                  [UsuariosController::class, 'index']);
+    $r->get('/usuarios/nuevo',            [UsuariosController::class, 'create']);
+    $r->post('/usuarios/nuevo',           [UsuariosController::class, 'store']);
+    $r->get('/usuarios/{id}/editar',      [UsuariosController::class, 'edit']);
+    $r->post('/usuarios/{id}/editar',     [UsuariosController::class, 'update']);
+    $r->post('/usuarios/{id}/eliminar',   [UsuariosController::class, 'destroy']);
+
+    // Roles
+    $r->get('/roles',                [RolesController::class, 'index']);
+    $r->get('/roles/nuevo',          [RolesController::class, 'create']);
+    $r->post('/roles/nuevo',         [RolesController::class, 'store']);
+    $r->get('/roles/{id}/editar',    [RolesController::class, 'edit']);
+    $r->post('/roles/{id}/editar',   [RolesController::class, 'update']);
+    $r->post('/roles/{id}/eliminar', [RolesController::class, 'destroy']);
 });
 
 $router->dispatch();

@@ -1,0 +1,103 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nuevo usuario' : 'Editar usuario' }}
+        </h1>
+        <p class="ek-page-header__subtitle">
+            {% if mode == 'create' %}
+                Crea un empleado con acceso al back office.
+            {% else %}
+                ID #{{ employee.id_employee }}
+                {% if current_id is defined and employee.id_employee == current_id %}
+                    — estás editando tu propio usuario
+                {% endif %}
+            {% endif %}
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('usuarios') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('usuarios/nuevo')
+          : admin_url('usuarios/' ~ employee.id_employee ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Datos del usuario</h2>
+
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Nombre *</span>
+                <input type="text" name="firstname" required value="{{ employee.firstname }}">
+            </label>
+
+            <label class="ek-field">
+                <span>Apellidos *</span>
+                <input type="text" name="lastname" required value="{{ employee.lastname }}">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Email *</span>
+                <input type="email" name="email" required value="{{ employee.email }}">
+            </label>
+
+            <label class="ek-field">
+                <span>Rol *</span>
+                <select name="id_profile" required
+                        {% if current_id is defined and employee.id_employee == current_id %}disabled{% endif %}>
+                    {% for p in profiles %}
+                        <option value="{{ p.id_profile }}" {{ p.id_profile == employee.id_profile ? 'selected' : '' }}>
+                            {{ p.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if current_id is defined and employee.id_employee == current_id %}
+                    <small class="ek-field__hint">No puedes cambiar tu propio rol.</small>
+                {% endif %}
+            </label>
+
+            <label class="ek-field">
+                <span>Estado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="active" value="1"
+                           {{ employee.active ? 'checked' : '' }}
+                           {% if current_id is defined and employee.id_employee == current_id %}disabled checked{% endif %}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Usuario activo</span>
+                </label>
+                {% if current_id is defined and employee.id_employee == current_id %}
+                    <small class="ek-field__hint">No puedes desactivar tu propio usuario.</small>
+                {% endif %}
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Contraseña</h2>
+
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>{{ mode == 'create' ? 'Contraseña *' : 'Nueva contraseña' }}</span>
+                <input type="password" name="password"
+                       {% if mode == 'create' %}required{% endif %}
+                       minlength="8" autocomplete="new-password"
+                       placeholder="{{ mode == 'edit' ? 'Dejar en blanco para no cambiar' : 'Mínimo 8 caracteres' }}">
+                <small class="ek-field__hint">Mínimo 8 caracteres. Se almacena en bcrypt (cost 12).</small>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('usuarios') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear usuario' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Usuarios</h1>
+        <p class="ek-page-header__subtitle">Empleados con acceso al back office.</p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('usuarios/nuevo') }}">+ Nuevo usuario</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Último acceso</th>
+                <th style="width:90px">Estado</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in employees %}
+            <tr>
+                <td class="mono">{{ e.id_employee }}</td>
+                <td>
+                    <strong>{{ e.firstname }} {{ e.lastname }}</strong>
+                    {% if e.id_employee == current_id %}
+                        <span class="ek-pill ek-pill--gold">tú</span>
+                    {% endif %}
+                </td>
+                <td class="mono" style="font-size:12px">{{ e.email }}</td>
+                <td>
+                    {% if e.id_profile == 1 %}
+                        <span class="ek-pill ek-pill--blue">{{ e.profile_name }}</span>
+                    {% else %}
+                        {{ e.profile_name }}
+                    {% endif %}
+                </td>
+                <td class="mono" style="font-size:12px; color: var(--ek-ink-3)">
+                    {{ e.last_connection_date ? e.last_connection_date : '—' }}
+                </td>
+                <td>
+                    {% if e.active %}
+                        <span class="ek-badge ek-badge--ok">Activo</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('usuarios/' ~ e.id_employee ~ '/editar') }}">Editar</a>
+                    {% if e.id_employee != current_id %}
+                    <form method="post" action="{{ admin_url('usuarios/' ~ e.id_employee ~ '/eliminar') }}"
+                          style="display:inline" onsubmit="return confirm('¿Eliminar el usuario {{ e.firstname }} {{ e.lastname }}?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="ek-table__empty">No hay usuarios todavía.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

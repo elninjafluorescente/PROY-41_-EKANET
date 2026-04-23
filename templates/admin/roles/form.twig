@@ -1,0 +1,105 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nuevo rol' : 'Editar rol' }}
+        </h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">ID #{{ profile.id_profile }}</p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('roles') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('roles/nuevo')
+          : admin_url('roles/' ~ profile.id_profile ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Datos del rol</h2>
+        <label class="ek-field">
+            <span>Nombre *</span>
+            <input type="text" name="name" required maxlength="128"
+                   value="{{ profile.name }}"
+                   {{ is_superadmin ? 'readonly' : '' }}>
+            {% if is_superadmin %}
+                <small class="ek-field__hint">El nombre del SuperAdmin no se puede modificar.</small>
+            {% endif %}
+        </label>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Matriz de permisos</h2>
+        {% if is_superadmin %}
+            <p class="ek-alert ek-alert--info" style="margin:0 0 10px">
+                El perfil <strong>SuperAdmin</strong> tiene acceso total por diseño.
+                Esta matriz es sólo informativa.
+            </p>
+        {% else %}
+            <p class="ek-panel__hint">
+                Marca qué puede hacer este rol en cada sección.
+                <a href="#" onclick="ekTogglePerms(true); return false;">Marcar todos</a> ·
+                <a href="#" onclick="ekTogglePerms(false); return false;">Desmarcar todos</a>
+            </p>
+        {% endif %}
+
+        <div class="ek-perms">
+            <table class="ek-perms__table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left">Sección</th>
+                        {% for key, label in actions %}
+                            <th style="width:80px; text-align:center">{{ label }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group_name, items in modules %}
+                        <tr class="ek-perms__group">
+                            <td colspan="{{ actions|length + 1 }}">{{ group_name }}</td>
+                        </tr>
+                        {% for mod_key, mod_label in items %}
+                            <tr>
+                                <td>{{ mod_label }}</td>
+                                {% for act_key, act_label in actions %}
+                                    {% set slug = 'ROLE_MOD_' ~ mod_key|upper ~ '_' ~ act_key|upper %}
+                                    <td style="text-align:center">
+                                        <label class="ek-check">
+                                            <input type="checkbox"
+                                                   name="perms[{{ mod_key }}][{{ act_key }}]"
+                                                   value="1"
+                                                   data-perm
+                                                   {{ slug in granted ? 'checked' : '' }}
+                                                   {{ is_superadmin ? 'disabled' : '' }}>
+                                            <span></span>
+                                        </label>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('roles') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear rol' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+
+<script>
+function ekTogglePerms(state) {
+    document.querySelectorAll('input[data-perm]:not(:disabled)').forEach(i => i.checked = state);
+}
+</script>
+{% endblock %}
