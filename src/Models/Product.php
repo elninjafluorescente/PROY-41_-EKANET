@@ -19,13 +19,14 @@ final class Product
         int $idLang = 1, int $idShop = 1,
         int $limit = 50, int $offset = 0, string $search = ''
     ): array {
-        $where = 'ps.id_shop = :shop1';
+        // El INNER JOIN con product_shop ya filtra por id_shop; no volvemos a filtrar.
+        $where = '';
         $params = [
             'shop1' => $idShop, 'shop2' => $idShop, 'shop3' => $idShop, 'shop4' => $idShop,
             'lang1' => $idLang, 'lang2' => $idLang,
         ];
         if ($search !== '') {
-            $where .= ' AND (pl.name LIKE :q OR p.reference LIKE :q2)';
+            $where = 'WHERE (pl.name LIKE :q OR p.reference LIKE :q2)';
             $params['q']  = '%' . $search . '%';
             $params['q2'] = '%' . $search . '%';
         }
@@ -52,7 +53,7 @@ final class Product
                   ON m.id_manufacturer = p.id_manufacturer
                 LEFT JOIN `{P}supplier` s
                   ON s.id_supplier = p.id_supplier
-                WHERE {$where}
+                {$where}
                 ORDER BY p.id_product DESC
                 LIMIT {$limit} OFFSET {$offset}";
         return Database::run($sql, $params)->fetchAll();
