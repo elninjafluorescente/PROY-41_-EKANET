@@ -1,0 +1,5 @@
+{# Pestañas compartidas por Usuarios y Roles. Se espera la variable `tab` = 'usuarios' | 'roles' #}
+<div class="ek-tabs">
+    <a class="ek-tabs__tab {{ tab == 'usuarios' ? 'is-active' : '' }}" href="{{ admin_url('usuarios') }}">Usuarios</a>
+    <a class="ek-tabs__tab {{ tab == 'roles' ? 'is-active' : '' }}" href="{{ admin_url('roles') }}">Roles y permisos</a>
+</div>

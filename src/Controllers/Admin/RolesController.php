@@ -15,7 +15,7 @@ final class RolesController extends Controller
     {
         $this->render('admin/roles/index.twig', [
             'page_title' => 'Roles y permisos',
-            'active'     => 'roles',
+            'active'     => 'usuarios',
             'profiles'   => Profile::all(),
         ]);
     }
@@ -24,7 +24,7 @@ final class RolesController extends Controller
     {
         $this->render('admin/roles/form.twig', [
             'page_title'    => 'Nuevo rol',
-            'active'        => 'roles',
+            'active'        => 'usuarios',
             'mode'          => 'create',
             'profile'       => ['id_profile' => 0, 'name' => ''],
             'modules'       => Permissions::MODULES,
@@ -79,7 +79,7 @@ final class RolesController extends Controller
 
         $this->render('admin/roles/form.twig', [
             'page_title'    => "Editar rol: {$profile['name']}",
-            'active'        => 'roles',
+            'active'        => 'usuarios',
             'mode'          => 'edit',
             'profile'       => $profile,
             'modules'       => Permissions::MODULES,
