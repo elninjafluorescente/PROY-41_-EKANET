@@ -64,6 +64,15 @@ html,body{ margin:0; padding:0; }
     display:flex; align-items:center; justify-content:space-between;
     padding: 0 18px 18px;
     border-bottom: 1px solid var(--ek-line);
+    position: relative;
+}
+.ek-sidebar__brand::after{
+    content:'';
+    position:absolute;
+    bottom:-1px; left:18px;
+    width: 42px; height: 2px;
+    background: linear-gradient(90deg, var(--ek-blue) 0%, var(--ek-gold) 100%);
+    border-radius: 2px;
 }
 .ek-sidebar__logo{
     width: 110px; height: auto;
@@ -112,6 +121,19 @@ html,body{ margin:0; padding:0; }
     padding: 16px 28px;
     background: var(--ek-surface);
     border-bottom: 1px solid var(--ek-line);
+    position: relative;
+}
+.ek-topbar::after{
+    content:'';
+    position:absolute;
+    bottom:-1px; left:0; right:0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        color-mix(in oklch, var(--ek-gold) 50%, transparent) 30%,
+        color-mix(in oklch, var(--ek-blue) 30%, transparent) 70%,
+        transparent 100%);
+    pointer-events: none;
 }
 .ek-topbar__title{ font-size:18px; font-weight:600; }
 .ek-topbar__actions{ display:flex; align-items:center; gap:14px; font-size:12px; color: var(--ek-ink-3); }
@@ -125,12 +147,32 @@ html,body{ margin:0; padding:0; }
     border: 1px solid var(--ek-line);
     border-radius: var(--ek-r);
     padding: 18px;
+    position: relative;
+    transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.ek-card:hover{
+    border-color: color-mix(in oklch, var(--ek-blue) 40%, var(--ek-line));
+    box-shadow: 0 2px 14px color-mix(in oklch, var(--ek-blue) 10%, transparent);
+    transform: translateY(-1px);
+}
+.ek-card:hover::before{
+    background: var(--ek-gold);
+}
+.ek-card::before{
+    content:'';
+    position:absolute;
+    top: 18px; left: 18px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ek-blue);
+    transition: background .15s;
 }
 .ek-card__label{
     font-size: 10px;
     color: var(--ek-ink-3);
     letter-spacing: .1em;
     margin-bottom: 8px;
+    padding-left: 14px;
 }
 .ek-card__value{
     font-size: 28px;
@@ -144,7 +186,20 @@ html,body{ margin:0; padding:0; }
     border-radius: var(--ek-r);
     padding: 22px 24px;
 }
-.ek-panel h2{ margin-top:0; font-size: 16px; }
+.ek-panel h2{
+    margin-top:0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ek-panel h2::before{
+    content:'';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--ek-gold);
+    flex-shrink: 0;
+}
 
 /* =========== Buttons =========== */
 .ek-btn{
@@ -157,8 +212,17 @@ html,body{ margin:0; padding:0; }
     cursor:pointer;
     transition: .12s;
 }
-.ek-btn--primary{ background: var(--ek-blue-deep); color:#fff; }
-.ek-btn--primary:hover{ background: var(--ek-ink); }
+.ek-btn--primary{
+    background: var(--ek-blue);
+    color:#fff;
+    box-shadow: 0 1px 0 color-mix(in oklch, var(--ek-blue-deep) 50%, transparent) inset,
+                0 2px 6px color-mix(in oklch, var(--ek-blue) 25%, transparent);
+}
+.ek-btn--primary:hover{
+    background: var(--ek-blue-deep);
+    box-shadow: 0 1px 0 rgba(0,0,0,.15) inset,
+                0 3px 10px color-mix(in oklch, var(--ek-blue) 35%, transparent);
+}
 .ek-btn--ghost{ background: transparent; border-color: var(--ek-line); color: var(--ek-ink-2); }
 .ek-btn--ghost:hover{ background: var(--ek-bg); color: var(--ek-ink); }
 .ek-btn--block{ display:flex; width: 100%; }
@@ -211,6 +275,28 @@ html,body{ margin:0; padding:0; }
     padding: 32px;
     width: 100%; max-width: 380px;
     box-shadow: 0 10px 40px rgba(0,0,0,.06);
+    position: relative;
+    overflow: hidden;
+}
+.ek-login__card::before{
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0;
+    height: 3px;
+    background: linear-gradient(90deg,
+        var(--ek-blue) 0%,
+        var(--ek-blue) 60%,
+        var(--ek-gold) 60%,
+        var(--ek-gold) 100%);
+}
+.ek-login__card::after{
+    content:'';
+    position:absolute;
+    top: 18px; right: 18px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ek-gold);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ek-gold) 20%, transparent);
 }
 .ek-login__brand{ display:flex; align-items:center; justify-content:center; margin-bottom: 24px; }
 .ek-login__logo{ width: 160px; height: auto; display: block; }
