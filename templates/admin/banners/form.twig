@@ -1,0 +1,126 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_marketing.twig' with {tab: 'banners'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nuevo banner' : 'Editar banner' }}
+        </h1>
+        {% if mode == 'edit' %}<p class="ek-page-header__subtitle">ID #{{ item.id_banner }}</p>{% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('banners') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('banners/nuevo')
+          : admin_url('banners/' ~ item.id_banner ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Contenido del banner</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Título *</span>
+                <input type="text" name="title" required maxlength="128" value="{{ item.title }}">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Subtítulo</span>
+                <input type="text" name="subtitle" maxlength="255" value="{{ item.subtitle|default('') }}">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Descripción</span>
+                <textarea name="description" rows="3">{{ item.description|default('') }}</textarea>
+            </label>
+
+            <label class="ek-field">
+                <span>Ubicación</span>
+                <select name="placement">
+                    {% for k, label in placements %}
+                        <option value="{{ k }}" {{ item.placement == k ? 'selected' : '' }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="ek-field">
+                <span>Estado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="active" value="1" {{ item.active ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Visible en el frontend</span>
+                </label>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Imagen</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>URL de la imagen</span>
+                <input type="text" name="image_url" maxlength="255" value="{{ item.image_url|default('') }}"
+                       placeholder="/img/banners/slider-1.jpg">
+                <small class="ek-field__hint">Por ahora introduces la URL manualmente. Upload de archivos llegará después.</small>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Texto alternativo (alt)</span>
+                <input type="text" name="image_alt" maxlength="255" value="{{ item.image_alt|default('') }}">
+            </label>
+            {% if item.image_url %}
+                <div class="ek-field ek-field--wide">
+                    <span style="display:block; font-size:12px; color: var(--ek-ink-2); margin-bottom:4px">Vista previa</span>
+                    <img src="{{ item.image_url }}" alt=""
+                         style="max-width: 100%; max-height: 220px; border:1px solid var(--ek-line); border-radius: var(--ek-r); display:block">
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Enlace (CTA)</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>URL destino</span>
+                <input type="text" name="link_url" maxlength="255" value="{{ item.link_url|default('') }}"
+                       placeholder="/categoria/racks o https://…">
+                <small class="ek-field__hint">Empieza por <code>/</code> para enlaces internos o <code>https://</code> para externos.</small>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Texto del botón</span>
+                <input type="text" name="link_label" maxlength="64" value="{{ item.link_label|default('') }}"
+                       placeholder="ej. Ver ofertas, Comprar ahora">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Programación</h2>
+        <p class="ek-panel__hint">Opcional. Deja vacío para que esté visible siempre que esté activo.</p>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Fecha inicio</span>
+                <input type="datetime-local" name="date_start"
+                       value="{{ item.date_start ? item.date_start|date('Y-m-d\\TH:i') : '' }}">
+            </label>
+            <label class="ek-field">
+                <span>Fecha fin</span>
+                <input type="datetime-local" name="date_end"
+                       value="{{ item.date_end ? item.date_end|date('Y-m-d\\TH:i') : '' }}">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('banners') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear banner' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

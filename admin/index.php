@@ -40,6 +40,7 @@ use Ekanet\Core\Session;
 use Ekanet\Core\View;
 use Ekanet\Controllers\Admin\AtributosController;
 use Ekanet\Controllers\Admin\AuthController;
+use Ekanet\Controllers\Admin\BannersController;
 use Ekanet\Controllers\Admin\CaracteristicasController;
 use Ekanet\Controllers\Admin\CategoriasController;
 use Ekanet\Controllers\Admin\ClientesController;
@@ -48,6 +49,7 @@ use Ekanet\Controllers\Admin\DashboardController;
 use Ekanet\Controllers\Admin\DireccionesController;
 use Ekanet\Controllers\Admin\MarcasController;
 use Ekanet\Controllers\Admin\MetodosPagoController;
+use Ekanet\Controllers\Admin\PixelesController;
 use Ekanet\Controllers\Admin\ProductosController;
 use Ekanet\Controllers\Admin\ProveedoresController;
 use Ekanet\Controllers\Admin\RolesController;
@@ -134,6 +136,22 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/transportistas/{id}/editar',      [TransportistasController::class, 'edit']);
     $r->post('/transportistas/{id}/editar',     [TransportistasController::class, 'update']);
     $r->post('/transportistas/{id}/eliminar',   [TransportistasController::class, 'destroy']);
+
+    // Píxeles y scripts
+    $r->get('/pixeles',                  [PixelesController::class, 'index']);
+    $r->get('/pixeles/nuevo',            [PixelesController::class, 'create']);
+    $r->post('/pixeles/nuevo',           [PixelesController::class, 'store']);
+    $r->get('/pixeles/{id}/editar',      [PixelesController::class, 'edit']);
+    $r->post('/pixeles/{id}/editar',     [PixelesController::class, 'update']);
+    $r->post('/pixeles/{id}/eliminar',   [PixelesController::class, 'destroy']);
+
+    // Banners
+    $r->get('/banners',                  [BannersController::class, 'index']);
+    $r->get('/banners/nuevo',            [BannersController::class, 'create']);
+    $r->post('/banners/nuevo',           [BannersController::class, 'store']);
+    $r->get('/banners/{id}/editar',      [BannersController::class, 'edit']);
+    $r->post('/banners/{id}/editar',     [BannersController::class, 'update']);
+    $r->post('/banners/{id}/eliminar',   [BannersController::class, 'destroy']);
 
     // Configuración
     $r->get('/configuracion',  [ConfiguracionController::class, 'index']);

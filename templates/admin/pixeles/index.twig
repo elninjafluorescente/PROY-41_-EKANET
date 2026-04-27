@@ -1,0 +1,64 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_marketing.twig' with {tab: 'pixeles'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Píxeles y scripts</h1>
+        <p class="ek-page-header__subtitle">
+            Snippets HTML/JS que se inyectarán en el frontend (Google Analytics, Meta Pixel, GTM…).
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('pixeles/nuevo') }}">+ Nuevo script</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th>Proveedor</th>
+                <th>Posición</th>
+                <th>ID seguimiento</th>
+                <th>Entorno</th>
+                <th style="width:80px">Estado</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in scripts %}
+            <tr>
+                <td class="mono">{{ s.id_tracking_script }}</td>
+                <td><strong>{{ s.name }}</strong></td>
+                <td><span class="ek-pill ek-pill--blue">{{ providers[s.provider]|default(s.provider) }}</span></td>
+                <td class="mono" style="font-size:12px">{{ placements[s.placement]|default(s.placement) }}</td>
+                <td class="mono" style="font-size:12px; color: var(--ek-ink-3)">{{ s.tracking_id|default('—') }}</td>
+                <td style="font-size:12px">{{ envs[s.environment]|default(s.environment) }}</td>
+                <td>
+                    {% if s.active %}
+                        <span class="ek-badge ek-badge--ok">Activo</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('pixeles/' ~ s.id_tracking_script ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('pixeles/' ~ s.id_tracking_script ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar el script \'{{ s.name }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="ek-table__empty">No hay scripts todavía.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
