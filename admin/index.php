@@ -43,6 +43,7 @@ use Ekanet\Controllers\Admin\AuthController;
 use Ekanet\Controllers\Admin\CaracteristicasController;
 use Ekanet\Controllers\Admin\CategoriasController;
 use Ekanet\Controllers\Admin\ClientesController;
+use Ekanet\Controllers\Admin\ConfiguracionController;
 use Ekanet\Controllers\Admin\DashboardController;
 use Ekanet\Controllers\Admin\DireccionesController;
 use Ekanet\Controllers\Admin\MarcasController;
@@ -133,6 +134,10 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/transportistas/{id}/editar',      [TransportistasController::class, 'edit']);
     $r->post('/transportistas/{id}/editar',     [TransportistasController::class, 'update']);
     $r->post('/transportistas/{id}/eliminar',   [TransportistasController::class, 'destroy']);
+
+    // Configuración
+    $r->get('/configuracion',  [ConfiguracionController::class, 'index']);
+    $r->post('/configuracion', [ConfiguracionController::class, 'update']);
 
     // Métodos de pago
     $r->get('/metodos_pago',                          [MetodosPagoController::class, 'index']);

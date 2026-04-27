@@ -1,0 +1,149 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Configuración</h1>
+        <p class="ek-page-header__subtitle">Ajustes globales de la tienda. Almacenado en <code>ps_configuration</code>.</p>
+    </div>
+</div>
+
+<form method="post" class="ek-form" action="{{ admin_url('configuracion') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    {# ===== Datos de la tienda ===== #}
+    <div class="ek-panel">
+        <h2>Datos de la tienda</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Nombre de la tienda *</span>
+                <input type="text" name="PS_SHOP_NAME" required value="{{ config.PS_SHOP_NAME|default('Ekanet') }}">
+            </label>
+            <label class="ek-field">
+                <span>Email de contacto</span>
+                <input type="email" name="PS_SHOP_EMAIL" value="{{ config.PS_SHOP_EMAIL|default('') }}">
+            </label>
+            <label class="ek-field">
+                <span>Teléfono</span>
+                <input type="tel" name="PS_SHOP_PHONE" value="{{ config.PS_SHOP_PHONE|default('') }}">
+            </label>
+            <label class="ek-field">
+                <span>CIF / Razón social</span>
+                <input type="text" name="PS_SHOP_DETAILS" value="{{ config.PS_SHOP_DETAILS|default('') }}">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Dirección (línea 1)</span>
+                <input type="text" name="PS_SHOP_ADDR1" value="{{ config.PS_SHOP_ADDR1|default('') }}">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Dirección (línea 2)</span>
+                <input type="text" name="PS_SHOP_ADDR2" value="{{ config.PS_SHOP_ADDR2|default('') }}">
+            </label>
+            <label class="ek-field">
+                <span>Código postal</span>
+                <input type="text" name="PS_SHOP_CODE" value="{{ config.PS_SHOP_CODE|default('') }}">
+            </label>
+            <label class="ek-field">
+                <span>Ciudad</span>
+                <input type="text" name="PS_SHOP_CITY" value="{{ config.PS_SHOP_CITY|default('') }}">
+            </label>
+        </div>
+    </div>
+
+    {# ===== Pedidos & envío ===== #}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Pedidos, envío e IVA</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Umbral envío gratuito (€ sin IVA)</span>
+                <input type="text" name="PS_SHIPPING_FREE_PRICE" inputmode="decimal"
+                       value="{{ config.PS_SHIPPING_FREE_PRICE|default('350') }}">
+                <small class="ek-field__hint">A partir de este importe el envío es gratis.</small>
+            </label>
+            <label class="ek-field">
+                <span>Gastos de manipulación (€)</span>
+                <input type="text" name="PS_SHIPPING_HANDLING" inputmode="decimal"
+                       value="{{ config.PS_SHIPPING_HANDLING|default('0') }}">
+            </label>
+            <label class="ek-field">
+                <span>IVA general (%)</span>
+                <input type="text" name="PS_TAX_DEFAULT" inputmode="decimal"
+                       value="{{ config.PS_TAX_DEFAULT|default('21') }}">
+                <small class="ek-field__hint">Se aplica por defecto a productos sin tax_rules_group.</small>
+            </label>
+            <label class="ek-field">
+                <span>Aplicar IVA</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="PS_TAX" value="1" {{ config.PS_TAX|default('1') == '1' ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Calcular y mostrar impuestos</span>
+                </label>
+            </label>
+            <label class="ek-field">
+                <span>Prefijo de factura</span>
+                <input type="text" name="PS_INVOICE_PREFIX" maxlength="32"
+                       value="{{ config.PS_INVOICE_PREFIX|default('FA') }}"
+                       placeholder="ej. FA, INV, F2026-">
+            </label>
+            <label class="ek-field">
+                <span>Prefijo albarán</span>
+                <input type="text" name="PS_DELIVERY_PREFIX" maxlength="32"
+                       value="{{ config.PS_DELIVERY_PREFIX|default('AL') }}">
+            </label>
+            <label class="ek-field">
+                <span>Prefijo abono / factura rectificativa</span>
+                <input type="text" name="PS_CREDIT_SLIP_PREFIX" maxlength="32"
+                       value="{{ config.PS_CREDIT_SLIP_PREFIX|default('AB') }}">
+            </label>
+        </div>
+    </div>
+
+    {# ===== Estado de la tienda ===== #}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Estado de la tienda</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Tienda activa</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="PS_SHOP_ENABLE" value="1"
+                           {{ config.PS_SHOP_ENABLE|default('1') == '1' ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">La tienda está abierta al público</span>
+                </label>
+                <small class="ek-field__hint">Desactívalo para mostrar el modo mantenimiento al frontend.</small>
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Texto en mantenimiento</span>
+                <textarea name="PS_MAINTENANCE_TEXT" rows="3">{{ config.PS_MAINTENANCE_TEXT|default('Estamos realizando tareas de mantenimiento. Volvemos enseguida.') }}</textarea>
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>IPs autorizadas durante mantenimiento</span>
+                <input type="text" name="PS_MAINTENANCE_IP" value="{{ config.PS_MAINTENANCE_IP|default('') }}"
+                       placeholder="ej. 1.2.3.4, 5.6.7.8">
+                <small class="ek-field__hint">Estas IPs sí podrán entrar a la tienda aunque esté cerrada.</small>
+            </label>
+        </div>
+    </div>
+
+    {# ===== RGPD / Cookies ===== #}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Cookies y RGPD</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Texto del banner de cookies</span>
+                <textarea name="PS_COOKIE_BANNER_TEXT" rows="3">{{ config.PS_COOKIE_BANNER_TEXT|default('Usamos cookies propias y de terceros para mejorar tu experiencia. Puedes aceptar, rechazar o configurar tus preferencias.') }}</textarea>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>URL de la política de privacidad</span>
+                <input type="text" name="PS_GDPR_PRIVACY_URL" value="{{ config.PS_GDPR_PRIVACY_URL|default('/privacidad') }}">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <button type="submit" class="ek-btn ek-btn--primary">Guardar configuración</button>
+    </div>
+</form>
+{% endblock %}
