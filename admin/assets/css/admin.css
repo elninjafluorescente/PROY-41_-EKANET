@@ -9,8 +9,8 @@
     --ek-blue-deep: oklch(0.52 0.11 265);
     --ek-blue-soft: oklch(0.92 0.03 265);
     --ek-blue-ink: oklch(0.32 0.08 265);
-    --ek-gold: oklch(0.78 0.14 78);
-    --ek-gold-soft: oklch(0.94 0.06 82);
+    --ek-gold: #e09a2e;
+    --ek-gold-soft: #fbe9c9;
 
     --ek-ink: oklch(0.18 0.015 260);
     --ek-ink-2: oklch(0.32 0.012 260);
