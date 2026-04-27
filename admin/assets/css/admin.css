@@ -115,6 +115,31 @@ html,body{ margin:0; padding:0; }
     text-transform: uppercase;
 }
 
+/* Secciones desplegables (<details>) */
+.ek-sidebar__section{ margin-bottom: 2px; }
+.ek-sidebar__section > summary{
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: color .12s;
+}
+.ek-sidebar__section > summary::-webkit-details-marker{ display: none; }
+.ek-sidebar__section > summary::after{
+    content: '›';
+    margin-right: 18px;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--ek-ink-4);
+    transition: transform .15s ease;
+    transform: rotate(0deg);
+}
+.ek-sidebar__section[open] > summary::after{ transform: rotate(90deg); }
+.ek-sidebar__section > summary:hover{ color: var(--ek-blue-deep); }
+.ek-sidebar__section[open] > summary{ color: var(--ek-blue-deep); }
+
 .ek-main{ display:flex; flex-direction:column; min-width:0; }
 .ek-topbar{
     display:flex; align-items:center; justify-content:space-between;
