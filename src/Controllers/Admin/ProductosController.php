@@ -6,7 +6,9 @@ namespace Ekanet\Controllers\Admin;
 use Ekanet\Core\Controller;
 use Ekanet\Core\Csrf;
 use Ekanet\Core\Session;
+use Ekanet\Models\AttributeGroup;
 use Ekanet\Models\Category;
+use Ekanet\Models\Combination;
 use Ekanet\Models\Feature;
 use Ekanet\Models\Manufacturer;
 use Ekanet\Models\Product;
@@ -184,6 +186,94 @@ final class ProductosController extends Controller
         $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#caracteristicas");
     }
 
+    // ============ Combinaciones (variantes) ============
+
+    public function generateCombinations(string $id): void
+    {
+        $idInt = (int)$id;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar");
+            return;
+        }
+        $selected = $_POST['attrs'] ?? [];
+        if (!is_array($selected) || empty($selected)) {
+            Session::flash('error', 'Selecciona valores en al menos un grupo.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#combinaciones");
+            return;
+        }
+        try {
+            $created = Combination::generateCartesian($idInt, $selected);
+            if ($created > 0) {
+                Session::flash('success', "Generadas {$created} combinación(es).");
+            } else {
+                Session::flash('error', 'No se generó ninguna nueva combinación (ya existían todas).');
+            }
+        } catch (\Throwable $e) {
+            Session::flash('error', 'Error: ' . $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#combinaciones");
+    }
+
+    public function updateCombination(string $id, string $cid): void
+    {
+        $idInt = (int)$id; $cidInt = (int)$cid;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#combinaciones");
+            return;
+        }
+        try {
+            Combination::update($cidInt, [
+                'reference'         => (string)$this->input('reference', ''),
+                'price'             => (string)$this->input('price', '0'),
+                'unit_price_impact' => (string)$this->input('unit_price_impact', '0'),
+                'weight'            => (string)$this->input('weight', '0'),
+                'minimal_quantity'  => (int)$this->input('minimal_quantity', 1),
+                'ean13'             => (string)$this->input('ean13', ''),
+                'stock'             => (int)$this->input('stock', 0),
+            ], $idInt);
+            Session::flash('success', 'Combinación actualizada.');
+        } catch (\Throwable $e) {
+            Session::flash('error', 'Error: ' . $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#combinaciones");
+    }
+
+    public function setDefaultCombination(string $id, string $cid): void
+    {
+        $idInt = (int)$id; $cidInt = (int)$cid;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#combinaciones");
+            return;
+        }
+        try {
+            Combination::setDefault($idInt, $cidInt);
+            Session::flash('success', 'Combinación marcada como predeterminada.');
+        } catch (\Throwable $e) {
+            Session::flash('error', $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#combinaciones");
+    }
+
+    public function deleteCombination(string $id, string $cid): void
+    {
+        $idInt = (int)$id; $cidInt = (int)$cid;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#combinaciones");
+            return;
+        }
+        try {
+            Combination::delete($cidInt);
+            Session::flash('success', 'Combinación eliminada.');
+        } catch (\Throwable $e) {
+            Session::flash('error', $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#combinaciones");
+    }
+
     public function detachFeature(string $id): void
     {
         $idInt = (int)$id;
@@ -216,6 +306,16 @@ final class ProductosController extends Controller
             $featureValues[(int)$f['id_feature']] = Feature::values((int)$f['id_feature']);
         }
 
+        // Combinaciones (solo en edit)
+        $combinations = ($mode === 'edit')
+            ? Combination::forProduct((int)$item['id_product'])
+            : [];
+        $allGroups = AttributeGroup::all();
+        $groupValues = [];
+        foreach ($allGroups as $g) {
+            $groupValues[(int)$g['id_attribute_group']] = AttributeGroup::values((int)$g['id_attribute_group']);
+        }
+
         $this->render('admin/productos/form.twig', [
             'page_title'    => $mode === 'create' ? 'Nuevo producto' : 'Editar producto',
             'active'        => 'productos',
@@ -227,6 +327,9 @@ final class ProductosController extends Controller
             'all_features'  => $allFeatures,
             'product_features' => $featuresByProduct,
             'feature_values'   => $featureValues,
+            'combinations'  => $combinations,
+            'attribute_groups' => $allGroups,
+            'group_values'  => $groupValues,
             'visibilities'  => [
                 'both'    => 'Catálogo + búsqueda',
                 'catalog' => 'Solo catálogo',

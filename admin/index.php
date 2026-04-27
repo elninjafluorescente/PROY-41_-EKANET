@@ -96,6 +96,10 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->post('/productos/{id}/eliminar',   [ProductosController::class, 'destroy']);
     $r->post('/productos/{id}/caracteristicas/asignar',     [ProductosController::class, 'attachFeature']);
     $r->post('/productos/{id}/caracteristicas/desasignar',  [ProductosController::class, 'detachFeature']);
+    $r->post('/productos/{id}/combinaciones/generar',          [ProductosController::class, 'generateCombinations']);
+    $r->post('/productos/{id}/combinaciones/{cid}/editar',     [ProductosController::class, 'updateCombination']);
+    $r->post('/productos/{id}/combinaciones/{cid}/default',    [ProductosController::class, 'setDefaultCombination']);
+    $r->post('/productos/{id}/combinaciones/{cid}/eliminar',   [ProductosController::class, 'deleteCombination']);
 
     // Categorías
     $r->get('/categorias',                  [CategoriasController::class, 'index']);

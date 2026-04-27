@@ -246,6 +246,118 @@
 </form>
 
 {% if mode == 'edit' %}
+<div class="ek-panel" id="combinaciones" style="margin-top:16px">
+    <h2>Combinaciones (variantes)</h2>
+    <p class="ek-panel__hint">
+        Si el producto tiene variantes (color, talla, longitud…) crea aquí cada combinación.
+        Cada combinación tiene su propio stock, referencia y precio.
+    </p>
+
+    {% if combinations|length > 0 %}
+        <table class="ek-table" style="margin-top:8px">
+            <thead>
+                <tr>
+                    <th style="width:50px">Default</th>
+                    <th>Combinación</th>
+                    <th style="width:140px">Referencia</th>
+                    <th style="width:110px; text-align:right">Impacto precio</th>
+                    <th style="width:80px; text-align:right">Stock</th>
+                    <th style="width:160px; text-align:right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in combinations %}
+                <tr>
+                    <td style="text-align:center">
+                        {% if c.default_on %}
+                            <span class="ek-pill ek-pill--gold">★</span>
+                        {% else %}
+                            <form method="post" style="display:inline"
+                                  action="{{ admin_url('productos/' ~ item.id_product ~ '/combinaciones/' ~ c.id_product_attribute ~ '/default') }}">
+                                <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                                <button type="submit" class="ek-action" title="Marcar como predeterminada">☆</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ c.label }}</strong>
+                        <br><span class="mono" style="color: var(--ek-ink-3); font-size:11px">#{{ c.id_product_attribute }}</span>
+                    </td>
+                    <td colspan="4">
+                        <form method="post"
+                              action="{{ admin_url('productos/' ~ item.id_product ~ '/combinaciones/' ~ c.id_product_attribute ~ '/editar') }}"
+                              style="display:flex; gap:8px; align-items:center; justify-content:flex-end">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <input type="text" name="reference" value="{{ c.reference|default('') }}" maxlength="64"
+                                   class="ek-stock-input" placeholder="ref." style="width:130px">
+                            <input type="text" name="unit_price_impact" value="{{ c.unit_price_impact|default(0) }}"
+                                   inputmode="decimal" class="ek-stock-input ek-stock-input--small" placeholder="±€">
+                            <input type="number" name="stock" value="{{ c.stock }}" min="0"
+                                   class="ek-stock-input ek-stock-input--small">
+                            <button type="submit" class="ek-action">Guardar</button>
+                            <button type="button" class="ek-action ek-action--danger"
+                                    onclick="event.preventDefault(); if(confirm('¿Eliminar esta combinación?')) document.getElementById('del-comb-{{ c.id_product_attribute }}').submit();">
+                                Borrar
+                            </button>
+                        </form>
+                        <form method="post" id="del-comb-{{ c.id_product_attribute }}"
+                              action="{{ admin_url('productos/' ~ item.id_product ~ '/combinaciones/' ~ c.id_product_attribute ~ '/eliminar') }}"
+                              style="display:none">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <small class="ek-field__hint" style="margin-top: 8px; display:block">
+            <em>Impacto precio</em> es lo que se SUMA al precio base del producto cuando se elige esta combinación
+            (positivo o negativo).
+        </small>
+    {% else %}
+        <p style="color: var(--ek-ink-3); margin: 8px 0 14px">
+            Este producto aún no tiene combinaciones. Genera las que necesites usando los grupos de atributos.
+        </p>
+    {% endif %}
+
+    <h3 style="font-size:13px; margin-top:18px; padding-top:14px; border-top:1px solid var(--ek-line)">+ Generar combinaciones</h3>
+    {% if attribute_groups|length == 0 %}
+        <p style="color: var(--ek-ink-3)">
+            Crea primero grupos de atributos en
+            <a href="{{ admin_url('atributos') }}">Atributos y características</a>.
+        </p>
+    {% else %}
+    <p class="ek-field__hint">
+        Selecciona los valores que quieres combinar. Se generará el producto cartesiano (3 colores × 2 tallas = 6 combinaciones).
+    </p>
+    <form method="post"
+          action="{{ admin_url('productos/' ~ item.id_product ~ '/combinaciones/generar') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+        {% for g in attribute_groups %}
+            {% if group_values[g.id_attribute_group]|length > 0 %}
+                <div style="background: var(--ek-blue-soft); padding: 6px 12px; margin: 8px 0 4px; border-radius: var(--ek-r-sm); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ek-blue-deep)">
+                    <strong>{{ g.name }}</strong>
+                    {% if g.public_name and g.public_name != g.name %}<span style="opacity:.7"> · {{ g.public_name }}</span>{% endif %}
+                </div>
+                <div style="display:flex; gap:14px; flex-wrap:wrap; padding: 6px 14px; margin-bottom: 4px">
+                    {% for v in group_values[g.id_attribute_group] %}
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:13px">
+                            <input type="checkbox" name="attrs[{{ g.id_attribute_group }}][]" value="{{ v.id_attribute }}">
+                            {% if g.group_type == 'color' and v.color %}
+                                <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:{{ v.color }}; border:1px solid var(--ek-line)"></span>
+                            {% endif %}
+                            {{ v.name }}
+                        </label>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <button type="submit" class="ek-btn ek-btn--primary" style="margin-top:14px">Generar combinaciones</button>
+    </form>
+    {% endif %}
+</div>
+
 <div class="ek-panel" id="caracteristicas" style="margin-top:16px">
     <h2>Características asignadas</h2>
     <p class="ek-panel__hint">
