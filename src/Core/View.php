@@ -32,7 +32,13 @@ final class View
         self::$twig->addFunction(new TwigFunction('flash', [Session::class, 'flash']));
 
         self::$twig->addFunction(new TwigFunction('asset', static function (string $p) use ($config): string {
-            return rtrim($config['app']['base_url'], '/') . '/admin/assets/' . ltrim($p, '/');
+            $rel = ltrim($p, '/');
+            $url = rtrim($config['app']['base_url'], '/') . '/admin/assets/' . $rel;
+            $local = BASE_PATH . '/admin/assets/' . $rel;
+            if (is_file($local)) {
+                $url .= '?v=' . filemtime($local);
+            }
+            return $url;
         }));
 
         self::$twig->addFunction(new TwigFunction('admin_url', static function (string $p = '/') use ($config): string {
