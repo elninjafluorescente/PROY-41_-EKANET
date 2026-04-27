@@ -55,6 +55,7 @@ use Ekanet\Controllers\Admin\PreciosEspecialesController;
 use Ekanet\Controllers\Admin\ProductosController;
 use Ekanet\Controllers\Admin\ProveedoresController;
 use Ekanet\Controllers\Admin\RolesController;
+use Ekanet\Controllers\Admin\StockController;
 use Ekanet\Controllers\Admin\TransportistasController;
 use Ekanet\Controllers\Admin\UsuariosController;
 
@@ -154,6 +155,10 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/banners/{id}/editar',      [BannersController::class, 'edit']);
     $r->post('/banners/{id}/editar',     [BannersController::class, 'update']);
     $r->post('/banners/{id}/eliminar',   [BannersController::class, 'destroy']);
+
+    // Stock (vista masiva)
+    $r->get('/stock',          [StockController::class, 'index']);
+    $r->post('/stock/guardar', [StockController::class, 'bulkUpdate']);
 
     // Cupones
     $r->get('/cupones',                  [CuponesController::class, 'index']);

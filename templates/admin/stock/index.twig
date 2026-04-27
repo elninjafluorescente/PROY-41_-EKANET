@@ -1,0 +1,137 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Stock</h1>
+        <p class="ek-page-header__subtitle">
+            Edición masiva del inventario. Modifica cantidades y guarda todos los cambios de una vez.
+        </p>
+    </div>
+</div>
+
+{# ===== Métricas ===== #}
+<section class="ek-grid ek-grid--4" style="margin-bottom: 16px">
+    <div class="ek-card">
+        <div class="ek-card__label mono">PRODUCTOS</div>
+        <div class="ek-card__value">{{ stats.total }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">AGOTADOS</div>
+        <div class="ek-card__value" style="color: var(--ek-err)">{{ stats.empty }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">STOCK BAJO</div>
+        <div class="ek-card__value" style="color: var(--ek-warn)">{{ stats.low }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">VALOR INVENTARIO</div>
+        <div class="ek-card__value" style="font-size:22px">{{ stats.value|number_format(0, ',', '.') }} €</div>
+    </div>
+</section>
+
+{# ===== Filtros ===== #}
+<form method="get" action="{{ admin_url('stock') }}" class="ek-search-bar">
+    <input type="search" name="q" value="{{ search }}" placeholder="Buscar por nombre o referencia…">
+    <label class="ek-switch" style="margin-right: 4px">
+        <input type="checkbox" name="low" value="1" {{ low_only ? 'checked' : '' }} onchange="this.form.submit()">
+        <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+        <span class="ek-switch__label">Solo stock bajo</span>
+    </label>
+    <button type="submit" class="ek-btn ek-btn--ghost">Filtrar</button>
+    {% if search or low_only %}
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('stock') }}">Limpiar</a>
+    {% endif %}
+</form>
+
+{# ===== Form de edición masiva ===== #}
+<form method="post" action="{{ admin_url('stock/guardar') }}{% if search or low_only %}?{% if search %}q={{ search|url_encode }}&{% endif %}{% if low_only %}low=1{% endif %}{% endif %}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-table-wrap">
+        <table class="ek-table">
+            <thead>
+                <tr>
+                    <th style="width:60px">ID</th>
+                    <th style="width:130px">Referencia</th>
+                    <th>Producto</th>
+                    <th style="width:120px; text-align:center">Stock actual</th>
+                    <th style="width:100px; text-align:center">Umbral aviso</th>
+                    <th style="width:90px">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                    {% set threshold = r.low_stock_threshold|default(5) %}
+                    {% set status = r.stock <= 0 ? 'empty' : (r.stock <= threshold ? 'low' : 'ok') %}
+                    <tr>
+                        <td class="mono">{{ r.id_product }}</td>
+                        <td class="mono" style="font-size:12px">{{ r.reference|default('—') }}</td>
+                        <td>
+                            <strong>{{ r.name }}</strong>
+                            {% if r.category_name or r.manufacturer_name %}
+                                <br><span style="color: var(--ek-ink-3); font-size:12px">
+                                    {{ r.category_name|default('') }}
+                                    {% if r.category_name and r.manufacturer_name %} · {% endif %}
+                                    {{ r.manufacturer_name|default('') }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center">
+                            <input type="number" name="stock[{{ r.id_product }}]"
+                                   value="{{ r.stock }}" min="0"
+                                   class="ek-stock-input"
+                                   data-original="{{ r.stock }}">
+                        </td>
+                        <td style="text-align:center">
+                            <input type="number" name="threshold[{{ r.id_product }}]"
+                                   value="{{ r.low_stock_threshold|default('') }}" min="0"
+                                   class="ek-stock-input ek-stock-input--small"
+                                   placeholder="5">
+                        </td>
+                        <td>
+                            {% if status == 'empty' %}
+                                <span class="ek-badge" style="background: color-mix(in oklch, var(--ek-err) 12%, #fff); border-color: var(--ek-err); color: oklch(.36 .12 25)">Agotado</span>
+                            {% elseif status == 'low' %}
+                                <span class="ek-badge" style="background: color-mix(in oklch, var(--ek-warn) 18%, #fff); border-color: var(--ek-warn); color: oklch(.42 .12 78)">Bajo</span>
+                            {% else %}
+                                <span class="ek-badge ek-badge--ok">OK</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="ek-table__empty">{{ search or low_only ? 'Sin resultados con ese filtro.' : 'No hay productos.' }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if rows|length > 0 %}
+    <div class="ek-form__actions">
+        <button type="submit" class="ek-btn ek-btn--primary">Guardar todos los cambios</button>
+    </div>
+    {% endif %}
+</form>
+
+{% if pages > 1 %}
+<nav class="ek-pagination">
+    {% for i in 1..pages %}
+        <a href="{{ admin_url('stock') }}?p={{ i }}{% if search %}&q={{ search|url_encode }}{% endif %}{% if low_only %}&low=1{% endif %}"
+           class="ek-pagination__page {{ i == page ? 'is-active' : '' }}">{{ i }}</a>
+    {% endfor %}
+</nav>
+{% endif %}
+
+<script>
+// Resaltar filas modificadas
+document.querySelectorAll('.ek-stock-input').forEach(input => {
+    input.addEventListener('input', () => {
+        const row = input.closest('tr');
+        const original = input.dataset.original;
+        if (original !== undefined && input.value !== original) {
+            row.style.background = 'var(--ek-blue-soft)';
+        }
+    });
+});
+</script>
+{% endblock %}

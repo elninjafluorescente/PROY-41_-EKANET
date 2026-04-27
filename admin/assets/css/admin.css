@@ -567,6 +567,24 @@ html,body{ margin:0; padding:0; }
     border-top: 1px solid var(--ek-line);
 }
 
+/* =========== Stock inputs =========== */
+.ek-stock-input{
+    width: 88px;
+    padding: 6px 8px;
+    border: 1px solid var(--ek-line);
+    border-radius: var(--ek-r-sm);
+    font-family: var(--ek-font-mono);
+    font-size: 13px;
+    text-align: center;
+    background: var(--ek-surface);
+}
+.ek-stock-input--small{ width: 72px; }
+.ek-stock-input:focus{
+    outline:none;
+    border-color: var(--ek-blue);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ek-blue) 18%, transparent);
+}
+
 /* =========== Tree indicator (categories) =========== */
 .ek-tree-dash{
     display:inline-block;
