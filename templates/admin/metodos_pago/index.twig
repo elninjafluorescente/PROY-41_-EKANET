@@ -1,0 +1,79 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Métodos de pago</h1>
+        <p class="ek-page-header__subtitle">
+            Configura cómo pueden pagar los clientes en el checkout. Activa/desactiva con un clic.
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('metodos_pago/nuevo') }}">+ Nuevo método</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th style="width:100px">Código</th>
+                <th>Nombre</th>
+                <th>Restricciones</th>
+                <th style="width:120px; text-align:right">Comisión</th>
+                <th style="width:80px">Estado</th>
+                <th style="width:200px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in methods %}
+            <tr>
+                <td class="mono">{{ m.id_payment_method }}</td>
+                <td class="mono" style="font-size:12px">{{ m.code }}</td>
+                <td><strong>{{ m.name }}</strong></td>
+                <td>
+                    {% if m.is_b2b_only %}<span class="ek-pill ek-pill--blue">solo B2B</span>{% endif %}
+                    {% if m.requires_credit_limit %}<span class="ek-pill ek-pill--gold">crédito autorizado</span>{% endif %}
+                    {% if not m.is_b2b_only and not m.requires_credit_limit %}
+                        <span style="color: var(--ek-ink-3); font-size:12px">Para todos</span>
+                    {% endif %}
+                </td>
+                <td class="mono" style="text-align:right; font-size:12px">
+                    {% if m.fee_percent > 0 %}{{ m.fee_percent|number_format(2, ',', '.') }}%{% endif %}
+                    {% if m.fee_percent > 0 and m.fee_fixed > 0 %} + {% endif %}
+                    {% if m.fee_fixed > 0 %}{{ m.fee_fixed|number_format(2, ',', '.') }} €{% endif %}
+                    {% if m.fee_percent == 0 and m.fee_fixed == 0 %}<span style="color: var(--ek-ink-3)">—</span>{% endif %}
+                </td>
+                <td>
+                    {% if m.active %}
+                        <span class="ek-badge ek-badge--ok">Activo</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <form method="post" action="{{ admin_url('metodos_pago/' ~ m.id_payment_method ~ '/mover/up') }}" style="display:inline">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action" title="Subir">↑</button>
+                    </form>
+                    <form method="post" action="{{ admin_url('metodos_pago/' ~ m.id_payment_method ~ '/mover/down') }}" style="display:inline">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action" title="Bajar">↓</button>
+                    </form>
+                    <a class="ek-action" href="{{ admin_url('metodos_pago/' ~ m.id_payment_method ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('metodos_pago/' ~ m.id_payment_method ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar el método \'{{ m.name }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="ek-table__empty">No hay métodos de pago.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

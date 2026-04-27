@@ -46,6 +46,7 @@ use Ekanet\Controllers\Admin\ClientesController;
 use Ekanet\Controllers\Admin\DashboardController;
 use Ekanet\Controllers\Admin\DireccionesController;
 use Ekanet\Controllers\Admin\MarcasController;
+use Ekanet\Controllers\Admin\MetodosPagoController;
 use Ekanet\Controllers\Admin\ProductosController;
 use Ekanet\Controllers\Admin\ProveedoresController;
 use Ekanet\Controllers\Admin\RolesController;
@@ -132,6 +133,15 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/transportistas/{id}/editar',      [TransportistasController::class, 'edit']);
     $r->post('/transportistas/{id}/editar',     [TransportistasController::class, 'update']);
     $r->post('/transportistas/{id}/eliminar',   [TransportistasController::class, 'destroy']);
+
+    // Métodos de pago
+    $r->get('/metodos_pago',                          [MetodosPagoController::class, 'index']);
+    $r->get('/metodos_pago/nuevo',                    [MetodosPagoController::class, 'create']);
+    $r->post('/metodos_pago/nuevo',                   [MetodosPagoController::class, 'store']);
+    $r->get('/metodos_pago/{id}/editar',              [MetodosPagoController::class, 'edit']);
+    $r->post('/metodos_pago/{id}/editar',             [MetodosPagoController::class, 'update']);
+    $r->post('/metodos_pago/{id}/eliminar',           [MetodosPagoController::class, 'destroy']);
+    $r->post('/metodos_pago/{id}/mover/{direction}',  [MetodosPagoController::class, 'move']);
 
     // Atributos (grupos + valores)
     $r->get('/atributos',                                [AtributosController::class, 'index']);
