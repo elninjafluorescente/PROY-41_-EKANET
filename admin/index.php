@@ -42,7 +42,9 @@ use Ekanet\Controllers\Admin\AtributosController;
 use Ekanet\Controllers\Admin\AuthController;
 use Ekanet\Controllers\Admin\CaracteristicasController;
 use Ekanet\Controllers\Admin\CategoriasController;
+use Ekanet\Controllers\Admin\ClientesController;
 use Ekanet\Controllers\Admin\DashboardController;
+use Ekanet\Controllers\Admin\DireccionesController;
 use Ekanet\Controllers\Admin\MarcasController;
 use Ekanet\Controllers\Admin\ProductosController;
 use Ekanet\Controllers\Admin\ProveedoresController;
@@ -105,6 +107,22 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/proveedores/{id}/editar',      [ProveedoresController::class, 'edit']);
     $r->post('/proveedores/{id}/editar',     [ProveedoresController::class, 'update']);
     $r->post('/proveedores/{id}/eliminar',   [ProveedoresController::class, 'destroy']);
+
+    // Clientes
+    $r->get('/clientes',                  [ClientesController::class, 'index']);
+    $r->get('/clientes/nuevo',            [ClientesController::class, 'create']);
+    $r->post('/clientes/nuevo',           [ClientesController::class, 'store']);
+    $r->get('/clientes/{id}/editar',      [ClientesController::class, 'edit']);
+    $r->post('/clientes/{id}/editar',     [ClientesController::class, 'update']);
+    $r->post('/clientes/{id}/eliminar',   [ClientesController::class, 'destroy']);
+
+    // Direcciones
+    $r->get('/direcciones',                  [DireccionesController::class, 'index']);
+    $r->get('/direcciones/nuevo',            [DireccionesController::class, 'create']);
+    $r->post('/direcciones/nuevo',           [DireccionesController::class, 'store']);
+    $r->get('/direcciones/{id}/editar',      [DireccionesController::class, 'edit']);
+    $r->post('/direcciones/{id}/editar',     [DireccionesController::class, 'update']);
+    $r->post('/direcciones/{id}/eliminar',   [DireccionesController::class, 'destroy']);
 
     // Atributos (grupos + valores)
     $r->get('/atributos',                                [AtributosController::class, 'index']);

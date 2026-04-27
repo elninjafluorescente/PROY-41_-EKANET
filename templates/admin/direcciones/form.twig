@@ -1,0 +1,137 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_clientes.twig' with {tab: 'direcciones'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nueva dirección' : 'Editar dirección' }}
+        </h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">ID #{{ item.id_address }}</p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('direcciones') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('direcciones/nuevo')
+          : admin_url('direcciones/' ~ item.id_address ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Datos de la dirección</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Cliente</span>
+                <select name="id_customer">
+                    <option value="0">— Sin cliente asignado —</option>
+                    {% for c in customers %}
+                        <option value="{{ c.id_customer }}" {{ c.id_customer == item.id_customer ? 'selected' : '' }}>
+                            {{ c.firstname }} {{ c.lastname }} ({{ c.email }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="ek-field">
+                <span>Alias *</span>
+                <input type="text" name="alias" required maxlength="32" value="{{ item.alias }}"
+                       placeholder="Casa, Oficina, Almacén…">
+            </label>
+
+            <label class="ek-field">
+                <span>Nombre *</span>
+                <input type="text" name="firstname" required value="{{ item.firstname }}">
+            </label>
+
+            <label class="ek-field">
+                <span>Apellidos *</span>
+                <input type="text" name="lastname" required value="{{ item.lastname }}">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Empresa</span>
+                <input type="text" name="company" maxlength="255" value="{{ item.company|default('') }}">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Dirección *</span>
+                <input type="text" name="address1" required maxlength="128" value="{{ item.address1 }}">
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Dirección (línea 2)</span>
+                <input type="text" name="address2" maxlength="128" value="{{ item.address2|default('') }}">
+            </label>
+
+            <label class="ek-field">
+                <span>Código postal</span>
+                <input type="text" name="postcode" maxlength="12" value="{{ item.postcode|default('') }}">
+            </label>
+
+            <label class="ek-field">
+                <span>Ciudad *</span>
+                <input type="text" name="city" required maxlength="64" value="{{ item.city }}">
+            </label>
+
+            <label class="ek-field">
+                <span>País *</span>
+                <select name="id_country" required>
+                    {% for co in countries %}
+                        <option value="{{ co.id_country }}" {{ co.id_country == item.id_country ? 'selected' : '' }}>
+                            {{ co.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="ek-field">
+                <span>Estado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="active" value="1" {{ item.active ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Dirección activa</span>
+                </label>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Contacto y fiscal</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Teléfono fijo</span>
+                <input type="tel" name="phone" maxlength="32" value="{{ item.phone|default('') }}">
+            </label>
+            <label class="ek-field">
+                <span>Teléfono móvil</span>
+                <input type="tel" name="phone_mobile" maxlength="32" value="{{ item.phone_mobile|default('') }}">
+            </label>
+            <label class="ek-field">
+                <span>CIF (empresa)</span>
+                <input type="text" name="vat_number" maxlength="32" value="{{ item.vat_number|default('') }}">
+            </label>
+            <label class="ek-field">
+                <span>NIF/DNI (particular)</span>
+                <input type="text" name="dni" maxlength="16" value="{{ item.dni|default('') }}">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Otra información (instrucciones de entrega)</span>
+                <textarea name="other" rows="2">{{ item.other|default('') }}</textarea>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('direcciones') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear dirección' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

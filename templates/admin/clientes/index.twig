@@ -1,0 +1,87 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_clientes.twig' with {tab: 'clientes'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Clientes</h1>
+        <p class="ek-page-header__subtitle">
+            Total: <strong>{{ total }}</strong> cliente{{ total == 1 ? '' : 's' }}.
+            Pago aplazado disponible para clientes con límite de crédito.
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('clientes/nuevo') }}">+ Nuevo cliente</a>
+    </div>
+</div>
+
+<form method="get" action="{{ admin_url('clientes') }}" class="ek-search-bar">
+    <input type="search" name="q" value="{{ search }}" placeholder="Buscar por email, nombre, apellidos o empresa…">
+    <button type="submit" class="ek-btn ek-btn--ghost">Buscar</button>
+    {% if search %}<a class="ek-btn ek-btn--ghost" href="{{ admin_url('clientes') }}">Limpiar</a>{% endif %}
+</form>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre completo</th>
+                <th>Email</th>
+                <th>Empresa</th>
+                <th style="width:100px; text-align:right">Crédito €</th>
+                <th style="width:80px">Direcc.</th>
+                <th style="width:80px">Estado</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in customers %}
+            <tr>
+                <td class="mono">{{ c.id_customer }}</td>
+                <td>
+                    <strong>{{ c.firstname }} {{ c.lastname }}</strong>
+                    {% if c.company %}<span class="ek-pill ek-pill--blue">B2B</span>{% endif %}
+                </td>
+                <td class="mono" style="font-size:12px">{{ c.email }}</td>
+                <td style="color: var(--ek-ink-3); font-size:12px">{{ c.company|default('—') }}</td>
+                <td class="mono" style="text-align:right">
+                    {% if c.outstanding_allow_amount > 0 %}
+                        {{ c.outstanding_allow_amount|number_format(0, ',', '.') }}
+                    {% else %}—{% endif %}
+                </td>
+                <td class="mono">{{ c.addr_count }}</td>
+                <td>
+                    {% if c.active %}
+                        <span class="ek-badge ek-badge--ok">Activo</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('clientes/' ~ c.id_customer ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('clientes/' ~ c.id_customer ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar el cliente \'{{ c.firstname }} {{ c.lastname }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="ek-table__empty">{{ search ? 'Sin resultados.' : 'No hay clientes todavía.' }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pages > 1 %}
+<nav class="ek-pagination">
+    {% for i in 1..pages %}
+        <a href="{{ admin_url('clientes') }}?p={{ i }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+           class="ek-pagination__page {{ i == page ? 'is-active' : '' }}">{{ i }}</a>
+    {% endfor %}
+</nav>
+{% endif %}
+{% endblock %}

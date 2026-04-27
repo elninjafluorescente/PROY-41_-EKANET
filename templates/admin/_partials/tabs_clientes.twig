@@ -1,0 +1,5 @@
+{# Pestañas: Clientes / Direcciones. Var: tab #}
+<div class="ek-tabs">
+    <a class="ek-tabs__tab {{ tab == 'clientes' ? 'is-active' : '' }}" href="{{ admin_url('clientes') }}">Clientes</a>
+    <a class="ek-tabs__tab {{ tab == 'direcciones' ? 'is-active' : '' }}" href="{{ admin_url('direcciones') }}">Direcciones</a>
+</div>
