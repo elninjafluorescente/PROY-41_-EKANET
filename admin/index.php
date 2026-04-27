@@ -49,6 +49,7 @@ use Ekanet\Controllers\Admin\MarcasController;
 use Ekanet\Controllers\Admin\ProductosController;
 use Ekanet\Controllers\Admin\ProveedoresController;
 use Ekanet\Controllers\Admin\RolesController;
+use Ekanet\Controllers\Admin\TransportistasController;
 use Ekanet\Controllers\Admin\UsuariosController;
 
 Session::start();
@@ -123,6 +124,14 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/direcciones/{id}/editar',      [DireccionesController::class, 'edit']);
     $r->post('/direcciones/{id}/editar',     [DireccionesController::class, 'update']);
     $r->post('/direcciones/{id}/eliminar',   [DireccionesController::class, 'destroy']);
+
+    // Transportistas
+    $r->get('/transportistas',                  [TransportistasController::class, 'index']);
+    $r->get('/transportistas/nuevo',            [TransportistasController::class, 'create']);
+    $r->post('/transportistas/nuevo',           [TransportistasController::class, 'store']);
+    $r->get('/transportistas/{id}/editar',      [TransportistasController::class, 'edit']);
+    $r->post('/transportistas/{id}/editar',     [TransportistasController::class, 'update']);
+    $r->post('/transportistas/{id}/eliminar',   [TransportistasController::class, 'destroy']);
 
     // Atributos (grupos + valores)
     $r->get('/atributos',                                [AtributosController::class, 'index']);

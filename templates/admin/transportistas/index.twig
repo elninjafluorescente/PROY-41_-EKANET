@@ -1,0 +1,63 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Transportistas</h1>
+        <p class="ek-page-header__subtitle">Empresas de mensajería y métodos de envío disponibles.</p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('transportistas/nuevo') }}">+ Nuevo transportista</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th>Plazo</th>
+                <th>Tarifa</th>
+                <th style="width:100px; text-align:right">Peso máx.</th>
+                <th style="width:80px">Estado</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in carriers %}
+            <tr>
+                <td class="mono">{{ c.id_carrier }}</td>
+                <td>
+                    <strong>{{ c.name }}</strong>
+                    {% if c.is_free %}<span class="ek-pill ek-pill--gold">gratis</span>{% endif %}
+                </td>
+                <td style="color: var(--ek-ink-3); font-size:12px">{{ c.delay|default('—') }}</td>
+                <td><span class="ek-pill ek-pill--blue">{{ methods[c.shipping_method] }}</span></td>
+                <td class="mono" style="text-align:right">
+                    {% if c.max_weight > 0 %}{{ c.max_weight|number_format(0) }} kg{% else %}—{% endif %}
+                </td>
+                <td>
+                    {% if c.active %}
+                        <span class="ek-badge ek-badge--ok">Activo</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('transportistas/' ~ c.id_carrier ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('transportistas/' ~ c.id_carrier ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar el transportista \'{{ c.name }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="ek-table__empty">No hay transportistas todavía.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
