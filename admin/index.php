@@ -45,11 +45,13 @@ use Ekanet\Controllers\Admin\CaracteristicasController;
 use Ekanet\Controllers\Admin\CategoriasController;
 use Ekanet\Controllers\Admin\ClientesController;
 use Ekanet\Controllers\Admin\ConfiguracionController;
+use Ekanet\Controllers\Admin\CuponesController;
 use Ekanet\Controllers\Admin\DashboardController;
 use Ekanet\Controllers\Admin\DireccionesController;
 use Ekanet\Controllers\Admin\MarcasController;
 use Ekanet\Controllers\Admin\MetodosPagoController;
 use Ekanet\Controllers\Admin\PixelesController;
+use Ekanet\Controllers\Admin\PreciosEspecialesController;
 use Ekanet\Controllers\Admin\ProductosController;
 use Ekanet\Controllers\Admin\ProveedoresController;
 use Ekanet\Controllers\Admin\RolesController;
@@ -152,6 +154,22 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/banners/{id}/editar',      [BannersController::class, 'edit']);
     $r->post('/banners/{id}/editar',     [BannersController::class, 'update']);
     $r->post('/banners/{id}/eliminar',   [BannersController::class, 'destroy']);
+
+    // Cupones
+    $r->get('/cupones',                  [CuponesController::class, 'index']);
+    $r->get('/cupones/nuevo',            [CuponesController::class, 'create']);
+    $r->post('/cupones/nuevo',           [CuponesController::class, 'store']);
+    $r->get('/cupones/{id}/editar',      [CuponesController::class, 'edit']);
+    $r->post('/cupones/{id}/editar',     [CuponesController::class, 'update']);
+    $r->post('/cupones/{id}/eliminar',   [CuponesController::class, 'destroy']);
+
+    // Precios especiales
+    $r->get('/precios_especiales',                  [PreciosEspecialesController::class, 'index']);
+    $r->get('/precios_especiales/nuevo',            [PreciosEspecialesController::class, 'create']);
+    $r->post('/precios_especiales/nuevo',           [PreciosEspecialesController::class, 'store']);
+    $r->get('/precios_especiales/{id}/editar',      [PreciosEspecialesController::class, 'edit']);
+    $r->post('/precios_especiales/{id}/editar',     [PreciosEspecialesController::class, 'update']);
+    $r->post('/precios_especiales/{id}/eliminar',   [PreciosEspecialesController::class, 'destroy']);
 
     // Configuración
     $r->get('/configuracion',  [ConfiguracionController::class, 'index']);

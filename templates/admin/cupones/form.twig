@@ -1,0 +1,136 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_descuentos.twig' with {tab: 'cupones'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nuevo cupón' : 'Editar cupón' }}
+        </h1>
+        {% if mode == 'edit' %}<p class="ek-page-header__subtitle">ID #{{ item.id_cart_rule }}</p>{% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('cupones') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('cupones/nuevo')
+          : admin_url('cupones/' ~ item.id_cart_rule ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Identificación</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Nombre interno *</span>
+                <input type="text" name="name" required maxlength="254" value="{{ item.name|default('') }}"
+                       placeholder="ej. Black Friday 2026">
+            </label>
+
+            <label class="ek-field">
+                <span>Código de cupón</span>
+                <input type="text" name="code" maxlength="254" value="{{ item.code|default('') }}"
+                       placeholder="ej. BLACKFRIDAY25"
+                       style="text-transform: uppercase">
+                <small class="ek-field__hint">Si lo dejas vacío, el descuento se aplica automático.</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Estado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="active" value="1" {{ item.active ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Cupón activo</span>
+                </label>
+            </label>
+
+            <label class="ek-field ek-field--wide">
+                <span>Descripción interna (admin)</span>
+                <textarea name="description" rows="2">{{ item.description|default('') }}</textarea>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Descuento</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Reducción porcentaje (%)</span>
+                <input type="text" name="reduction_percent" inputmode="decimal"
+                       value="{{ item.reduction_percent|default(0)|number_format(2, '.', '') }}">
+            </label>
+            <label class="ek-field">
+                <span>Reducción importe (€)</span>
+                <input type="text" name="reduction_amount" inputmode="decimal"
+                       value="{{ item.reduction_amount|default(0)|number_format(2, '.', '') }}">
+            </label>
+            <label class="ek-field">
+                <span>Envío gratis</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="free_shipping" value="1" {{ item.free_shipping ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Sin coste de envío</span>
+                </label>
+            </label>
+            <label class="ek-field">
+                <span>Destacar en la web</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="highlight" value="1" {{ item.highlight ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Mostrar como sugerencia</span>
+                </label>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Condiciones</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Importe mínimo carrito (€)</span>
+                <input type="text" name="minimum_amount" inputmode="decimal"
+                       value="{{ item.minimum_amount|default(0)|number_format(2, '.', '') }}">
+            </label>
+            <label class="ek-field">
+                <span>Total de usos disponibles</span>
+                <input type="number" name="quantity" min="0" value="{{ item.quantity|default(100) }}">
+                <small class="ek-field__hint">0 = ilimitado.</small>
+            </label>
+            <label class="ek-field">
+                <span>Usos por cliente</span>
+                <input type="number" name="quantity_per_user" min="0" value="{{ item.quantity_per_user|default(1) }}">
+            </label>
+            <label class="ek-field">
+                <span>Prioridad</span>
+                <input type="number" name="priority" min="1" value="{{ item.priority|default(1) }}">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Vigencia</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Fecha inicio *</span>
+                <input type="datetime-local" name="date_from" required
+                       value="{{ item.date_from ? item.date_from|date('Y-m-d\\TH:i') : '' }}">
+            </label>
+            <label class="ek-field">
+                <span>Fecha fin *</span>
+                <input type="datetime-local" name="date_to" required
+                       value="{{ item.date_to ? item.date_to|date('Y-m-d\\TH:i') : '' }}">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('cupones') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear cupón' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

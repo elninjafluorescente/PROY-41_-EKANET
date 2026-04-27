@@ -1,0 +1,5 @@
+{# Pestañas: Cupones / Precios especiales. Var: tab #}
+<div class="ek-tabs">
+    <a class="ek-tabs__tab {{ tab == 'cupones' ? 'is-active' : '' }}" href="{{ admin_url('cupones') }}">Cupones</a>
+    <a class="ek-tabs__tab {{ tab == 'precios' ? 'is-active' : '' }}" href="{{ admin_url('precios_especiales') }}">Precios especiales</a>
+</div>

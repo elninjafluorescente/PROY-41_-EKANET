@@ -1,0 +1,78 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_descuentos.twig' with {tab: 'cupones'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Cupones</h1>
+        <p class="ek-page-header__subtitle">
+            Códigos promocionales que el cliente introduce en el carrito (BLACKFRIDAY25, NAVIDAD2026…).
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('cupones/nuevo') }}">+ Nuevo cupón</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th style="width:130px">Código</th>
+                <th>Nombre</th>
+                <th>Descuento</th>
+                <th>Mínimo carrito</th>
+                <th>Vigencia</th>
+                <th style="width:80px">Usos</th>
+                <th style="width:80px">Estado</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in rules %}
+            <tr>
+                <td class="mono">{{ r.id_cart_rule }}</td>
+                <td class="mono" style="font-size:12px">{{ r.code|default('—') }}</td>
+                <td>
+                    <strong>{{ r.name }}</strong>
+                    {% if r.highlight %}<span class="ek-pill ek-pill--gold">destacado</span>{% endif %}
+                </td>
+                <td style="font-size:12px">
+                    {% if r.reduction_percent > 0 %}{{ r.reduction_percent|number_format(0) }}%{% endif %}
+                    {% if r.reduction_percent > 0 and r.reduction_amount > 0 %} + {% endif %}
+                    {% if r.reduction_amount > 0 %}{{ r.reduction_amount|number_format(2, ',', '.') }} €{% endif %}
+                    {% if r.free_shipping %}<span class="ek-pill ek-pill--blue">+ envío gratis</span>{% endif %}
+                </td>
+                <td class="mono" style="font-size:12px">
+                    {% if r.minimum_amount > 0 %}{{ r.minimum_amount|number_format(0) }} €{% else %}—{% endif %}
+                </td>
+                <td style="font-size:12px; color: var(--ek-ink-3)">
+                    {{ r.date_from|date('d/m/Y') }} → {{ r.date_to|date('d/m/Y') }}
+                </td>
+                <td class="mono">{{ r.quantity }}</td>
+                <td>
+                    {% if r.active %}
+                        <span class="ek-badge ek-badge--ok">Activo</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('cupones/' ~ r.id_cart_rule ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('cupones/' ~ r.id_cart_rule ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar el cupón \'{{ r.name }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="9" class="ek-table__empty">No hay cupones todavía.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

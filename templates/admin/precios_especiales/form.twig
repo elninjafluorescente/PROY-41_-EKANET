@@ -1,0 +1,117 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_descuentos.twig' with {tab: 'precios'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nuevo precio especial' : 'Editar precio especial' }}
+        </h1>
+        {% if mode == 'edit' %}<p class="ek-page-header__subtitle">ID #{{ item.id_specific_price }}</p>{% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('precios_especiales') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('precios_especiales/nuevo')
+          : admin_url('precios_especiales/' ~ item.id_specific_price ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Producto y cliente</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Producto *</span>
+                <select name="id_product" required>
+                    <option value="0">— Selecciona producto —</option>
+                    {% for p in products %}
+                        <option value="{{ p.id_product }}" {{ p.id_product == item.id_product ? 'selected' : '' }}>
+                            {{ p.name }}{% if p.reference %} · {{ p.reference }}{% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="ek-field">
+                <span>Cliente</span>
+                <select name="id_customer">
+                    <option value="0">— Todos los clientes —</option>
+                    {% for c in customers %}
+                        <option value="{{ c.id_customer }}" {{ c.id_customer == item.id_customer ? 'selected' : '' }}>
+                            {{ c.firstname }} {{ c.lastname }} ({{ c.email }})
+                        </option>
+                    {% endfor %}
+                </select>
+                <small class="ek-field__hint">Útil para precios B2B negociados.</small>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Reducción / precio</h2>
+        <p class="ek-panel__hint">Indica un <strong>precio fijo</strong> O bien una <strong>reducción</strong>. Si rellenas precio fijo, se ignora la reducción.</p>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Precio fijo (€) — opcional</span>
+                <input type="text" name="price" inputmode="decimal"
+                       value="{{ item.price >= 0 ? item.price|number_format(2, '.', '') : '' }}"
+                       placeholder="dejar vacío para usar reducción">
+            </label>
+
+            <label class="ek-field">
+                <span>Tipo de reducción</span>
+                <select name="reduction_type">
+                    <option value="percentage" {{ item.reduction_type == 'percentage' ? 'selected' : '' }}>Porcentaje (%)</option>
+                    <option value="amount" {{ item.reduction_type == 'amount' ? 'selected' : '' }}>Importe (€)</option>
+                </select>
+            </label>
+
+            <label class="ek-field">
+                <span>Valor de la reducción</span>
+                <input type="text" name="reduction" inputmode="decimal"
+                       value="{{ item.reduction|default(0)|number_format(2, '.', '') }}">
+                <small class="ek-field__hint">Para % usa formato decimal: 0.10 = 10%, 0.25 = 25%.</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Reducción incluye IVA</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="reduction_tax" value="1" {{ item.reduction_tax ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">El valor incluye impuestos</span>
+                </label>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Cantidad y vigencia</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Cantidad mínima</span>
+                <input type="number" name="from_quantity" min="1" value="{{ item.from_quantity|default(1) }}">
+                <small class="ek-field__hint">A partir de esta cantidad se aplica.</small>
+            </label>
+            <label class="ek-field">
+                <span>Desde</span>
+                <input type="datetime-local" name="from" value="{{ item.from ? item.from|date('Y-m-d\\TH:i') : '' }}">
+            </label>
+            <label class="ek-field">
+                <span>Hasta</span>
+                <input type="datetime-local" name="to" value="{{ item.to ? item.to|date('Y-m-d\\TH:i') : '' }}">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('precios_especiales') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear precio especial' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+{% endblock %}
