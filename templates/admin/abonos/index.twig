@@ -1,0 +1,75 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_pedidos.twig' with {tab: 'abonos'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Facturas por abono</h1>
+        <p class="ek-page-header__subtitle">
+            Total: <strong>{{ total }}</strong>. Los abonos se generan desde la ficha de un pedido.
+        </p>
+    </div>
+</div>
+
+<form method="get" action="{{ admin_url('abonos') }}" class="ek-search-bar">
+    <input type="search" name="q" value="{{ search }}" placeholder="Buscar por pedido o cliente…">
+    <button type="submit" class="ek-btn ek-btn--ghost">Buscar</button>
+    {% if search %}<a class="ek-btn ek-btn--ghost" href="{{ admin_url('abonos') }}">Limpiar</a>{% endif %}
+</form>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:80px">Nº abono</th>
+                <th>Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th style="width:100px">Tipo</th>
+                <th style="width:120px; text-align:right">Importe</th>
+                <th style="width:90px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in slips %}
+            <tr>
+                <td class="mono"><strong>AB{{ '%06d'|format(s.id_order_slip) }}</strong></td>
+                <td class="mono" style="font-size:12px">
+                    {% if s.order_reference %}
+                        <a href="{{ admin_url('pedidos/' ~ s.id_order) }}">{{ s.order_reference }}</a>
+                    {% else %}—{% endif %}
+                </td>
+                <td>
+                    <strong>{{ s.firstname }} {{ s.lastname }}</strong>
+                    {% if s.company %}<br><span style="color:var(--ek-ink-3); font-size:12px">{{ s.company }}</span>{% endif %}
+                </td>
+                <td style="font-size:12px; color: var(--ek-ink-3)">{{ s.date_add|date('d/m/Y') }}</td>
+                <td>
+                    {% if s.partial %}
+                        <span class="ek-pill ek-pill--blue">parcial</span>
+                    {% else %}
+                        <span class="ek-pill ek-pill--gold">total</span>
+                    {% endif %}
+                </td>
+                <td class="mono" style="text-align:right">{{ s.amount|number_format(2, ',', '.') }} €</td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('abonos/' ~ s.id_order_slip) }}">Ver</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="ek-table__empty">No hay abonos. Genéralos desde la ficha de un pedido.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pages > 1 %}
+<nav class="ek-pagination">
+    {% for i in 1..pages %}
+        <a href="{{ admin_url('abonos') }}?p={{ i }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+           class="ek-pagination__page {{ i == page ? 'is-active' : '' }}">{{ i }}</a>
+    {% endfor %}
+</nav>
+{% endif %}
+{% endblock %}

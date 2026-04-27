@@ -1,0 +1,6 @@
+{# Pestañas: Pedidos / Facturas / Abonos. Var: tab #}
+<div class="ek-tabs">
+    <a class="ek-tabs__tab {{ tab == 'pedidos' ? 'is-active' : '' }}" href="{{ admin_url('pedidos') }}">Pedidos</a>
+    <a class="ek-tabs__tab {{ tab == 'facturas' ? 'is-active' : '' }}" href="{{ admin_url('facturas') }}">Facturas</a>
+    <a class="ek-tabs__tab {{ tab == 'abonos' ? 'is-active' : '' }}" href="{{ admin_url('abonos') }}">Facturas por abono</a>
+</div>

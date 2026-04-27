@@ -38,6 +38,7 @@ use Ekanet\Core\Database;
 use Ekanet\Core\Router;
 use Ekanet\Core\Session;
 use Ekanet\Core\View;
+use Ekanet\Controllers\Admin\AbonosController;
 use Ekanet\Controllers\Admin\AtributosController;
 use Ekanet\Controllers\Admin\AuthController;
 use Ekanet\Controllers\Admin\BannersController;
@@ -48,8 +49,10 @@ use Ekanet\Controllers\Admin\ConfiguracionController;
 use Ekanet\Controllers\Admin\CuponesController;
 use Ekanet\Controllers\Admin\DashboardController;
 use Ekanet\Controllers\Admin\DireccionesController;
+use Ekanet\Controllers\Admin\FacturasController;
 use Ekanet\Controllers\Admin\MarcasController;
 use Ekanet\Controllers\Admin\MetodosPagoController;
+use Ekanet\Controllers\Admin\PedidosController;
 use Ekanet\Controllers\Admin\PixelesController;
 use Ekanet\Controllers\Admin\PreciosEspecialesController;
 use Ekanet\Controllers\Admin\ProductosController;
@@ -159,6 +162,24 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     // Stock (vista masiva)
     $r->get('/stock',          [StockController::class, 'index']);
     $r->post('/stock/guardar', [StockController::class, 'bulkUpdate']);
+
+    // Pedidos
+    $r->get('/pedidos',                       [PedidosController::class, 'index']);
+    $r->get('/pedidos/nuevo',                 [PedidosController::class, 'createForm']);
+    $r->post('/pedidos/nuevo',                [PedidosController::class, 'store']);
+    $r->get('/pedidos/{id}',                  [PedidosController::class, 'show']);
+    $r->post('/pedidos/{id}/estado',          [PedidosController::class, 'changeState']);
+    $r->post('/pedidos/{id}/datos',           [PedidosController::class, 'updateMisc']);
+    $r->post('/pedidos/{id}/factura',         [PedidosController::class, 'generateInvoice']);
+    $r->post('/pedidos/{id}/abono',           [PedidosController::class, 'generateSlip']);
+
+    // Facturas
+    $r->get('/facturas',         [FacturasController::class, 'index']);
+    $r->get('/facturas/{id}',    [FacturasController::class, 'show']);
+
+    // Abonos
+    $r->get('/abonos',           [AbonosController::class, 'index']);
+    $r->get('/abonos/{id}',      [AbonosController::class, 'show']);
 
     // Cupones
     $r->get('/cupones',                  [CuponesController::class, 'index']);

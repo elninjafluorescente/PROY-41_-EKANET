@@ -1,0 +1,91 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_pedidos.twig' with {tab: 'pedidos'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Nuevo pedido manual</h1>
+        <p class="ek-page-header__subtitle">
+            Para alta directa desde el back office (B2B telefónico, presupuestos aceptados, etc.).
+            La mayoría de pedidos vendrán del checkout del frontend.
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('pedidos') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form" action="{{ admin_url('pedidos/nuevo') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Cliente y estado</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Cliente *</span>
+                <select name="id_customer" required>
+                    <option value="0">— Selecciona cliente —</option>
+                    {% for c in customers %}
+                        <option value="{{ c.id_customer }}">{{ c.firstname }} {{ c.lastname }} ({{ c.email }})</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="ek-field">
+                <span>Estado inicial</span>
+                <select name="current_state">
+                    {% for s in states %}
+                        <option value="{{ s.id_order_state }}" {{ s.id_order_state == 1 ? 'selected' : '' }}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="ek-field">
+                <span>Forma de pago</span>
+                <input type="text" name="payment" value="Manual" maxlength="255">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Línea de producto</h2>
+        <p class="ek-panel__hint">Para esta versión simplificada, una línea por pedido. La multilínea llegará cuando enganchemos el flujo del checkout.</p>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Concepto / nombre del producto</span>
+                <input type="text" name="line_name" placeholder="ej. Armario rack 19″ 42U" maxlength="255">
+            </label>
+            <label class="ek-field">
+                <span>Precio unitario (€ con IVA)</span>
+                <input type="text" name="line_price" inputmode="decimal" value="0">
+            </label>
+            <label class="ek-field">
+                <span>Cantidad</span>
+                <input type="number" name="line_quantity" min="0" value="1">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Totales</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Total productos (€)</span>
+                <input type="text" name="total_products" inputmode="decimal" value="0">
+            </label>
+            <label class="ek-field">
+                <span>Coste de envío (€)</span>
+                <input type="text" name="total_shipping" inputmode="decimal" value="0">
+            </label>
+            <label class="ek-field">
+                <span>Total pagado (€)</span>
+                <input type="text" name="total_paid" inputmode="decimal" value="0">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('pedidos') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">Crear pedido</button>
+    </div>
+</form>
+{% endblock %}

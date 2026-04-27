@@ -1,0 +1,233 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_pedidos.twig' with {tab: 'pedidos'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            Pedido <span class="mono">{{ order.reference }}</span>
+            <span class="ek-badge" style="background: {{ order.state_color }}22; border-color: {{ order.state_color }}; color: {{ order.state_color }}; vertical-align: middle; font-size: 12px;">{{ order.state_name }}</span>
+        </h1>
+        <p class="ek-page-header__subtitle">
+            ID #{{ order.id_order }} · {{ order.date_add|date('d/m/Y H:i') }} · {{ order.payment }}
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('pedidos') }}">← Volver</a>
+    </div>
+</div>
+
+{# ===== Cliente + envío ===== #}
+<div class="ek-grid ek-grid--4" style="margin-bottom: 16px">
+    <div class="ek-card">
+        <div class="ek-card__label mono">CLIENTE</div>
+        <div style="font-size:14px; padding-left:14px; margin-top:8px">
+            <strong>{{ order.firstname }} {{ order.lastname }}</strong>
+            {% if order.company %}<br>{{ order.company }}{% endif %}
+            <br><span class="mono" style="font-size:11px; color:var(--ek-ink-3)">{{ order.email }}</span>
+        </div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">PRODUCTOS</div>
+        <div class="ek-card__value" style="font-size:22px">{{ order.total_products|number_format(2, ',', '.') }} €</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">ENVÍO</div>
+        <div class="ek-card__value" style="font-size:22px">{{ order.total_shipping|number_format(2, ',', '.') }} €</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">TOTAL</div>
+        <div class="ek-card__value" style="font-size:22px">{{ order.total_paid_tax_incl|number_format(2, ',', '.') }} €</div>
+    </div>
+</div>
+
+{# ===== Líneas del pedido ===== #}
+<div class="ek-panel" style="margin-bottom:16px">
+    <h2>Productos</h2>
+    <table class="ek-table" style="margin-top:8px">
+        <thead>
+            <tr>
+                <th>Referencia</th>
+                <th>Producto</th>
+                <th style="text-align:right">Precio unidad</th>
+                <th style="text-align:right">Cantidad</th>
+                <th style="text-align:right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in lines %}
+            <tr>
+                <td class="mono" style="font-size:12px">{{ l.product_reference|default('—') }}</td>
+                <td><strong>{{ l.product_name }}</strong></td>
+                <td class="mono" style="text-align:right">{{ l.unit_price_tax_incl|number_format(2, ',', '.') }} €</td>
+                <td class="mono" style="text-align:right">{{ l.product_quantity }}</td>
+                <td class="mono" style="text-align:right">{{ l.total_price_tax_incl|number_format(2, ',', '.') }} €</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="ek-table__empty">Sin líneas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ===== Acciones: cambiar estado + datos ===== #}
+<div class="ek-grid" style="grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:16px">
+    <div class="ek-panel">
+        <h2>Cambiar estado</h2>
+        <form method="post" action="{{ admin_url('pedidos/' ~ order.id_order ~ '/estado') }}">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <label class="ek-field">
+                <span>Nuevo estado</span>
+                <select name="id_order_state">
+                    {% for s in states %}
+                        <option value="{{ s.id_order_state }}" {{ s.id_order_state == order.current_state ? 'selected' : '' }}>{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button type="submit" class="ek-btn ek-btn--primary">Guardar estado</button>
+        </form>
+    </div>
+
+    <div class="ek-panel">
+        <h2>Envío y notas</h2>
+        <form method="post" action="{{ admin_url('pedidos/' ~ order.id_order ~ '/datos') }}">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <label class="ek-field">
+                <span>Nº de seguimiento envío</span>
+                <input type="text" name="shipping_number" value="{{ order.shipping_number|default('') }}">
+            </label>
+            <label class="ek-field">
+                <span>Notas internas</span>
+                <textarea name="note" rows="2">{{ order.note|default('') }}</textarea>
+            </label>
+            <button type="submit" class="ek-btn ek-btn--primary">Guardar</button>
+        </form>
+    </div>
+</div>
+
+{# ===== Documentos ===== #}
+<div class="ek-grid" style="grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:16px">
+    {# Facturas #}
+    <div class="ek-panel">
+        <h2>Facturas</h2>
+        {% if invoices|length > 0 %}
+            <table class="ek-table" style="margin-top:8px">
+                <thead><tr><th>Número</th><th>Fecha</th><th style="text-align:right">Total</th><th></th></tr></thead>
+                <tbody>
+                    {% for inv in invoices %}
+                    <tr>
+                        <td class="mono">{{ inv.number }}</td>
+                        <td style="font-size:12px">{{ inv.date_add|date('d/m/Y') }}</td>
+                        <td class="mono" style="text-align:right">{{ inv.total_paid_tax_incl|number_format(2, ',', '.') }} €</td>
+                        <td><a class="ek-action" href="{{ admin_url('facturas/' ~ inv.id_order_invoice) }}">Ver</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: var(--ek-ink-3); margin: 8px 0 12px">Sin facturas generadas.</p>
+        {% endif %}
+        <form method="post" action="{{ admin_url('pedidos/' ~ order.id_order ~ '/factura') }}" style="margin-top:8px"
+              onsubmit="return confirm('¿Generar factura para este pedido?');">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <button type="submit" class="ek-btn ek-btn--primary">+ Generar factura</button>
+        </form>
+    </div>
+
+    {# Abonos #}
+    <div class="ek-panel">
+        <h2>Abonos</h2>
+        {% if slips|length > 0 %}
+            <table class="ek-table" style="margin-top:8px">
+                <thead><tr><th>ID</th><th>Fecha</th><th style="text-align:right">Importe</th><th></th></tr></thead>
+                <tbody>
+                    {% for s in slips %}
+                    <tr>
+                        <td class="mono">{{ s.id_order_slip }}</td>
+                        <td style="font-size:12px">{{ s.date_add|date('d/m/Y') }}</td>
+                        <td class="mono" style="text-align:right">{{ s.amount|number_format(2, ',', '.') }} €</td>
+                        <td><a class="ek-action" href="{{ admin_url('abonos/' ~ s.id_order_slip) }}">Ver</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: var(--ek-ink-3); margin: 8px 0 12px">Sin abonos.</p>
+        {% endif %}
+    </div>
+</div>
+
+{# ===== Crear abono ===== #}
+{% if lines|length > 0 %}
+<div class="ek-panel" style="margin-bottom: 16px">
+    <h2>Crear abono</h2>
+    <form method="post" action="{{ admin_url('pedidos/' ~ order.id_order ~ '/abono') }}"
+          onsubmit="return confirm('¿Crear abono con las cantidades indicadas?');">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <table class="ek-table" style="margin-top:8px">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th style="text-align:right">Comprado</th>
+                    <th style="text-align:right">Reembolsado</th>
+                    <th style="width:100px; text-align:right">A reembolsar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in lines %}
+                <tr>
+                    <td>{{ l.product_name }}</td>
+                    <td class="mono" style="text-align:right">{{ l.product_quantity }}</td>
+                    <td class="mono" style="text-align:right">{{ l.product_quantity_refunded }}</td>
+                    <td style="text-align:right">
+                        <input type="number" name="refund[{{ l.id_order_detail }}]"
+                               min="0" max="{{ l.product_quantity - l.product_quantity_refunded }}"
+                               value="0" class="ek-stock-input ek-stock-input--small">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="display:flex; gap:14px; align-items:center; margin-top: 14px">
+            <label class="ek-switch">
+                <input type="checkbox" name="refund_shipping" value="1">
+                <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                <span class="ek-switch__label">Reembolsar gastos de envío</span>
+            </label>
+            <label class="ek-switch">
+                <input type="checkbox" name="partial" value="1" checked>
+                <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                <span class="ek-switch__label">Abono parcial</span>
+            </label>
+            <button type="submit" class="ek-btn ek-btn--primary" style="margin-left:auto">Crear abono</button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{# ===== Histórico ===== #}
+<div class="ek-panel">
+    <h2>Histórico de cambios de estado</h2>
+    {% if history|length > 0 %}
+        <table class="ek-table" style="margin-top:8px">
+            <thead><tr><th>Fecha</th><th>Estado</th><th>Empleado</th></tr></thead>
+            <tbody>
+                {% for h in history %}
+                <tr>
+                    <td style="font-size:12px">{{ h.date_add|date('d/m/Y H:i') }}</td>
+                    <td>
+                        <span class="ek-badge" style="background: {{ h.state_color }}22; border-color: {{ h.state_color }}; color: {{ h.state_color }}">
+                            {{ h.state_name }}
+                        </span>
+                    </td>
+                    <td style="font-size:12px">{{ h.emp_firstname|default('Sistema') }} {{ h.emp_lastname|default('') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="color: var(--ek-ink-3); margin: 8px 0">Sin histórico.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_pedidos.twig' with {tab: 'facturas'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Facturas</h1>
+        <p class="ek-page-header__subtitle">
+            Total: <strong>{{ total }}</strong> · Prefijo actual: <code>{{ prefix }}</code>
+        </p>
+    </div>
+</div>
+
+<form method="get" action="{{ admin_url('facturas') }}" class="ek-search-bar">
+    <input type="search" name="q" value="{{ search }}" placeholder="Buscar por nº factura, pedido o cliente…">
+    <button type="submit" class="ek-btn ek-btn--ghost">Buscar</button>
+    {% if search %}<a class="ek-btn ek-btn--ghost" href="{{ admin_url('facturas') }}">Limpiar</a>{% endif %}
+</form>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nº factura</th>
+                <th>Pedido</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th style="width:120px; text-align:right">Importe</th>
+                <th style="width:90px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inv in invoices %}
+            <tr>
+                <td class="mono">{{ inv.id_order_invoice }}</td>
+                <td class="mono"><strong>{{ prefix }}{{ '%06d'|format(inv.number) }}</strong></td>
+                <td class="mono" style="font-size:12px">{{ inv.order_reference|default('—') }}</td>
+                <td>
+                    <strong>{{ inv.firstname }} {{ inv.lastname }}</strong>
+                    {% if inv.company %}<br><span style="color:var(--ek-ink-3); font-size:12px">{{ inv.company }}</span>{% endif %}
+                </td>
+                <td style="font-size:12px; color: var(--ek-ink-3)">{{ inv.date_add|date('d/m/Y') }}</td>
+                <td class="mono" style="text-align:right">{{ inv.total_paid_tax_incl|number_format(2, ',', '.') }} €</td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('facturas/' ~ inv.id_order_invoice) }}">Ver</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="ek-table__empty">No hay facturas todavía. Genéralas desde la ficha de un pedido.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pages > 1 %}
+<nav class="ek-pagination">
+    {% for i in 1..pages %}
+        <a href="{{ admin_url('facturas') }}?p={{ i }}{% if search %}&q={{ search|url_encode }}{% endif %}"
+           class="ek-pagination__page {{ i == page ? 'is-active' : '' }}">{{ i }}</a>
+    {% endfor %}
+</nav>
+{% endif %}
+{% endblock %}

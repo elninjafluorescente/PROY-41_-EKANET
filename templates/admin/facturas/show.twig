@@ -1,0 +1,128 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_pedidos.twig' with {tab: 'facturas'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">{{ page_title }}</h1>
+        <p class="ek-page-header__subtitle">
+            ID #{{ invoice.id_order_invoice }} ·
+            Pedido <a href="{{ admin_url('pedidos/' ~ invoice.id_order) }}" class="mono">{{ invoice.order_reference }}</a> ·
+            {{ invoice.date_add|date('d/m/Y H:i') }}
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('facturas') }}">← Volver</a>
+        <button class="ek-btn ek-btn--primary" onclick="window.print()">Imprimir</button>
+    </div>
+</div>
+
+<div class="ek-panel ek-invoice">
+    {# Cabecera con datos de tienda y cliente #}
+    <div class="ek-invoice__head">
+        <div class="ek-invoice__shop">
+            <h3 style="margin:0">{{ shop.name }}</h3>
+            <p style="margin:4px 0; color: var(--ek-ink-3); font-size:12px; line-height:1.5">
+                {{ shop.cif }}<br>
+                {{ shop.addr1 }}{% if shop.addr2 %}<br>{{ shop.addr2 }}{% endif %}<br>
+                {{ shop.code }} {{ shop.city }}<br>
+                {{ shop.email }}{% if shop.phone %} · {{ shop.phone }}{% endif %}
+            </p>
+        </div>
+        <div class="ek-invoice__meta">
+            <div style="font-size: 11px; letter-spacing: .12em; color: var(--ek-ink-3); text-transform: uppercase">Factura</div>
+            <div class="mono" style="font-size: 24px; font-weight: 700">{{ page_title|replace({'Factura ':''}) }}</div>
+            <div style="font-size:12px; color: var(--ek-ink-3); margin-top:8px">
+                Fecha: {{ invoice.date_add|date('d/m/Y') }}
+            </div>
+        </div>
+    </div>
+
+    <div class="ek-invoice__customer">
+        <div style="font-size: 11px; letter-spacing: .12em; color: var(--ek-ink-3); text-transform: uppercase; margin-bottom: 4px">Facturar a</div>
+        <strong>{{ invoice.firstname }} {{ invoice.lastname }}</strong>
+        {% if invoice.company %}<br>{{ invoice.company }}{% endif %}
+        {% if invoice.siret %}<br>CIF: {{ invoice.siret }}{% endif %}
+        <br><span class="mono" style="font-size:11px; color:var(--ek-ink-3)">{{ invoice.email }}</span>
+    </div>
+
+    {# Líneas #}
+    <table class="ek-table" style="margin-top:18px; border:1px solid var(--ek-line)">
+        <thead>
+            <tr>
+                <th>Referencia</th>
+                <th>Concepto</th>
+                <th style="text-align:right">P. unit. sin IVA</th>
+                <th style="text-align:right">Cant.</th>
+                <th style="text-align:right">Total sin IVA</th>
+                <th style="text-align:right">Total con IVA</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in lines %}
+            <tr>
+                <td class="mono" style="font-size:11px">{{ l.product_reference|default('—') }}</td>
+                <td>{{ l.product_name }}</td>
+                <td class="mono" style="text-align:right">{{ l.unit_price_tax_excl|number_format(2, ',', '.') }} €</td>
+                <td class="mono" style="text-align:right">{{ l.product_quantity }}</td>
+                <td class="mono" style="text-align:right">{{ l.total_price_tax_excl|number_format(2, ',', '.') }} €</td>
+                <td class="mono" style="text-align:right">{{ l.total_price_tax_incl|number_format(2, ',', '.') }} €</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="ek-invoice__totals">
+        <div>
+            <span style="color: var(--ek-ink-3)">Subtotal sin IVA</span>
+            <span class="mono">{{ invoice.total_paid_tax_excl|number_format(2, ',', '.') }} €</span>
+        </div>
+        <div>
+            <span style="color: var(--ek-ink-3)">Envío</span>
+            <span class="mono">{{ invoice.total_shipping_tax_incl|number_format(2, ',', '.') }} €</span>
+        </div>
+        <div class="ek-invoice__total">
+            <strong>TOTAL</strong>
+            <strong class="mono">{{ invoice.total_paid_tax_incl|number_format(2, ',', '.') }} €</strong>
+        </div>
+    </div>
+
+    {% if invoice.payment %}
+    <div style="margin-top: 24px; font-size: 12px; color: var(--ek-ink-3)">
+        Forma de pago: <strong>{{ invoice.payment }}</strong>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.ek-invoice{ padding: 32px; }
+.ek-invoice__head{ display:flex; justify-content: space-between; gap: 30px; margin-bottom: 22px; }
+.ek-invoice__meta{ text-align: right; }
+.ek-invoice__customer{
+    padding: 14px 16px;
+    background: var(--ek-line-2);
+    border-radius: var(--ek-r-sm);
+    border-left: 3px solid var(--ek-blue);
+}
+.ek-invoice__totals{
+    display:flex; flex-direction: column; gap: 4px;
+    margin-top: 18px; padding: 14px 16px;
+    background: var(--ek-line-2);
+    border-radius: var(--ek-r-sm);
+    align-items: flex-end;
+}
+.ek-invoice__totals > div{ display:flex; gap: 24px; min-width: 320px; justify-content: space-between; }
+.ek-invoice__total{
+    border-top: 1px solid var(--ek-line);
+    padding-top: 8px; margin-top: 4px;
+    font-size: 16px;
+}
+@media print {
+    .ek-sidebar, .ek-topbar, .ek-tabs, .ek-page-header__actions, .ek-tabs { display: none !important; }
+    .ek-admin{ grid-template-columns: 1fr; }
+    .ek-content{ padding: 0; }
+    .ek-panel{ border: 0; }
+}
+</style>
+{% endblock %}
