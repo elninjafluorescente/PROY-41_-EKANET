@@ -94,6 +94,8 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/productos/{id}/editar',      [ProductosController::class, 'edit']);
     $r->post('/productos/{id}/editar',     [ProductosController::class, 'update']);
     $r->post('/productos/{id}/eliminar',   [ProductosController::class, 'destroy']);
+    $r->post('/productos/{id}/caracteristicas/asignar',     [ProductosController::class, 'attachFeature']);
+    $r->post('/productos/{id}/caracteristicas/desasignar',  [ProductosController::class, 'detachFeature']);
 
     // Categorías
     $r->get('/categorias',                  [CategoriasController::class, 'index']);

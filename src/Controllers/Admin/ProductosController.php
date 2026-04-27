@@ -7,6 +7,7 @@ use Ekanet\Core\Controller;
 use Ekanet\Core\Csrf;
 use Ekanet\Core\Session;
 use Ekanet\Models\Category;
+use Ekanet\Models\Feature;
 use Ekanet\Models\Manufacturer;
 use Ekanet\Models\Product;
 use Ekanet\Models\Supplier;
@@ -148,8 +149,73 @@ final class ProductosController extends Controller
 
     // ============ Helpers ============
 
+    // ============ Características asignadas al producto ============
+
+    public function attachFeature(string $id): void
+    {
+        $idInt = (int)$id;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar");
+            return;
+        }
+        $idFeature = (int)$this->input('id_feature', 0);
+        $idValue   = (int)$this->input('id_feature_value', 0);
+        $custom    = trim((string)$this->input('custom_value', ''));
+
+        if ($idFeature < 1) {
+            Session::flash('error', 'Selecciona una característica.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar");
+            return;
+        }
+        try {
+            if ($custom !== '') {
+                Feature::assignCustomValue($idInt, $idFeature, $custom);
+                Session::flash('success', "Característica asignada con valor personalizado.");
+            } elseif ($idValue > 0) {
+                Feature::assignToProduct($idInt, $idFeature, $idValue);
+                Session::flash('success', 'Característica asignada.');
+            } else {
+                Session::flash('error', 'Indica un valor predefinido o uno personalizado.');
+            }
+        } catch (\Throwable $e) {
+            Session::flash('error', 'Error: ' . $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#caracteristicas");
+    }
+
+    public function detachFeature(string $id): void
+    {
+        $idInt = (int)$id;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar");
+            return;
+        }
+        $idFeature = (int)$this->input('id_feature', 0);
+        try {
+            Feature::unassignFromProduct($idInt, $idFeature);
+            Session::flash('success', 'Característica desasignada.');
+        } catch (\Throwable $e) {
+            Session::flash('error', $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#caracteristicas");
+    }
+
+    // ============ Helpers ============
+
     private function renderForm(string $mode, array $item): void
     {
+        // Datos auxiliares para la sección de "características asignadas"
+        $allFeatures   = Feature::all();
+        $featuresByProduct = ($mode === 'edit')
+            ? Feature::forProduct((int)$item['id_product'])
+            : [];
+        $featureValues = [];
+        foreach ($allFeatures as $f) {
+            $featureValues[(int)$f['id_feature']] = Feature::values((int)$f['id_feature']);
+        }
+
         $this->render('admin/productos/form.twig', [
             'page_title'    => $mode === 'create' ? 'Nuevo producto' : 'Editar producto',
             'active'        => 'productos',
@@ -158,6 +224,9 @@ final class ProductosController extends Controller
             'categories'    => Category::flatList(),
             'manufacturers' => Manufacturer::all(),
             'suppliers'     => Supplier::all(),
+            'all_features'  => $allFeatures,
+            'product_features' => $featuresByProduct,
+            'feature_values'   => $featureValues,
             'visibilities'  => [
                 'both'    => 'Catálogo + búsqueda',
                 'catalog' => 'Solo catálogo',

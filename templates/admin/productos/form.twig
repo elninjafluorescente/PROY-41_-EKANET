@@ -245,6 +245,106 @@
     </div>
 </form>
 
+{% if mode == 'edit' %}
+<div class="ek-panel" id="caracteristicas" style="margin-top:16px">
+    <h2>Características asignadas</h2>
+    <p class="ek-panel__hint">
+        Asigna características descriptivas (potencia, material, dimensiones…) al producto.
+        Se gestiona desde <a href="{{ admin_url('caracteristicas') }}">Atributos y características</a>.
+    </p>
+
+    {% if product_features|length > 0 %}
+    <table class="ek-table" style="margin-top:8px">
+        <thead>
+            <tr>
+                <th>Característica</th>
+                <th>Valor</th>
+                <th style="width:120px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pf in product_features %}
+            <tr>
+                <td><strong>{{ pf.feature_name|default('—') }}</strong></td>
+                <td>{{ pf.value|default('—') }}</td>
+                <td style="text-align:right">
+                    <form method="post"
+                          action="{{ admin_url('productos/' ~ item.id_product ~ '/caracteristicas/desasignar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Quitar esta característica del producto?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <input type="hidden" name="id_feature" value="{{ pf.id_feature }}">
+                        <button type="submit" class="ek-action ek-action--danger">Quitar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color: var(--ek-ink-3); margin: 6px 0 14px">Sin características asignadas todavía.</p>
+    {% endif %}
+
+    <h3 style="font-size:13px; margin-top:18px; padding-top:14px; border-top:1px solid var(--ek-line)">+ Asignar característica</h3>
+    {% if all_features|length == 0 %}
+        <p style="color: var(--ek-ink-3)">
+            Primero crea características en
+            <a href="{{ admin_url('caracteristicas') }}">Atributos y características → Características</a>.
+        </p>
+    {% else %}
+    <form method="post" action="{{ admin_url('productos/' ~ item.id_product ~ '/caracteristicas/asignar') }}"
+          class="ek-values-add" style="border-top:0; padding-top:0; align-items:flex-end">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+        <label class="ek-field" style="margin:0; flex:1; min-width:160px">
+            <span>Característica</span>
+            <select name="id_feature" id="ek-feat-select" required>
+                <option value="0">— Selecciona —</option>
+                {% for f in all_features %}
+                    <option value="{{ f.id_feature }}">{{ f.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label class="ek-field" style="margin:0; flex:1; min-width:160px">
+            <span>Valor predefinido</span>
+            <select name="id_feature_value" id="ek-feat-value">
+                <option value="0">—</option>
+                {% for fid, vals in feature_values %}
+                    {% for v in vals %}
+                        <option value="{{ v.id_feature_value }}" data-feature="{{ fid }}" hidden>{{ v.value }}</option>
+                    {% endfor %}
+                {% endfor %}
+            </select>
+        </label>
+
+        <label class="ek-field" style="margin:0; flex:1; min-width:160px">
+            <span>O valor personalizado</span>
+            <input type="text" name="custom_value" maxlength="255" placeholder="Texto libre">
+        </label>
+
+        <button type="submit" class="ek-btn ek-btn--primary">Asignar</button>
+    </form>
+
+    <script>
+    (function () {
+        const featSel = document.getElementById('ek-feat-select');
+        const valSel  = document.getElementById('ek-feat-value');
+        if (!featSel || !valSel) return;
+        featSel.addEventListener('change', () => {
+            const fid = featSel.value;
+            valSel.value = '0';
+            valSel.querySelectorAll('option').forEach(o => {
+                if (o.value === '0') return;
+                o.hidden = (o.dataset.feature !== fid);
+            });
+        });
+    })();
+    </script>
+    {% endif %}
+</div>
+{% endif %}
+
 <script>
 (function () {
     const nameEl = document.getElementById('ek-prod-name');

@@ -170,6 +170,79 @@ final class Feature
         }
     }
 
+    // ============== Asignación a productos ==============
+
+    /** Características asignadas a un producto, con su valor. */
+    public static function forProduct(int $idProduct, int $idLang = 1): array
+    {
+        $sql = 'SELECT fp.id_feature, fp.id_feature_value,
+                       fl.name AS feature_name,
+                       vl.value AS value
+                FROM `{P}feature_product` fp
+                LEFT JOIN `{P}feature` f ON f.id_feature = fp.id_feature
+                LEFT JOIN `{P}feature_lang` fl
+                  ON fl.id_feature = fp.id_feature AND fl.id_lang = :lang
+                LEFT JOIN `{P}feature_value_lang` vl
+                  ON vl.id_feature_value = fp.id_feature_value AND vl.id_lang = :lang
+                WHERE fp.id_product = :p
+                ORDER BY f.position, fp.id_feature';
+        return Database::run($sql, ['p' => $idProduct, 'lang' => $idLang])->fetchAll();
+    }
+
+    /** Asocia (o sobreescribe) una característica a un producto con un valor concreto. */
+    public static function assignToProduct(int $idProduct, int $idFeature, int $idFeatureValue): void
+    {
+        // Una sola característica por producto a la vez (sobrescribe el valor previo)
+        Database::run(
+            'DELETE FROM `{P}feature_product` WHERE id_product = :p AND id_feature = :f',
+            ['p' => $idProduct, 'f' => $idFeature]
+        );
+        Database::run(
+            'INSERT INTO `{P}feature_product` (id_feature, id_product, id_feature_value)
+             VALUES (:f, :p, :v)',
+            ['f' => $idFeature, 'p' => $idProduct, 'v' => $idFeatureValue]
+        );
+    }
+
+    /**
+     * Crea un valor "custom" sobre la marcha (texto libre que el admin
+     * escribe en la ficha del producto) y lo asigna.
+     */
+    public static function assignCustomValue(int $idProduct, int $idFeature, string $value, int $idLang = 1): int
+    {
+        $value = trim($value);
+        if ($value === '') {
+            throw new \RuntimeException('El valor no puede estar vacío.');
+        }
+        $pdo = Database::pdo();
+        $pdo->beginTransaction();
+        try {
+            Database::run(
+                'INSERT INTO `{P}feature_value` (id_feature, custom) VALUES (:f, 1)',
+                ['f' => $idFeature]
+            );
+            $idValue = (int)$pdo->lastInsertId();
+            Database::run(
+                'INSERT INTO `{P}feature_value_lang` (id_feature_value, id_lang, value) VALUES (:v, :l, :val)',
+                ['v' => $idValue, 'l' => $idLang, 'val' => $value]
+            );
+            self::assignToProduct($idProduct, $idFeature, $idValue);
+            $pdo->commit();
+            return $idValue;
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    public static function unassignFromProduct(int $idProduct, int $idFeature): void
+    {
+        Database::run(
+            'DELETE FROM `{P}feature_product` WHERE id_product = :p AND id_feature = :f',
+            ['p' => $idProduct, 'f' => $idFeature]
+        );
+    }
+
     // ============== Internals ==============
 
     private static function saveLang(int $id, array $data, int $idLang): void
