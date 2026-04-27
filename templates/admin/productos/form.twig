@@ -246,6 +246,85 @@
 </form>
 
 {% if mode == 'edit' %}
+<div class="ek-panel" id="imagenes" style="margin-top:16px">
+    <h2>Imágenes</h2>
+    <p class="ek-panel__hint">
+        Sube imágenes JPG, PNG o WebP (máx. 8 MB). La portada (★) se muestra en listados.
+    </p>
+
+    {% if images|length > 0 %}
+        <div class="ek-img-grid">
+            {% for img in images %}
+                <div class="ek-img-card">
+                    <div class="ek-img-card__preview">
+                        {% if img.url %}
+                            <img src="{{ img.url }}" alt="{{ img.legend|default('') }}">
+                        {% else %}
+                            <span class="ek-placeholder" style="display:flex; width:100%; height:100%; align-items:center; justify-content:center">SIN IMG</span>
+                        {% endif %}
+                        {% if img.cover %}<span class="ek-img-card__cover">★ Portada</span>{% endif %}
+                    </div>
+                    <div class="ek-img-card__id mono">#{{ img.id_image }}</div>
+
+                    <form method="post"
+                          action="{{ admin_url('productos/' ~ item.id_product ~ '/imagenes/' ~ img.id_image ~ '/legend') }}"
+                          class="ek-img-card__legend">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <input type="text" name="legend" value="{{ img.legend|default('') }}"
+                               maxlength="128" placeholder="Texto alternativo (alt)">
+                        <button type="submit" class="ek-action">Guardar alt</button>
+                    </form>
+
+                    <div class="ek-img-card__actions">
+                        {% if not img.cover %}
+                            <form method="post" style="display:inline"
+                                  action="{{ admin_url('productos/' ~ item.id_product ~ '/imagenes/' ~ img.id_image ~ '/portada') }}">
+                                <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                                <button type="submit" class="ek-action" title="Marcar como portada">☆</button>
+                            </form>
+                        {% endif %}
+                        <form method="post" style="display:inline"
+                              action="{{ admin_url('productos/' ~ item.id_product ~ '/imagenes/' ~ img.id_image ~ '/mover/up') }}">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="ek-action" title="Subir">↑</button>
+                        </form>
+                        <form method="post" style="display:inline"
+                              action="{{ admin_url('productos/' ~ item.id_product ~ '/imagenes/' ~ img.id_image ~ '/mover/down') }}">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="ek-action" title="Bajar">↓</button>
+                        </form>
+                        <form method="post" style="display:inline"
+                              action="{{ admin_url('productos/' ~ item.id_product ~ '/imagenes/' ~ img.id_image ~ '/eliminar') }}"
+                              onsubmit="return confirm('¿Eliminar esta imagen?');">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: var(--ek-ink-3); margin: 8px 0 14px">Aún no hay imágenes para este producto.</p>
+    {% endif %}
+
+    <h3 style="font-size:13px; margin-top:18px; padding-top:14px; border-top:1px solid var(--ek-line)">+ Subir imagen</h3>
+    <form method="post" enctype="multipart/form-data"
+          action="{{ admin_url('productos/' ~ item.id_product ~ '/imagenes/subir') }}"
+          style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="MAX_FILE_SIZE" value="8388608">
+        <label class="ek-field" style="margin:0; flex:0 0 auto">
+            <span>Archivo</span>
+            <input type="file" name="image" accept="image/jpeg,image/png,image/webp" required>
+        </label>
+        <label class="ek-field" style="margin:0; flex:1; min-width:200px">
+            <span>Texto alternativo (opcional)</span>
+            <input type="text" name="legend" maxlength="128" placeholder="ej. Vista frontal armario rack">
+        </label>
+        <button type="submit" class="ek-btn ek-btn--primary">Subir imagen</button>
+    </form>
+</div>
+
 <div class="ek-panel" id="combinaciones" style="margin-top:16px">
     <h2>Combinaciones (variantes)</h2>
     <p class="ek-panel__hint">

@@ -100,6 +100,11 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->post('/productos/{id}/combinaciones/{cid}/editar',     [ProductosController::class, 'updateCombination']);
     $r->post('/productos/{id}/combinaciones/{cid}/default',    [ProductosController::class, 'setDefaultCombination']);
     $r->post('/productos/{id}/combinaciones/{cid}/eliminar',   [ProductosController::class, 'deleteCombination']);
+    $r->post('/productos/{id}/imagenes/subir',                 [ProductosController::class, 'uploadImage']);
+    $r->post('/productos/{id}/imagenes/{iid}/eliminar',        [ProductosController::class, 'deleteImage']);
+    $r->post('/productos/{id}/imagenes/{iid}/portada',         [ProductosController::class, 'setCoverImage']);
+    $r->post('/productos/{id}/imagenes/{iid}/legend',          [ProductosController::class, 'updateImageLegend']);
+    $r->post('/productos/{id}/imagenes/{iid}/mover/{direction}', [ProductosController::class, 'moveImage']);
 
     // Categorías
     $r->get('/categorias',                  [CategoriasController::class, 'index']);

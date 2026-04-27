@@ -12,6 +12,7 @@ use Ekanet\Models\Combination;
 use Ekanet\Models\Feature;
 use Ekanet\Models\Manufacturer;
 use Ekanet\Models\Product;
+use Ekanet\Models\ProductImage;
 use Ekanet\Models\Supplier;
 
 final class ProductosController extends Controller
@@ -186,6 +187,96 @@ final class ProductosController extends Controller
         $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#caracteristicas");
     }
 
+    // ============ Imágenes ============
+
+    public function uploadImage(string $id): void
+    {
+        $idInt = (int)$id;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+            return;
+        }
+        if (!isset($_FILES['image'])) {
+            Session::flash('error', 'No se recibió ningún archivo.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+            return;
+        }
+        try {
+            $idImage = ProductImage::upload($idInt, $_FILES['image'], (string)$this->input('legend', ''));
+            Session::flash('success', "Imagen #{$idImage} subida.");
+        } catch (\Throwable $e) {
+            Session::flash('error', $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+    }
+
+    public function deleteImage(string $id, string $iid): void
+    {
+        $idInt = (int)$id; $iidInt = (int)$iid;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+            return;
+        }
+        try {
+            ProductImage::delete($iidInt);
+            Session::flash('success', 'Imagen eliminada.');
+        } catch (\Throwable $e) {
+            Session::flash('error', $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+    }
+
+    public function setCoverImage(string $id, string $iid): void
+    {
+        $idInt = (int)$id; $iidInt = (int)$iid;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+            return;
+        }
+        try {
+            ProductImage::setCover($idInt, $iidInt);
+            Session::flash('success', 'Portada actualizada.');
+        } catch (\Throwable $e) {
+            Session::flash('error', $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+    }
+
+    public function moveImage(string $id, string $iid, string $direction): void
+    {
+        $idInt = (int)$id; $iidInt = (int)$iid;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+        } else {
+            try {
+                ProductImage::move($iidInt, $direction === 'up' ? 'up' : 'down', $idInt);
+            } catch (\Throwable $e) {
+                Session::flash('error', $e->getMessage());
+            }
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+    }
+
+    public function updateImageLegend(string $id, string $iid): void
+    {
+        $idInt = (int)$id; $iidInt = (int)$iid;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+            return;
+        }
+        try {
+            ProductImage::updateLegend($iidInt, (string)$this->input('legend', ''));
+            Session::flash('success', 'Texto alternativo actualizado.');
+        } catch (\Throwable $e) {
+            Session::flash('error', $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#imagenes");
+    }
+
     // ============ Combinaciones (variantes) ============
 
     public function generateCombinations(string $id): void
@@ -310,6 +401,10 @@ final class ProductosController extends Controller
         $combinations = ($mode === 'edit')
             ? Combination::forProduct((int)$item['id_product'])
             : [];
+        // Imágenes (solo en edit)
+        $images = ($mode === 'edit')
+            ? ProductImage::forProduct((int)$item['id_product'])
+            : [];
         $allGroups = AttributeGroup::all();
         $groupValues = [];
         foreach ($allGroups as $g) {
@@ -330,6 +425,7 @@ final class ProductosController extends Controller
             'combinations'  => $combinations,
             'attribute_groups' => $allGroups,
             'group_values'  => $groupValues,
+            'images'        => $images,
             'visibilities'  => [
                 'both'    => 'Catálogo + búsqueda',
                 'catalog' => 'Solo catálogo',
