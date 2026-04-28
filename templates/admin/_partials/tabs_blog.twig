@@ -1,0 +1,8 @@
+{# Pestañas del blog. Var: tab = 'posts' | 'categorias' | 'comentarios' #}
+<div class="ek-tabs">
+    <a class="ek-tabs__tab {{ tab == 'posts' ? 'is-active' : '' }}" href="{{ admin_url('blog') }}">Artículos</a>
+    <a class="ek-tabs__tab {{ tab == 'categorias' ? 'is-active' : '' }}" href="{{ admin_url('blog/categorias') }}">Categorías</a>
+    <a class="ek-tabs__tab {{ tab == 'comentarios' ? 'is-active' : '' }}" href="{{ admin_url('blog/comentarios') }}">
+        Comentarios{% if pending_comments_count is defined and pending_comments_count > 0 %} <span class="ek-pill ek-pill--gold">{{ pending_comments_count }}</span>{% endif %}
+    </a>
+</div>

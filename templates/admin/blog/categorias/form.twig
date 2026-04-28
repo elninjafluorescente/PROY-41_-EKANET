@@ -1,0 +1,70 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_blog.twig' with {tab: 'categorias'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">{{ mode == 'create' ? 'Nueva categoría' : 'Editar categoría' }}</h1>
+        {% if mode == 'edit' %}<p class="ek-page-header__subtitle">ID #{{ item.id_blog_category }}</p>{% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('blog/categorias') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create' ? admin_url('blog/categorias/nueva') : admin_url('blog/categorias/' ~ item.id_blog_category ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Datos</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Nombre *</span>
+                <input type="text" name="name" required maxlength="128" value="{{ item.name }}">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Slug</span>
+                <input type="text" name="slug" maxlength="128" value="{{ item.slug|default('') }}"
+                       placeholder="se generará desde el nombre">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Descripción</span>
+                <textarea name="description" rows="3">{{ item.description|default('') }}</textarea>
+            </label>
+            <label class="ek-field">
+                <span>Estado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="active" value="1" {{ item.active ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Activa</span>
+                </label>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>SEO</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Meta título</span>
+                <input type="text" name="meta_title" maxlength="255" value="{{ item.meta_title|default('') }}">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Meta descripción</span>
+                <textarea name="meta_description" rows="2" maxlength="512">{{ item.meta_description|default('') }}</textarea>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Meta keywords</span>
+                <input type="text" name="meta_keywords" maxlength="255" value="{{ item.meta_keywords|default('') }}">
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('blog/categorias') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">{{ mode == 'create' ? 'Crear categoría' : 'Guardar cambios' }}</button>
+    </div>
+</form>
+{% endblock %}

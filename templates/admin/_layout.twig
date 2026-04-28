@@ -51,9 +51,10 @@
             <a href="{{ admin_url('metodos_pago') }}" class="{{ active == 'metodos_pago' ? 'is-active' : '' }}">Métodos de pago</a>
         </details>
 
-        <details class="ek-sidebar__section" {% if active in ['marketing'] %}open{% endif %}>
+        <details class="ek-sidebar__section" {% if active in ['marketing','blog'] %}open{% endif %}>
             <summary class="ek-sidebar__group">Marketing</summary>
             <a href="{{ admin_url('pixeles') }}" class="{{ active == 'marketing' ? 'is-active' : '' }}">Píxeles y banners</a>
+            <a href="{{ admin_url('blog') }}" class="{{ active == 'blog' ? 'is-active' : '' }}">Blog</a>
         </details>
 
         <details class="ek-sidebar__section" {% if active in ['usuarios','roles','configuracion'] %}open{% endif %}>

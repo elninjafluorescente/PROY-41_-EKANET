@@ -1,0 +1,119 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_blog.twig' with {tab: 'comentarios'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Comentarios</h1>
+        <p class="ek-page-header__subtitle">Modera los comentarios pendientes antes de que aparezcan en el frontend.</p>
+    </div>
+</div>
+
+<section class="ek-grid ek-grid--4" style="margin-bottom: 16px">
+    <div class="ek-card">
+        <div class="ek-card__label mono">PENDIENTES</div>
+        <div class="ek-card__value" style="color: var(--ek-gold)">{{ counts.pending }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">APROBADOS</div>
+        <div class="ek-card__value" style="color: var(--ek-ok)">{{ counts.approved }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">RECHAZADOS</div>
+        <div class="ek-card__value">{{ counts.rejected }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">SPAM</div>
+        <div class="ek-card__value" style="color: var(--ek-err)">{{ counts.spam }}</div>
+    </div>
+</section>
+
+<form method="get" action="{{ admin_url('blog/comentarios') }}" class="ek-search-bar">
+    <select name="status" onchange="this.form.submit()">
+        <option value="all" {{ status_filter == 'all' ? 'selected' : '' }}>Todos</option>
+        {% for k, label in statuses %}
+            <option value="{{ k }}" {{ k == status_filter ? 'selected' : '' }}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="ek-btn ek-btn--ghost">Filtrar</button>
+</form>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Autor</th>
+                <th>Comentario</th>
+                <th>Artículo</th>
+                <th style="width:100px">Estado</th>
+                <th style="width:110px">Fecha</th>
+                <th style="width:200px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in comments %}
+            <tr>
+                <td class="mono">{{ c.id_comment }}</td>
+                <td>
+                    <strong>{{ c.author_name }}</strong>
+                    <br><span class="mono" style="font-size:11px; color:var(--ek-ink-3)">{{ c.author_email }}</span>
+                    {% if c.ip_address %}<br><span class="mono" style="font-size:10px; color:var(--ek-ink-4)">IP: {{ c.ip_address }}</span>{% endif %}
+                </td>
+                <td style="font-size:12px; max-width: 300px;">{{ c.content|slice(0, 200) }}{% if c.content|length > 200 %}…{% endif %}</td>
+                <td style="font-size:12px"><a href="{{ admin_url('blog/' ~ c.id_post ~ '/editar') }}">{{ c.post_title|default('—')|slice(0, 40) }}</a></td>
+                <td>
+                    {% if c.status == 'approved' %}
+                        <span class="ek-badge ek-badge--ok">Aprobado</span>
+                    {% elseif c.status == 'pending' %}
+                        <span class="ek-badge" style="background: var(--ek-gold-soft); border-color: var(--ek-gold); color: oklch(.4 .12 78)">Pendiente</span>
+                    {% elseif c.status == 'rejected' %}
+                        <span class="ek-badge ek-badge--muted">Rechazado</span>
+                    {% else %}
+                        <span class="ek-badge" style="background: color-mix(in oklch, var(--ek-err) 12%, #fff); border-color: var(--ek-err); color: oklch(.36 .12 25)">Spam</span>
+                    {% endif %}
+                </td>
+                <td style="font-size:11px; color:var(--ek-ink-3)">{{ c.date_add|date('d/m/Y H:i') }}</td>
+                <td style="text-align:right">
+                    {% if c.status != 'approved' %}
+                    <form method="post" style="display:inline" action="{{ admin_url('blog/comentarios/' ~ c.id_comment ~ '/aprobar') }}">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action" title="Aprobar">✓</button>
+                    </form>
+                    {% endif %}
+                    {% if c.status != 'rejected' %}
+                    <form method="post" style="display:inline" action="{{ admin_url('blog/comentarios/' ~ c.id_comment ~ '/rechazar') }}">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action" title="Rechazar">✗</button>
+                    </form>
+                    {% endif %}
+                    {% if c.status != 'spam' %}
+                    <form method="post" style="display:inline" action="{{ admin_url('blog/comentarios/' ~ c.id_comment ~ '/spam') }}">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action" title="Marcar como spam">🚫</button>
+                    </form>
+                    {% endif %}
+                    <form method="post" style="display:inline" action="{{ admin_url('blog/comentarios/' ~ c.id_comment ~ '/eliminar') }}"
+                          onsubmit="return confirm('¿Eliminar definitivamente este comentario?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="ek-table__empty">No hay comentarios con ese filtro.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pages > 1 %}
+<nav class="ek-pagination">
+    {% for i in 1..pages %}
+        <a href="{{ admin_url('blog/comentarios') }}?p={{ i }}&status={{ status_filter }}"
+           class="ek-pagination__page {{ i == page ? 'is-active' : '' }}">{{ i }}</a>
+    {% endfor %}
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_blog.twig' with {tab: 'categorias'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Categorías de blog</h1>
+        <p class="ek-page-header__subtitle">Sirven para agrupar artículos del blog por temática.</p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('blog/categorias/nueva') }}">+ Nueva categoría</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th>Slug</th>
+                <th style="width:90px">Artículos</th>
+                <th style="width:80px">Estado</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in categories %}
+            <tr>
+                <td class="mono">{{ c.id_blog_category }}</td>
+                <td><strong>{{ c.name }}</strong></td>
+                <td class="mono" style="font-size:12px; color:var(--ek-ink-3)">{{ c.slug }}</td>
+                <td class="mono">{{ c.posts_count }}</td>
+                <td>
+                    {% if c.active %}
+                        <span class="ek-badge ek-badge--ok">Activa</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactiva</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('blog/categorias/' ~ c.id_blog_category ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('blog/categorias/' ~ c.id_blog_category ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar la categoría \'{{ c.name }}\'? Los artículos quedarán sin categoría.');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="ek-table__empty">No hay categorías.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

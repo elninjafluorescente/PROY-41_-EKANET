@@ -1,0 +1,152 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_blog.twig' with {tab: 'posts'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">{{ mode == 'create' ? 'Nuevo artículo' : 'Editar artículo' }}</h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">
+                ID #{{ item.id_post }} · creado {{ item.date_add|date('d/m/Y H:i') }}
+            </p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('blog') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create' ? admin_url('blog/nuevo') : admin_url('blog/' ~ item.id_post ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Contenido</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Título *</span>
+                <input type="text" name="title" required maxlength="255" value="{{ item.title }}" id="ek-post-title">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Slug (URL)</span>
+                <input type="text" name="slug" maxlength="128" value="{{ item.slug }}" id="ek-post-slug"
+                       placeholder="se generará desde el título">
+                <small class="ek-field__hint">URL final: <code>/blog/{slug}</code></small>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Extracto (resumen)</span>
+                <textarea name="excerpt" rows="3" maxlength="500">{{ item.excerpt|default('') }}</textarea>
+                <small class="ek-field__hint">2-3 líneas que aparecen en el listado del blog.</small>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Contenido (HTML permitido)</span>
+                <textarea name="content" rows="18" class="mono" style="font-size:13px">{{ item.content|default('') }}</textarea>
+                <small class="ek-field__hint">Acepta HTML básico (p, h2, h3, ul, img, a, blockquote…).</small>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Imagen de portada (URL)</span>
+                <input type="text" name="cover_image" value="{{ item.cover_image|default('') }}"
+                       placeholder="/img/blog/portada.jpg o https://…">
+                {% if item.cover_image %}
+                    <img src="{{ item.cover_image }}" alt="" style="margin-top:8px; max-height:140px; border-radius:4px; border:1px solid var(--ek-line)">
+                {% endif %}
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Publicación</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Categoría</span>
+                <select name="id_blog_category">
+                    <option value="0">— Sin categoría —</option>
+                    {% for c in categories %}
+                        <option value="{{ c.id_blog_category }}" {{ c.id_blog_category == item.id_blog_category ? 'selected' : '' }}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="ek-field">
+                <span>Estado</span>
+                <select name="status">
+                    {% for k, label in statuses %}
+                        <option value="{{ k }}" {{ item.status == k ? 'selected' : '' }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="ek-field">
+                <span>Fecha publicación</span>
+                <input type="datetime-local" name="published_at"
+                       value="{{ item.published_at ? item.published_at|date('Y-m-d\\TH:i') : '' }}">
+                <small class="ek-field__hint">Se rellena automáticamente al cambiar a "Publicado".</small>
+            </label>
+            <label class="ek-field">
+                <span>Tiempo de lectura (min)</span>
+                <input type="number" name="reading_time" min="0" value="{{ item.reading_time|default(0) }}">
+                <small class="ek-field__hint">0 = autocalculado al guardar.</small>
+            </label>
+            <input type="hidden" name="id_employee" value="{{ item.id_employee|default(current_user().id|default(0)) }}">
+        </div>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>SEO</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Meta título</span>
+                <input type="text" name="meta_title" maxlength="255" value="{{ item.meta_title|default('') }}">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Meta descripción</span>
+                <textarea name="meta_description" rows="2" maxlength="512">{{ item.meta_description|default('') }}</textarea>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Meta keywords</span>
+                <input type="text" name="meta_keywords" maxlength="255" value="{{ item.meta_keywords|default('') }}">
+            </label>
+        </div>
+    </div>
+
+    {% if mode == 'edit' %}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Productos relacionados</h2>
+        <p class="ek-panel__hint">
+            Aparecerán en el bloque "Productos mencionados en este artículo" al final del post.
+        </p>
+        <label class="ek-field ek-field--wide">
+            <span>Selecciona productos (Ctrl/Cmd+click para múltiple)</span>
+            <select name="related_products[]" multiple size="8" style="height:auto">
+                {% set rel_ids = related|map(r => r.id_product) %}
+                {% for p in products %}
+                    <option value="{{ p.id_product }}" {{ p.id_product in rel_ids ? 'selected' : '' }}>
+                        {{ p.name }}{% if p.reference %} · {{ p.reference }}{% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    {% endif %}
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('blog') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">{{ mode == 'create' ? 'Crear artículo' : 'Guardar cambios' }}</button>
+    </div>
+</form>
+
+<script>
+(function () {
+    const titleEl = document.getElementById('ek-post-title');
+    const slugEl  = document.getElementById('ek-post-slug');
+    if (!titleEl || !slugEl) return;
+    let touched = slugEl.value.trim() !== '';
+    slugEl.addEventListener('input', () => { touched = true; });
+    const slugify = s => s.toLowerCase().trim()
+        .normalize('NFD').replace(/[̀-ͯ]/g,'')
+        .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    titleEl.addEventListener('input', () => {
+        if (!touched) slugEl.value = slugify(titleEl.value);
+    });
+})();
+</script>
+{% endblock %}

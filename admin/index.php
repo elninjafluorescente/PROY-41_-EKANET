@@ -42,6 +42,9 @@ use Ekanet\Controllers\Admin\AbonosController;
 use Ekanet\Controllers\Admin\AtributosController;
 use Ekanet\Controllers\Admin\AuthController;
 use Ekanet\Controllers\Admin\BannersController;
+use Ekanet\Controllers\Admin\BlogCategoriasController;
+use Ekanet\Controllers\Admin\BlogComentariosController;
+use Ekanet\Controllers\Admin\BlogPostsController;
 use Ekanet\Controllers\Admin\CaracteristicasController;
 use Ekanet\Controllers\Admin\CategoriasController;
 use Ekanet\Controllers\Admin\ClientesController;
@@ -216,6 +219,29 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/precios_especiales/{id}/editar',      [PreciosEspecialesController::class, 'edit']);
     $r->post('/precios_especiales/{id}/editar',     [PreciosEspecialesController::class, 'update']);
     $r->post('/precios_especiales/{id}/eliminar',   [PreciosEspecialesController::class, 'destroy']);
+
+    // Blog — artículos
+    $r->get('/blog',                  [BlogPostsController::class, 'index']);
+    $r->get('/blog/nuevo',            [BlogPostsController::class, 'create']);
+    $r->post('/blog/nuevo',           [BlogPostsController::class, 'store']);
+    $r->get('/blog/{id}/editar',      [BlogPostsController::class, 'edit']);
+    $r->post('/blog/{id}/editar',     [BlogPostsController::class, 'update']);
+    $r->post('/blog/{id}/eliminar',   [BlogPostsController::class, 'destroy']);
+
+    // Blog — categorías
+    $r->get('/blog/categorias',                    [BlogCategoriasController::class, 'index']);
+    $r->get('/blog/categorias/nueva',              [BlogCategoriasController::class, 'create']);
+    $r->post('/blog/categorias/nueva',             [BlogCategoriasController::class, 'store']);
+    $r->get('/blog/categorias/{id}/editar',        [BlogCategoriasController::class, 'edit']);
+    $r->post('/blog/categorias/{id}/editar',       [BlogCategoriasController::class, 'update']);
+    $r->post('/blog/categorias/{id}/eliminar',     [BlogCategoriasController::class, 'destroy']);
+
+    // Blog — comentarios
+    $r->get('/blog/comentarios',                  [BlogComentariosController::class, 'index']);
+    $r->post('/blog/comentarios/{id}/aprobar',    function (string $id) { (new BlogComentariosController())->setStatus($id, 'approved'); });
+    $r->post('/blog/comentarios/{id}/rechazar',   function (string $id) { (new BlogComentariosController())->setStatus($id, 'rejected'); });
+    $r->post('/blog/comentarios/{id}/spam',       function (string $id) { (new BlogComentariosController())->setStatus($id, 'spam'); });
+    $r->post('/blog/comentarios/{id}/eliminar',   [BlogComentariosController::class, 'destroy']);
 
     // Configuración
     $r->get('/configuracion',             [ConfiguracionController::class, 'index']);
