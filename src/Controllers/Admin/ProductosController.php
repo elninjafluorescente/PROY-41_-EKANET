@@ -14,6 +14,7 @@ use Ekanet\Models\Manufacturer;
 use Ekanet\Models\Product;
 use Ekanet\Models\ProductImage;
 use Ekanet\Models\Supplier;
+use Ekanet\Support\CsvProductImporter;
 
 final class ProductosController extends Controller
 {
@@ -185,6 +186,80 @@ final class ProductosController extends Controller
             Session::flash('error', 'Error: ' . $e->getMessage());
         }
         $this->redirect($this->adminPath() . "/productos/{$idInt}/editar#caracteristicas");
+    }
+
+    // ============ Importación CSV ============
+
+    public function importForm(): void
+    {
+        $this->render('admin/productos/importar.twig', [
+            'page_title' => 'Importar productos',
+            'active'     => 'productos',
+            'columns'    => CsvProductImporter::COLUMNS,
+        ]);
+    }
+
+    public function importProcess(): void
+    {
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . '/productos/importar');
+            return;
+        }
+        if (!isset($_FILES['csv']) || $_FILES['csv']['error'] !== UPLOAD_ERR_OK) {
+            Session::flash('error', 'No se recibió el archivo CSV.');
+            $this->redirect($this->adminPath() . '/productos/importar');
+            return;
+        }
+
+        $tmp = $_FILES['csv']['tmp_name'];
+        $dryRun = (bool)$this->input('dry_run');
+
+        try {
+            // Preview: las primeras 5 filas como referencia
+            $preview = CsvProductImporter::preview($tmp, 5);
+            // Import
+            $stats = CsvProductImporter::import($tmp, $dryRun);
+        } catch (\Throwable $e) {
+            Session::flash('error', 'Error al procesar CSV: ' . $e->getMessage());
+            $this->redirect($this->adminPath() . '/productos/importar');
+            return;
+        }
+
+        $this->render('admin/productos/importar_resultado.twig', [
+            'page_title' => $dryRun ? 'Resultado simulación importación' : 'Resultado importación',
+            'active'     => 'productos',
+            'stats'      => $stats,
+            'preview'    => $preview,
+            'dry_run'    => $dryRun,
+        ]);
+    }
+
+    public function importSample(): void
+    {
+        $columns = array_keys(CsvProductImporter::COLUMNS);
+        $sampleRows = [
+            ['Armario rack 19" 42U 800mm', 'RACK-42U-800', '450.00', 'Racks', 'Monolyth', 'Ingram Micro',
+             'Armario 42U 800mm de fondo', 'Armario rack profesional con puerta de cristal templado y cerradura.',
+             '15', '85', '5901234567892', '', '1', 'both', 'new',
+             'Armario rack 42U 800mm | Ekanet', 'Armario rack profesional 19 pulgadas 42U fondo 800mm', 'rack, 42u, armario'],
+            ['Latiguillo Cat6 1m', 'LT-CAT6-1M', '2.50', 'Cableado', 'Legrand', 'Esprinet Iberica',
+             'Cable patch Cat6 azul 1m', 'Latiguillo Cat6 UTP de 1 metro, cubierta LSZH.',
+             '250', '0.05', '', 'CAT6-LZ-100', '1', 'both', 'new', '', '', ''],
+        ];
+
+        while (ob_get_level() > 0) ob_end_clean();
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="ekanet-productos-ejemplo.csv"');
+        $fh = fopen('php://output', 'w');
+        // BOM para que Excel detecte UTF-8
+        fwrite($fh, "\xEF\xBB\xBF");
+        fputcsv($fh, $columns, ';');
+        foreach ($sampleRows as $r) {
+            fputcsv($fh, $r, ';');
+        }
+        fclose($fh);
+        exit;
     }
 
     // ============ Imágenes ============

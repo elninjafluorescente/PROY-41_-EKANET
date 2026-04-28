@@ -98,6 +98,9 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/productos/{id}/editar',      [ProductosController::class, 'edit']);
     $r->post('/productos/{id}/editar',     [ProductosController::class, 'update']);
     $r->post('/productos/{id}/eliminar',   [ProductosController::class, 'destroy']);
+    $r->get('/productos/importar',          [ProductosController::class, 'importForm']);
+    $r->get('/productos/importar/ejemplo',  [ProductosController::class, 'importSample']);
+    $r->post('/productos/importar',         [ProductosController::class, 'importProcess']);
     $r->post('/productos/{id}/caracteristicas/asignar',     [ProductosController::class, 'attachFeature']);
     $r->post('/productos/{id}/caracteristicas/desasignar',  [ProductosController::class, 'detachFeature']);
     $r->post('/productos/{id}/combinaciones/generar',          [ProductosController::class, 'generateCombinations']);

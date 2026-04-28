@@ -1,0 +1,89 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ dry_run ? 'Resultado simulación' : 'Resultado importación' }}
+        </h1>
+        <p class="ek-page-header__subtitle">
+            {% if dry_run %}
+                <strong>Modo simulación</strong>: no se ha tocado la base de datos. Si todo está bien, repite sin marcar simulación.
+            {% else %}
+                Importación completada. Los cambios ya están aplicados.
+            {% endif %}
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('productos/importar') }}">Nueva importación</a>
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('productos') }}">Ver productos</a>
+    </div>
+</div>
+
+<section class="ek-grid ek-grid--4" style="margin-bottom: 16px">
+    <div class="ek-card">
+        <div class="ek-card__label mono">FILAS</div>
+        <div class="ek-card__value">{{ stats.total }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">CREADOS</div>
+        <div class="ek-card__value" style="color: var(--ek-ok)">{{ stats.created }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">ACTUALIZADOS</div>
+        <div class="ek-card__value" style="color: var(--ek-blue)">{{ stats.updated }}</div>
+    </div>
+    <div class="ek-card">
+        <div class="ek-card__label mono">SALTADOS / ERROR</div>
+        <div class="ek-card__value" style="color: var(--ek-err)">{{ stats.skipped }}</div>
+    </div>
+</section>
+
+{% if stats.errors|length > 0 %}
+<div class="ek-panel" style="margin-bottom:16px">
+    <h2>Errores ({{ stats.errors|length }})</h2>
+    <ul style="margin: 8px 0 0; padding-left: 20px; font-size:13px; color: var(--ek-err)">
+        {% for err in stats.errors %}<li>{{ err }}</li>{% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if stats.warnings|length > 0 %}
+<div class="ek-panel" style="margin-bottom:16px">
+    <h2>Avisos ({{ stats.warnings|length }})</h2>
+    <p class="ek-panel__hint">No bloquean la importación pero conviene revisar.</p>
+    <ul style="margin: 8px 0 0; padding-left: 20px; font-size:13px; color: oklch(.42 .12 78)">
+        {% for w in stats.warnings|slice(0, 50) %}<li>{{ w }}</li>{% endfor %}
+        {% if stats.warnings|length > 50 %}
+            <li><em>… y {{ stats.warnings|length - 50 }} más</em></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="ek-panel">
+    <h2>Vista previa (primeras 5 filas)</h2>
+    <p class="ek-panel__hint">
+        Delimitador detectado: <code>{{ preview.delimiter == '	' ? 'TAB' : preview.delimiter }}</code> ·
+        {{ preview.header|length }} columnas
+    </p>
+    <div class="ek-table-wrap" style="margin-top:8px">
+        <table class="ek-table" style="font-size:11px">
+            <thead>
+                <tr>
+                    {% for h in preview.header %}<th>{{ h }}</th>{% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in preview.rows %}
+                    <tr>
+                        {% for cell in row %}
+                            <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

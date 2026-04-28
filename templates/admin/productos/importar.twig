@@ -1,0 +1,71 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Importar productos desde CSV</h1>
+        <p class="ek-page-header__subtitle">
+            Carga masiva con upsert por <code>reference</code>: si la referencia ya existe, se actualiza; si no, se crea.
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('productos') }}">← Volver</a>
+    </div>
+</div>
+
+<div class="ek-panel">
+    <h2>Subir archivo</h2>
+    <form method="post" enctype="multipart/form-data" action="{{ admin_url('productos/importar') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="MAX_FILE_SIZE" value="20971520">
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Archivo CSV (separador <code>;</code>, codificación UTF-8)</span>
+                <input type="file" name="csv" accept=".csv,text/csv" required>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Modo simulación</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="dry_run" value="1">
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Solo previsualizar (no escribir en BBDD)</span>
+                </label>
+                <small class="ek-field__hint">Recomendado en la primera importación para detectar errores antes de tocar nada.</small>
+            </label>
+        </div>
+        <div class="ek-form__actions">
+            <a class="ek-btn ek-btn--ghost" href="{{ admin_url('productos/importar/ejemplo') }}">↓ Descargar plantilla CSV de ejemplo</a>
+            <button type="submit" class="ek-btn ek-btn--primary">Procesar CSV</button>
+        </div>
+    </form>
+</div>
+
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Columnas reconocidas</h2>
+    <p class="ek-panel__hint">
+        La cabecera (primera fila) debe tener al menos las marcadas como <strong>requeridas</strong>.
+        Categoría, marca y proveedor se buscan por nombre exacto; si no se encuentran, se deja vacío y se reporta como aviso.
+    </p>
+    <table class="ek-table" style="margin-top:8px">
+        <thead><tr><th>Columna</th><th>Requerida</th><th>Notas</th></tr></thead>
+        <tbody>
+            {% for col, required in columns %}
+            <tr>
+                <td class="mono"><strong>{{ col }}</strong></td>
+                <td>{{ required ? '✓' : '—' }}</td>
+                <td style="font-size:12px; color:var(--ek-ink-3)">
+                    {% if col == 'category' %}Por nombre exacto. Fallback: "Inicio".
+                    {% elseif col == 'manufacturer' or col == 'supplier' %}Por nombre exacto. Si no existe, queda vacío.
+                    {% elseif col == 'price' %}Decimal con punto o coma (ej. 450.00 o 450,00).
+                    {% elseif col == 'active' %}1, 0, true, false, sí, no…
+                    {% elseif col == 'visibility' %}both / catalog / search / none
+                    {% elseif col == 'condition' %}new / used / refurbished
+                    {% elseif col == 'reference' %}Si ya existe, el producto se ACTUALIZA. Si no, se crea.
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
