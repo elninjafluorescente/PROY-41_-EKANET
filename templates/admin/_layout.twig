@@ -76,8 +76,10 @@
         </div>
     </header>
 
-    {% if flash('success') %}<div class="ek-alert ek-alert--ok">{{ flash('success') }}</div>{% endif %}
-    {% if flash('error')   %}<div class="ek-alert ek-alert--err">{{ flash('error')   }}</div>{% endif %}
+    {% set _flash_ok = flash('success') %}
+    {% if _flash_ok %}<div class="ek-alert ek-alert--ok">{{ _flash_ok }}</div>{% endif %}
+    {% set _flash_err = flash('error') %}
+    {% if _flash_err %}<div class="ek-alert ek-alert--err">{{ _flash_err }}</div>{% endif %}
 
     <div class="ek-content">
         {% block content %}{% endblock %}
