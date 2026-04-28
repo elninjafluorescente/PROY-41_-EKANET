@@ -45,6 +45,7 @@
                 <td class="mono" style="text-align:right">{{ inv.total_paid_tax_incl|number_format(2, ',', '.') }} €</td>
                 <td style="text-align:right">
                     <a class="ek-action" href="{{ admin_url('facturas/' ~ inv.id_order_invoice) }}">Ver</a>
+                    <a class="ek-action" href="{{ admin_url('facturas/' ~ inv.id_order_invoice ~ '/pdf') }}" title="Descargar PDF">PDF</a>
                 </td>
             </tr>
             {% else %}

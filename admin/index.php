@@ -189,12 +189,14 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->post('/pedidos/{id}/abono',           [PedidosController::class, 'generateSlip']);
 
     // Facturas
-    $r->get('/facturas',         [FacturasController::class, 'index']);
-    $r->get('/facturas/{id}',    [FacturasController::class, 'show']);
+    $r->get('/facturas',           [FacturasController::class, 'index']);
+    $r->get('/facturas/{id}',      [FacturasController::class, 'show']);
+    $r->get('/facturas/{id}/pdf',  [FacturasController::class, 'pdf']);
 
     // Abonos
     $r->get('/abonos',           [AbonosController::class, 'index']);
     $r->get('/abonos/{id}',      [AbonosController::class, 'show']);
+    $r->get('/abonos/{id}/pdf',  [AbonosController::class, 'pdf']);
 
     // Cupones
     $r->get('/cupones',                  [CuponesController::class, 'index']);

@@ -1,0 +1,74 @@
+{% extends 'pdf/_layout.twig' %}
+{% block content %}
+<div class="head">
+    <div class="head__shop">
+        <div class="shop-name">{{ shop.name }}</div>
+        <div class="shop-info">
+            {{ shop.cif }}<br>
+            {{ shop.addr1 }}{% if shop.addr2 %}<br>{{ shop.addr2 }}{% endif %}<br>
+            {{ shop.code }} {{ shop.city }}<br>
+            {{ shop.email }}{% if shop.phone %} · {{ shop.phone }}{% endif %}
+        </div>
+    </div>
+    <div class="head__meta">
+        <div class="doc-label">Factura</div>
+        <div class="doc-number mono">{{ number }}</div>
+        <div class="doc-date">Fecha: {{ invoice.date_add|date('d/m/Y') }}</div>
+        <div class="doc-date">Pedido: <span class="mono">{{ invoice.order_reference }}</span></div>
+    </div>
+</div>
+
+<div class="customer">
+    <div class="customer__label">Facturar a</div>
+    <strong>{{ invoice.firstname }} {{ invoice.lastname }}</strong>
+    {% if invoice.company %}<br>{{ invoice.company }}{% endif %}
+    {% if invoice.siret %}<br>CIF: {{ invoice.siret }}{% endif %}
+    <br><span class="mono">{{ invoice.email }}</span>
+</div>
+
+<table class="lines">
+    <thead>
+        <tr>
+            <th>Referencia</th>
+            <th>Concepto</th>
+            <th class="r">P. unit. s/IVA</th>
+            <th class="r">Cant.</th>
+            <th class="r">Total s/IVA</th>
+            <th class="r">Total c/IVA</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for l in lines %}
+        <tr>
+            <td class="mono">{{ l.product_reference|default('—') }}</td>
+            <td>{{ l.product_name }}</td>
+            <td class="r mono">{{ l.unit_price_tax_excl|number_format(2, ',', '.') }} €</td>
+            <td class="r mono">{{ l.product_quantity }}</td>
+            <td class="r mono">{{ l.total_price_tax_excl|number_format(2, ',', '.') }} €</td>
+            <td class="r mono">{{ l.total_price_tax_incl|number_format(2, ',', '.') }} €</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="totals">
+    <div class="row">
+        <span class="lbl">Subtotal sin IVA</span>
+        <span class="val mono">{{ invoice.total_paid_tax_excl|number_format(2, ',', '.') }} €</span>
+    </div>
+    <div class="row">
+        <span class="lbl">Envío</span>
+        <span class="val mono">{{ invoice.total_shipping_tax_incl|number_format(2, ',', '.') }} €</span>
+    </div>
+    <div class="row grand">
+        <span class="lbl">TOTAL</span>
+        <span class="val mono">{{ invoice.total_paid_tax_incl|number_format(2, ',', '.') }} €</span>
+    </div>
+</div>
+
+{% if invoice.payment %}
+<p style="margin-top: 22px; font-size: 10px;">
+    Forma de pago: <strong>{{ invoice.payment }}</strong>
+</p>
+{% endif %}
+{% endblock %}

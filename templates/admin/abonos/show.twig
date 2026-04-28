@@ -13,6 +13,7 @@
     </div>
     <div class="ek-page-header__actions">
         <a class="ek-btn ek-btn--ghost" href="{{ admin_url('abonos') }}">← Volver</a>
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('abonos/' ~ slip.id_order_slip ~ '/pdf') }}">↓ PDF</a>
         <button class="ek-btn ek-btn--primary" onclick="window.print()">Imprimir</button>
     </div>
 </div>

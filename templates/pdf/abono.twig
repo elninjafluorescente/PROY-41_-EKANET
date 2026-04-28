@@ -1,0 +1,76 @@
+{% extends 'pdf/_layout.twig' %}
+{% block content %}
+<div class="head">
+    <div class="head__shop">
+        <div class="shop-name">{{ shop.name }}</div>
+        <div class="shop-info">
+            {{ shop.cif }}<br>
+            {{ shop.addr1 }}<br>
+            {{ shop.code }} {{ shop.city }}<br>
+            {{ shop.email }}
+        </div>
+    </div>
+    <div class="head__meta">
+        <div class="doc-label">Factura por abono{% if slip.partial %} (parcial){% endif %}</div>
+        <div class="doc-number mono">{{ number }}</div>
+        <div class="doc-date">Fecha: {{ slip.date_add|date('d/m/Y') }}</div>
+        <div class="doc-date">Pedido: <span class="mono">{{ slip.order_reference }}</span></div>
+    </div>
+</div>
+
+<div class="customer" style="border-left-color: #e09a2e">
+    <div class="customer__label">Abono a favor de</div>
+    <strong>{{ slip.firstname }} {{ slip.lastname }}</strong>
+    {% if slip.company %}<br>{{ slip.company }}{% endif %}
+    {% if slip.siret %}<br>CIF: {{ slip.siret }}{% endif %}
+    <br><span class="mono">{{ slip.email }}</span>
+</div>
+
+{% if lines|length > 0 %}
+<table class="lines">
+    <thead>
+        <tr>
+            <th>Referencia</th>
+            <th>Concepto</th>
+            <th class="r">P. unit.</th>
+            <th class="r">Cant.</th>
+            <th class="r">Imp. s/IVA</th>
+            <th class="r">Imp. c/IVA</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for l in lines %}
+        <tr>
+            <td class="mono">{{ l.product_reference|default('—') }}</td>
+            <td>{{ l.product_name }}</td>
+            <td class="r mono">{{ l.unit_price_tax_incl|number_format(2, ',', '.') }} €</td>
+            <td class="r mono">{{ l.product_quantity }}</td>
+            <td class="r mono">{{ l.total_price_tax_excl|number_format(2, ',', '.') }} €</td>
+            <td class="r mono">{{ l.total_price_tax_incl|number_format(2, ',', '.') }} €</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<div class="totals">
+    <div class="row">
+        <span class="lbl">Productos sin IVA</span>
+        <span class="val mono">{{ slip.total_products_tax_excl|number_format(2, ',', '.') }} €</span>
+    </div>
+    <div class="row">
+        <span class="lbl">Productos con IVA</span>
+        <span class="val mono">{{ slip.total_products_tax_incl|number_format(2, ',', '.') }} €</span>
+    </div>
+    {% if slip.shipping_cost %}
+    <div class="row">
+        <span class="lbl">Envío reembolsado</span>
+        <span class="val mono">{{ slip.shipping_cost_amount|number_format(2, ',', '.') }} €</span>
+    </div>
+    {% endif %}
+    <div class="row grand">
+        <span class="lbl">TOTAL ABONO</span>
+        <span class="val mono">{{ slip.amount|number_format(2, ',', '.') }} €</span>
+    </div>
+</div>
+{% endblock %}

@@ -14,6 +14,7 @@
     </div>
     <div class="ek-page-header__actions">
         <a class="ek-btn ek-btn--ghost" href="{{ admin_url('facturas') }}">← Volver</a>
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('facturas/' ~ invoice.id_order_invoice ~ '/pdf') }}">↓ PDF</a>
         <button class="ek-btn ek-btn--primary" onclick="window.print()">Imprimir</button>
     </div>
 </div>

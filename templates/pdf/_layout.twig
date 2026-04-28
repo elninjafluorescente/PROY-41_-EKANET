@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>{{ title|default('Documento') }}</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    font-family: DejaVu Sans, sans-serif;
+    font-size: 11px;
+    color: #1a1a26;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+}
+.doc {
+    padding: 30px 36px;
+}
+.head {
+    display: table;
+    width: 100%;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #5a6dba;
+}
+.head__shop, .head__meta {
+    display: table-cell;
+    vertical-align: top;
+}
+.head__meta { text-align: right; width: 36%; }
+.shop-name { font-size: 18px; font-weight: bold; margin-bottom: 4px; color: #1a1a26; }
+.shop-info { font-size: 10px; color: #555a68; }
+.doc-label {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: #6b6e7a;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.doc-number {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1a1a26;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+.doc-date { font-size: 11px; color: #6b6e7a; }
+.customer {
+    background: #f4f5f8;
+    border-left: 3px solid #5a6dba;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+}
+.customer__label {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: #6b6e7a;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.customer strong { font-size: 12px; }
+table.lines { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+table.lines th, table.lines td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e5e7ec;
+    text-align: left;
+    font-size: 10px;
+}
+table.lines th {
+    background: #f4f5f8;
+    color: #6b6e7a;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #d8dce4;
+}
+.r { text-align: right; }
+.totals {
+    width: 280px;
+    margin-left: auto;
+    background: #f4f5f8;
+    padding: 12px 14px;
+    border-radius: 4px;
+}
+.totals .row { display: table; width: 100%; padding: 3px 0; }
+.totals .row > * { display: table-cell; }
+.totals .lbl { color: #6b6e7a; }
+.totals .val { text-align: right; font-weight: 600; }
+.totals .grand {
+    border-top: 1px solid #d8dce4;
+    margin-top: 4px;
+    padding-top: 8px;
+    font-size: 14px;
+}
+.totals .grand .lbl { color: #1a1a26; font-weight: bold; }
+.totals .grand .val { color: #1a1a26; }
+.foot {
+    margin-top: 28px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7ec;
+    font-size: 9px;
+    color: #6b6e7a;
+    text-align: center;
+}
+.mono { font-family: DejaVu Sans Mono, monospace; }
+.bar {
+    height: 4px;
+    background: linear-gradient(90deg, #5a6dba 0%, #5a6dba 70%, #e09a2e 70%, #e09a2e 100%);
+    margin-bottom: 18px;
+}
+</style>
+</head>
+<body>
+<div class="doc">
+<div class="bar"></div>
+{% block content %}{% endblock %}
+<div class="foot">
+    {{ shop.name }} — {{ shop.cif }} · {{ shop.email }}
+    {% if shop.phone %} · {{ shop.phone }}{% endif %}
+</div>
+</div>
+</body>
+</html>

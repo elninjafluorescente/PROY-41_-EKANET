@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Ekanet\Controllers\Admin;
 
 use Ekanet\Core\Controller;
+use Ekanet\Core\PdfGenerator;
 use Ekanet\Core\Session;
 use Ekanet\Models\Configuration;
 use Ekanet\Models\OrderInvoice;
@@ -45,16 +46,40 @@ final class FacturasController extends Controller
             'active'     => 'pedidos',
             'invoice'    => $invoice,
             'lines'      => OrderInvoice::lines($idInt),
-            'shop'       => [
-                'name'    => Configuration::get('PS_SHOP_NAME', 'Ekanet'),
-                'email'   => Configuration::get('PS_SHOP_EMAIL', ''),
-                'phone'   => Configuration::get('PS_SHOP_PHONE', ''),
-                'cif'     => Configuration::get('PS_SHOP_DETAILS', ''),
-                'addr1'   => Configuration::get('PS_SHOP_ADDR1', ''),
-                'addr2'   => Configuration::get('PS_SHOP_ADDR2', ''),
-                'code'    => Configuration::get('PS_SHOP_CODE', ''),
-                'city'    => Configuration::get('PS_SHOP_CITY', ''),
-            ],
+            'shop'       => self::shopData(),
         ]);
+    }
+
+    public function pdf(string $id): void
+    {
+        $idInt = (int)$id;
+        $invoice = OrderInvoice::find($idInt);
+        if (!$invoice) {
+            Session::flash('error', 'Factura no encontrada.');
+            $this->redirect($this->adminPath() . '/facturas');
+            return;
+        }
+        $number = OrderInvoice::formattedNumber((int)$invoice['number']);
+        $pdf = PdfGenerator::fromTemplate('pdf/factura.twig', [
+            'invoice' => $invoice,
+            'lines'   => OrderInvoice::lines($idInt),
+            'number'  => $number,
+            'shop'    => self::shopData(),
+        ]);
+        PdfGenerator::stream($pdf, $number . '.pdf', true);
+    }
+
+    public static function shopData(): array
+    {
+        return [
+            'name'  => Configuration::get('PS_SHOP_NAME', 'Ekanet'),
+            'email' => Configuration::get('PS_SHOP_EMAIL', ''),
+            'phone' => Configuration::get('PS_SHOP_PHONE', ''),
+            'cif'   => Configuration::get('PS_SHOP_DETAILS', ''),
+            'addr1' => Configuration::get('PS_SHOP_ADDR1', ''),
+            'addr2' => Configuration::get('PS_SHOP_ADDR2', ''),
+            'code'  => Configuration::get('PS_SHOP_CODE', ''),
+            'city'  => Configuration::get('PS_SHOP_CITY', ''),
+        ];
     }
 }

@@ -55,6 +55,7 @@
                 <td class="mono" style="text-align:right">{{ s.amount|number_format(2, ',', '.') }} €</td>
                 <td style="text-align:right">
                     <a class="ek-action" href="{{ admin_url('abonos/' ~ s.id_order_slip) }}">Ver</a>
+                    <a class="ek-action" href="{{ admin_url('abonos/' ~ s.id_order_slip ~ '/pdf') }}" title="Descargar PDF">PDF</a>
                 </td>
             </tr>
             {% else %}

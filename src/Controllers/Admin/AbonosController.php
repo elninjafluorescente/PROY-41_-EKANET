@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Ekanet\Controllers\Admin;
 
 use Ekanet\Core\Controller;
+use Ekanet\Core\PdfGenerator;
 use Ekanet\Core\Session;
 use Ekanet\Models\Configuration;
 use Ekanet\Models\OrderSlip;
@@ -44,14 +45,26 @@ final class AbonosController extends Controller
             'active'     => 'pedidos',
             'slip'       => $slip,
             'lines'      => OrderSlip::lines($idInt),
-            'shop'       => [
-                'name'    => Configuration::get('PS_SHOP_NAME', 'Ekanet'),
-                'email'   => Configuration::get('PS_SHOP_EMAIL', ''),
-                'cif'     => Configuration::get('PS_SHOP_DETAILS', ''),
-                'addr1'   => Configuration::get('PS_SHOP_ADDR1', ''),
-                'code'    => Configuration::get('PS_SHOP_CODE', ''),
-                'city'    => Configuration::get('PS_SHOP_CITY', ''),
-            ],
+            'shop'       => FacturasController::shopData(),
         ]);
+    }
+
+    public function pdf(string $id): void
+    {
+        $idInt = (int)$id;
+        $slip = OrderSlip::find($idInt);
+        if (!$slip) {
+            Session::flash('error', 'Abono no encontrado.');
+            $this->redirect($this->adminPath() . '/abonos');
+            return;
+        }
+        $number = OrderSlip::formattedNumber($idInt);
+        $pdf = PdfGenerator::fromTemplate('pdf/abono.twig', [
+            'slip'   => $slip,
+            'lines'  => OrderSlip::lines($idInt),
+            'number' => $number,
+            'shop'   => FacturasController::shopData(),
+        ]);
+        PdfGenerator::stream($pdf, $number . '.pdf', true);
     }
 }
