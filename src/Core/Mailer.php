@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Ekanet\Core;
 
+use Ekanet\Models\Configuration;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
@@ -94,9 +95,9 @@ final class Mailer
     private static function globalsFromConfig(): array
     {
         return [
-            'shop_name'   => Models\Configuration::get('PS_SHOP_NAME', 'Ekanet'),
-            'shop_email'  => Models\Configuration::get('PS_SHOP_EMAIL', ''),
-            'shop_phone'  => Models\Configuration::get('PS_SHOP_PHONE', ''),
+            'shop_name'   => Configuration::get('PS_SHOP_NAME', 'Ekanet'),
+            'shop_email'  => Configuration::get('PS_SHOP_EMAIL', ''),
+            'shop_phone'  => Configuration::get('PS_SHOP_PHONE', ''),
             'shop_url'    => $GLOBALS['EK_CONFIG']['app']['base_url'] ?? '',
             'admin_url'   => rtrim($GLOBALS['EK_CONFIG']['app']['base_url'] ?? '', '/') . ($GLOBALS['EK_CONFIG']['app']['admin_path'] ?? ''),
             'logo_url'    => rtrim($GLOBALS['EK_CONFIG']['app']['base_url'] ?? '', '/') . '/admin/assets/img/logo-ekanet.png',
