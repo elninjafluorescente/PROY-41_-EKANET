@@ -175,13 +175,13 @@
         <div class="ek-form__grid">
             <label class="ek-field ek-field--wide">
                 <span>Descripción corta</span>
-                <textarea name="description_short" rows="3" maxlength="800">{{ item.description_short }}</textarea>
+                <textarea name="description_short" rows="3" maxlength="800" class="ek-rich ek-rich--compact">{{ item.description_short }}</textarea>
                 <small class="ek-field__hint">Aparece en listados y en la parte superior de la ficha.</small>
             </label>
 
             <label class="ek-field ek-field--wide">
                 <span>Descripción completa</span>
-                <textarea name="description" rows="10">{{ item.description }}</textarea>
+                <textarea name="description" rows="10" class="ek-rich">{{ item.description }}</textarea>
             </label>
         </div>
     </div>

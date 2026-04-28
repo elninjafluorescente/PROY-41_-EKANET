@@ -36,13 +36,13 @@
             </label>
             <label class="ek-field ek-field--wide">
                 <span>Extracto (resumen)</span>
-                <textarea name="excerpt" rows="3" maxlength="500">{{ item.excerpt|default('') }}</textarea>
+                <textarea name="excerpt" rows="3" maxlength="500" class="ek-rich ek-rich--compact">{{ item.excerpt|default('') }}</textarea>
                 <small class="ek-field__hint">2-3 líneas que aparecen en el listado del blog.</small>
             </label>
             <label class="ek-field ek-field--wide">
                 <span>Contenido (HTML permitido)</span>
-                <textarea name="content" rows="18" class="mono" style="font-size:13px">{{ item.content|default('') }}</textarea>
-                <small class="ek-field__hint">Acepta HTML básico (p, h2, h3, ul, img, a, blockquote…).</small>
+                <textarea name="content" rows="18" class="ek-rich">{{ item.content|default('') }}</textarea>
+                <small class="ek-field__hint">Editor visual con formato. Para insertar imágenes, sube primero a la web y pega la URL.</small>
             </label>
             <label class="ek-field ek-field--wide">
                 <span>Imagen de portada (URL)</span>

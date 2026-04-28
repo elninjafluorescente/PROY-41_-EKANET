@@ -33,13 +33,13 @@
 
             <label class="ek-field ek-field--wide">
                 <span>Descripción corta</span>
-                <textarea name="short_description" rows="2" maxlength="254">{{ item.short_description }}</textarea>
+                <textarea name="short_description" rows="2" maxlength="254" class="ek-rich ek-rich--compact">{{ item.short_description }}</textarea>
                 <small class="ek-field__hint">Aparece en listados. Máximo 254 caracteres.</small>
             </label>
 
             <label class="ek-field ek-field--wide">
                 <span>Descripción completa</span>
-                <textarea name="description" rows="6">{{ item.description }}</textarea>
+                <textarea name="description" rows="6" class="ek-rich">{{ item.description }}</textarea>
             </label>
 
             <label class="ek-field">
