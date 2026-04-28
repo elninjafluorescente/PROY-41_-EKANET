@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Ekanet\Controllers\Admin;
 
+use Ekanet\Core\Auth;
 use Ekanet\Core\Controller;
 use Ekanet\Core\Csrf;
+use Ekanet\Core\Mailer;
 use Ekanet\Core\Session;
 use Ekanet\Models\Configuration;
 
@@ -64,6 +66,40 @@ final class ConfiguracionController extends Controller
             Session::flash('success', 'Configuración guardada.');
         } catch (\Throwable $e) {
             Session::flash('error', 'Error al guardar: ' . $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . '/configuracion');
+    }
+
+    public function sendTestEmail(): void
+    {
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . '/configuracion');
+            return;
+        }
+        $user = Auth::user();
+        $to = trim((string)$this->input('test_email', '')) ?: ($user['email'] ?? '');
+        if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+            Session::flash('error', 'Email de destino no válido.');
+            $this->redirect($this->adminPath() . '/configuracion');
+            return;
+        }
+        $cfg = $GLOBALS['EK_CONFIG']['mail'] ?? [];
+        $ok = Mailer::send(
+            $to,
+            '[Ekanet] Prueba de envío SMTP',
+            'test',
+            [
+                'smtp_host' => $cfg['host'] ?? '?',
+                'smtp_port' => (string)($cfg['port'] ?? '?'),
+                'smtp_user' => $cfg['username'] ?? '?',
+                'sent_at'   => date('d/m/Y H:i:s'),
+            ]
+        );
+        if ($ok) {
+            Session::flash('success', "Email de prueba enviado a {$to}.");
+        } else {
+            Session::flash('error', "No se pudo enviar el email a {$to}. Revisa el log de errores.");
         }
         $this->redirect($this->adminPath() . '/configuracion');
     }

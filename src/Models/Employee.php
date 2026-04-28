@@ -171,4 +171,40 @@ final class Employee
     {
         return password_hash($plain, PASSWORD_BCRYPT, ['cost' => 12]);
     }
+
+    public static function generateResetToken(int $idEmployee, int $hours = 24): string
+    {
+        $token  = bin2hex(random_bytes(20));
+        $expiry = (new \DateTimeImmutable("+{$hours} hours"))->format('Y-m-d H:i:s');
+        Database::run(
+            'UPDATE `{P}employee` SET reset_password_token = :t, reset_password_validity = :v
+             WHERE id_employee = :id',
+            ['t' => $token, 'v' => $expiry, 'id' => $idEmployee]
+        );
+        return $token;
+    }
+
+    public static function findByResetToken(string $token): ?array
+    {
+        if ($token === '') return null;
+        $row = Database::run(
+            'SELECT * FROM `{P}employee`
+             WHERE reset_password_token = :t
+               AND reset_password_validity IS NOT NULL
+               AND reset_password_validity > NOW()
+               AND active = 1
+             LIMIT 1',
+            ['t' => $token]
+        )->fetch();
+        return $row ?: null;
+    }
+
+    public static function clearResetToken(int $id): void
+    {
+        Database::run(
+            'UPDATE `{P}employee` SET reset_password_token = NULL, reset_password_validity = NULL
+             WHERE id_employee = :id',
+            ['id' => $id]
+        );
+    }
 }

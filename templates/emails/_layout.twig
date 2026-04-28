@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ subject|default(shop_name) }}</title>
+</head>
+<body style="margin:0; padding:0; background:#f4f5f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; color:#1a1a26;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f5f8; padding: 30px 20px;">
+        <tr><td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.04);">
+                {# Cabecera con barra azul/oro #}
+                <tr><td style="background:#5a6dba; height:4px; line-height:4px; font-size:0;">
+                    <div style="width:60%; height:4px; background:linear-gradient(90deg, #5a6dba 0%, #5a6dba 70%, #e09a2e 70%, #e09a2e 100%);"></div>
+                </td></tr>
+
+                {# Logo #}
+                <tr><td align="center" style="padding: 30px 30px 16px;">
+                    <img src="{{ logo_url }}" alt="{{ shop_name }}" width="140" style="display:block; max-width:140px; height:auto;">
+                </td></tr>
+
+                {# Contenido #}
+                <tr><td style="padding: 0 30px 30px; color:#1a1a26; font-size:14px; line-height:1.6;">
+                    {% block content %}{% endblock %}
+                </td></tr>
+
+                {# Footer #}
+                <tr><td style="background:#f4f5f8; padding: 20px 30px; text-align:center; font-size:12px; color:#6b6e7a; border-top:1px solid #e5e7ec;">
+                    <strong style="color:#1a1a26">{{ shop_name }}</strong>
+                    {% if shop_phone %}· {{ shop_phone }}{% endif %}
+                    {% if shop_email %}· <a href="mailto:{{ shop_email }}" style="color:#5a6dba; text-decoration:none">{{ shop_email }}</a>{% endif %}
+                    <br>
+                    <span style="color:#9aa0ad">© {{ year }} {{ shop_name }}. Todos los derechos reservados.</span>
+                </td></tr>
+            </table>
+        </td></tr>
+    </table>
+</body>
+</html>

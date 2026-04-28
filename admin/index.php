@@ -73,6 +73,10 @@ $router = new Router($config['app']['admin_path']);
 $router->get('/login',  [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'doLogin']);
 $router->get('/logout', [AuthController::class, 'logout']);
+$router->get('/recuperar-password',          [AuthController::class, 'showForgot']);
+$router->post('/recuperar-password',         [AuthController::class, 'sendForgot']);
+$router->get('/recuperar-password/{token}',  [AuthController::class, 'showReset']);
+$router->post('/recuperar-password/{token}', [AuthController::class, 'doReset']);
 
 // Rutas protegidas
 $router->group(['before' => 'auth'], function (Router $r): void {
@@ -209,8 +213,9 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->post('/precios_especiales/{id}/eliminar',   [PreciosEspecialesController::class, 'destroy']);
 
     // Configuración
-    $r->get('/configuracion',  [ConfiguracionController::class, 'index']);
-    $r->post('/configuracion', [ConfiguracionController::class, 'update']);
+    $r->get('/configuracion',             [ConfiguracionController::class, 'index']);
+    $r->post('/configuracion',            [ConfiguracionController::class, 'update']);
+    $r->post('/configuracion/test-email', [ConfiguracionController::class, 'sendTestEmail']);
 
     // Métodos de pago
     $r->get('/metodos_pago',                          [MetodosPagoController::class, 'index']);

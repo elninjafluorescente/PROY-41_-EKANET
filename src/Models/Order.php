@@ -109,7 +109,7 @@ final class Order
         )->fetchAll();
     }
 
-    public static function changeState(int $idOrder, int $newStateId, int $idEmployee): void
+    public static function changeState(int $idOrder, int $newStateId, int $idEmployee, bool $sendEmail = true): bool
     {
         $pdo = Database::pdo();
         $pdo->beginTransaction();
@@ -128,6 +128,61 @@ final class Order
             $pdo->rollBack();
             throw $e;
         }
+
+        // Notificación por email si el estado lo tiene marcado y hay cliente con email
+        $emailSent = false;
+        if ($sendEmail) {
+            try {
+                $emailSent = self::notifyStateChange($idOrder, $newStateId);
+            } catch (\Throwable $e) {
+                error_log('[Ekanet] notifyStateChange falló: ' . $e->getMessage());
+            }
+        }
+        return $emailSent;
+    }
+
+    private static function notifyStateChange(int $idOrder, int $newStateId): bool
+    {
+        $row = Database::run(
+            'SELECT o.id_order, o.reference, o.shipping_number,
+                    s.send_email, s.color AS state_color,
+                    sl.name AS state_name,
+                    c.email, c.firstname, c.lastname
+             FROM `{P}orders` o
+             LEFT JOIN `{P}order_state` s ON s.id_order_state = :st
+             LEFT JOIN `{P}order_state_lang` sl
+               ON sl.id_order_state = :st AND sl.id_lang = 1
+             LEFT JOIN `{P}customer` c ON c.id_customer = o.id_customer
+             WHERE o.id_order = :id LIMIT 1',
+            ['id' => $idOrder, 'st' => $newStateId]
+        )->fetch();
+
+        if (!$row || (int)$row['send_email'] !== 1 || empty($row['email'])) {
+            return false;
+        }
+
+        $subject = sprintf(
+            '[%s] Pedido %s — %s',
+            \Ekanet\Models\Configuration::get('PS_SHOP_NAME', 'Ekanet'),
+            $row['reference'],
+            $row['state_name']
+        );
+
+        return \Ekanet\Core\Mailer::send(
+            [$row['email'] => trim(($row['firstname'] ?? '') . ' ' . ($row['lastname'] ?? ''))],
+            $subject,
+            'order_state_changed',
+            [
+                'order' => [
+                    'id_order'  => (int)$row['id_order'],
+                    'reference' => $row['reference'],
+                ],
+                'customer_name'   => trim(($row['firstname'] ?? '') . ' ' . ($row['lastname'] ?? '')),
+                'state_name'      => $row['state_name'],
+                'state_color'     => $row['state_color'] ?: '#5a6dba',
+                'shipping_number' => $row['shipping_number'] ?? '',
+            ]
+        );
     }
 
     public static function updateNote(int $idOrder, string $note): void

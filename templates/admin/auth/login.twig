@@ -18,6 +18,9 @@
         {% if error %}
             <div class="ek-alert ek-alert--err">{{ error }}</div>
         {% endif %}
+        {% if info %}
+            <div class="ek-alert ek-alert--info">{{ info }}</div>
+        {% endif %}
 
         <form method="post" action="{{ admin_url('login') }}" autocomplete="off">
             <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
@@ -34,6 +37,10 @@
 
             <button type="submit" class="ek-btn ek-btn--primary ek-btn--block">Entrar</button>
         </form>
+
+        <p style="text-align:center; margin-top: 18px; font-size: 13px;">
+            <a href="{{ admin_url('recuperar-password') }}" style="color: var(--ek-blue-deep); text-decoration: none">¿Olvidaste tu contraseña?</a>
+        </p>
 
         <p class="ek-login__foot mono">v1.0 · {{ 'now'|date('Y') }} Ekanet</p>
     </div>

@@ -146,4 +146,21 @@
         <button type="submit" class="ek-btn ek-btn--primary">Guardar configuración</button>
     </div>
 </form>
+
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Test de envío SMTP</h2>
+    <p class="ek-panel__hint">
+        Envía un email de prueba para verificar que la configuración SMTP funciona.
+        Las credenciales SMTP están en <code>config/config.php</code>.
+    </p>
+    <form method="post" action="{{ admin_url('configuracion/test-email') }}"
+          style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <label class="ek-field" style="margin:0; flex:1; min-width:240px">
+            <span>Enviar a (email)</span>
+            <input type="email" name="test_email" value="{{ current_user().email|default('') }}" required>
+        </label>
+        <button type="submit" class="ek-btn ek-btn--primary">Enviar email de prueba</button>
+    </form>
+</div>
 {% endblock %}

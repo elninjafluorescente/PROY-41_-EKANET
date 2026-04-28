@@ -1,0 +1,35 @@
+{% extends 'emails/_layout.twig' %}
+
+{% block content %}
+<h2 style="margin: 0 0 14px; font-size: 20px; color:#1a1a26;">¡Gracias por tu pedido!</h2>
+
+<p>Hola {{ customer_name }},</p>
+
+<p>Hemos recibido tu pedido <strong style="font-family: 'JetBrains Mono', monospace;">{{ order.reference }}</strong> correctamente. Te avisaremos cuando cambie de estado.</p>
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f4f5f8; border-radius: 6px; padding: 16px; margin: 18px 0;">
+    <tr>
+        <td style="padding: 4px 0;"><span style="color:#6b6e7a">Referencia:</span></td>
+        <td style="padding: 4px 0; text-align:right; font-family:monospace;"><strong>{{ order.reference }}</strong></td>
+    </tr>
+    <tr>
+        <td style="padding: 4px 0;"><span style="color:#6b6e7a">Fecha:</span></td>
+        <td style="padding: 4px 0; text-align:right;">{{ order.date_add|date('d/m/Y H:i') }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 4px 0;"><span style="color:#6b6e7a">Forma de pago:</span></td>
+        <td style="padding: 4px 0; text-align:right;">{{ order.payment }}</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 0; border-top: 1px solid #e5e7ec; font-size:16px;"><strong>Total:</strong></td>
+        <td style="padding: 8px 0; border-top: 1px solid #e5e7ec; text-align:right; font-size:16px;"><strong>{{ order.total_paid_tax_incl|number_format(2, ',', '.') }} €</strong></td>
+    </tr>
+</table>
+
+<p style="margin-top: 22px;">
+    <a href="{{ shop_url }}/mi-cuenta/pedidos/{{ order.id_order }}"
+       style="display:inline-block; padding: 12px 24px; background: #5a6dba; color: white; text-decoration: none; border-radius: 4px; font-weight: 600;">
+        Ver detalle del pedido
+    </a>
+</p>
+{% endblock %}

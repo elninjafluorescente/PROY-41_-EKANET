@@ -1,0 +1,23 @@
+{% extends 'emails/_layout.twig' %}
+
+{% block content %}
+<h2 style="margin: 0 0 14px; font-size: 20px; color:#1a1a26;">Prueba de envío SMTP</h2>
+
+<p>Si estás leyendo esto, la configuración SMTP de <strong>{{ shop_name }}</strong> está funcionando correctamente.</p>
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f4f5f8; border-radius: 6px; padding: 16px; margin: 18px 0; font-size: 13px;">
+    <tr><td style="padding: 4px 0;"><span style="color:#6b6e7a">Servidor SMTP:</span></td>
+        <td style="padding: 4px 0; text-align:right; font-family:monospace;">{{ smtp_host }}</td></tr>
+    <tr><td style="padding: 4px 0;"><span style="color:#6b6e7a">Puerto:</span></td>
+        <td style="padding: 4px 0; text-align:right; font-family:monospace;">{{ smtp_port }}</td></tr>
+    <tr><td style="padding: 4px 0;"><span style="color:#6b6e7a">Cuenta:</span></td>
+        <td style="padding: 4px 0; text-align:right; font-family:monospace;">{{ smtp_user }}</td></tr>
+    <tr><td style="padding: 4px 0;"><span style="color:#6b6e7a">Enviado el:</span></td>
+        <td style="padding: 4px 0; text-align:right;">{{ sent_at }}</td></tr>
+</table>
+
+<p style="color: #6b6e7a; font-size: 13px;">
+    Este correo se ha generado desde el botón "Enviar email de prueba" en
+    <strong>Configuración → Estado de la tienda</strong> del back office.
+</p>
+{% endblock %}
