@@ -1,5 +1,6 @@
 # === Ekanet — raíz ===
 Options -Indexes
+DirectoryIndex index.php index.html
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
@@ -10,6 +11,21 @@ Options -Indexes
     RewriteCond %{HTTPS} !=on
     RewriteCond %{HTTP:X-Forwarded-Proto} !https
     RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+    # Front controller del público — todo lo que no sea /admin/, archivos
+    # físicos o carpetas reservadas pasa por index.php
+    RewriteCond %{REQUEST_URI} !^/admin/
+    RewriteCond %{REQUEST_URI} !^/assets/
+    RewriteCond %{REQUEST_URI} !^/img/
+    RewriteCond %{REQUEST_URI} !^/scripts/
+    RewriteCond %{REQUEST_URI} !^/test/
+    RewriteCond %{REQUEST_URI} !^/favicon\.ico
+    RewriteCond %{REQUEST_URI} !^/robots\.txt
+    RewriteCond %{REQUEST_URI} !^/sitemap\.xml
+    RewriteCond %{REQUEST_URI} !^/llms\.txt
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [L,QSA]
 </IfModule>
 
 # Cabeceras de seguridad básicas
@@ -17,4 +33,21 @@ Options -Indexes
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Cache largo para assets estáticos
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 30 days"
+    ExpiresByType application/javascript "access plus 30 days"
+    ExpiresByType image/svg+xml "access plus 90 days"
+    ExpiresByType image/jpeg "access plus 30 days"
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/webp "access plus 30 days"
+    ExpiresByType font/woff2 "access plus 365 days"
+</IfModule>
+
+# Compresión gzip
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
 </IfModule>

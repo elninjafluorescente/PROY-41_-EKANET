@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ page_title|default(shop.name) }}{% if page_title is defined and page_title %} · {{ shop.name }}{% endif %}</title>
+
+{% if meta_description is defined %}<meta name="description" content="{{ meta_description }}">{% endif %}
+<link rel="canonical" href="{{ canonical_url|default(public_url(current_path|default('/'))) }}">
+
+{# Open Graph #}
+<meta property="og:site_name" content="{{ shop.name }}">
+<meta property="og:title" content="{{ page_title|default(shop.name) }}">
+{% if meta_description is defined %}<meta property="og:description" content="{{ meta_description }}">{% endif %}
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="{{ canonical_url|default(public_url(current_path|default('/'))) }}">
+
+{# Twitter #}
+<meta name="twitter:card" content="summary_large_image">
+
+{# Fuentes y CSS #}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ public_asset('css/tokens.css') }}">
+<link rel="stylesheet" href="{{ public_asset('css/front.css') }}">
+
+{# Schema.org Organization (válido en todo el sitio) #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "{{ shop.name }}",
+  "url": "{{ public_url('/') }}",
+  "logo": "{{ public_asset('img/logo.svg') }}"
+  {% if shop.email %}, "email": "{{ shop.email }}"{% endif %}
+  {% if shop.phone %}, "telephone": "{{ shop.phone }}"{% endif %}
+}
+</script>
+
+{# Theme switch — light por defecto según handoff #}
+<script>
+(function() {
+  var saved = localStorage.getItem('ek-theme');
+  var theme = saved || 'light';
+  if (theme === 'light') document.documentElement.classList.add('ek-light-pre');
+})();
+</script>
+<style>
+  /* Evita FOUC del modo claro */
+  .ek-light-pre body { background: var(--ek-bg); }
+</style>
+
+{% block head_extra %}{% endblock %}
+</head>
+<body class="{{ theme_class|default('') }}">
+
+{% include 'public/_partials/utility.twig' %}
+{% include 'public/_partials/nav.twig' %}
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+{% include 'public/_partials/footer.twig' %}
+
+<script src="{{ public_asset('js/front.js') }}" defer></script>
+{% block body_extra %}{% endblock %}
+</body>
+</html>

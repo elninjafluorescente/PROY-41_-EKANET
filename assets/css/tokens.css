@@ -1,0 +1,75 @@
+/* Ekanet design tokens — derived from logo (periwinkle + gold) */
+:root {
+  /* Brand */
+  --ek-blue: oklch(0.65 0.09 265);
+  --ek-blue-deep: oklch(0.52 0.11 265);
+  --ek-blue-soft: oklch(0.92 0.03 265);
+  --ek-blue-ink: oklch(0.32 0.08 265);
+  --ek-gold: oklch(0.78 0.14 78);
+  --ek-gold-soft: oklch(0.94 0.06 82);
+
+  /* Neutrals — cool-warm mix */
+  --ek-ink: oklch(0.18 0.015 260);
+  --ek-ink-2: oklch(0.32 0.012 260);
+  --ek-ink-3: oklch(0.52 0.008 260);
+  --ek-ink-4: oklch(0.7 0.006 260);
+  --ek-line: oklch(0.9 0.006 260);
+  --ek-line-2: oklch(0.94 0.004 260);
+  --ek-bg: oklch(0.985 0.003 260);
+  --ek-surface: #ffffff;
+
+  /* Dark mode palette (used by "atrevida") */
+  --ek-dark-bg: oklch(0.18 0.015 260);
+  --ek-dark-surface: oklch(0.22 0.018 260);
+  --ek-dark-line: oklch(0.3 0.018 260);
+  --ek-dark-ink: oklch(0.96 0.005 260);
+  --ek-dark-ink-2: oklch(0.75 0.008 260);
+
+  /* Status */
+  --ek-ok: oklch(0.72 0.13 150);
+  --ek-warn: oklch(0.78 0.14 78);
+  --ek-err: oklch(0.65 0.18 25);
+
+  /* Radii & sizing */
+  --ek-r-sm: 4px;
+  --ek-r: 8px;
+  --ek-r-lg: 14px;
+
+  /* Typography */
+  --ek-font-sans: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --ek-font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+/* Reset-ish for artboard content */
+.ek * { box-sizing: border-box; }
+.ek { font-family: var(--ek-font-sans); color: var(--ek-ink); background: var(--ek-bg); font-size: 14px; line-height: 1.5; letter-spacing: -0.005em; }
+.ek .mono { font-family: var(--ek-font-mono); font-feature-settings: "ss01", "cv11"; }
+
+/* Shared dot-motif node styling */
+.ek-node { width: 8px; height: 8px; border-radius: 50%; background: var(--ek-blue); display: inline-block; }
+.ek-node.gold { background: var(--ek-gold); }
+.ek-node.ring { background: transparent; border: 1.5px solid var(--ek-blue); }
+
+/* Stripe placeholder for images (no hand-drawn SVG) */
+.ek-placeholder {
+  background:
+    repeating-linear-gradient(135deg, color-mix(in oklch, var(--ek-blue) 6%, transparent) 0 2px, transparent 2px 10px),
+    var(--ek-surface);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ek-font-mono); font-size: 10px; color: var(--ek-ink-3);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  border: 1px solid var(--ek-line);
+}
+.ek-placeholder.dark {
+  background:
+    repeating-linear-gradient(135deg, color-mix(in oklch, var(--ek-gold) 14%, transparent) 0 2px, transparent 2px 10px),
+    var(--ek-dark-surface);
+  border-color: var(--ek-dark-line);
+  color: var(--ek-dark-ink-2);
+}
+
+/* Tiny connector dotted line */
+.ek-dot-line {
+  background-image: radial-gradient(circle, var(--ek-ink-4) 1px, transparent 1.2px);
+  background-size: 6px 6px;
+}

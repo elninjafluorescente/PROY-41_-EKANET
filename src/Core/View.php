@@ -44,6 +44,30 @@ final class View
         self::$twig->addFunction(new TwigFunction('admin_url', static function (string $p = '/') use ($config): string {
             return rtrim($config['app']['admin_path'], '/') . '/' . ltrim($p, '/');
         }));
+
+        // ============ Funciones para el frontend público ============
+
+        // URL absoluta (base_url + path) para SEO, schema, og:
+        self::$twig->addFunction(new TwigFunction('public_url', static function (string $p = '/') use ($config): string {
+            return rtrim($config['app']['base_url'], '/') . '/' . ltrim($p, '/');
+        }));
+
+        // Asset público en /assets/* con cache busting por mtime
+        self::$twig->addFunction(new TwigFunction('public_asset', static function (string $p) use ($config): string {
+            $rel = ltrim($p, '/');
+            $url = rtrim($config['app']['base_url'], '/') . '/assets/' . $rel;
+            $local = BASE_PATH . '/assets/' . $rel;
+            if (is_file($local)) {
+                $url .= '?v=' . filemtime($local);
+            }
+            return $url;
+        }));
+
+        // Formateo de precio "1.234,56 €" (locale ES)
+        self::$twig->addFunction(new TwigFunction('eur', static function ($value, bool $withSymbol = true): string {
+            $n = number_format((float)$value, 2, ',', '.');
+            return $withSymbol ? $n . ' €' : $n;
+        }));
     }
 
     public static function render(string $template, array $data = []): string

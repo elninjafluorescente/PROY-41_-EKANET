@@ -1,0 +1,404 @@
+{% extends 'public/_layout.twig' %}
+{% import 'public/_partials/illu.twig' as illu %}
+
+{% block content %}
+
+{# Glow + dot grid de fondo (decorativo, sólo visible en dark) #}
+<div style="position:relative; overflow:hidden">
+<div class="ek-dotgrid"></div>
+<div class="ek-glow-gold" style="top:-160px; right:-160px"></div>
+
+{# ════════════ 1. HERO ════════════ #}
+<section style="padding: 56px 40px 40px; position:relative">
+  <div class="ek-shell" style="display:grid; grid-template-columns: 1.1fr 1fr; gap:48px; align-items:center">
+
+    <div class="reveal">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px" data-countdown="{{ flash_until }}">
+        <span style="width:8px; height:8px; border-radius:4px; background:var(--ek-gold); box-shadow:0 0 0 4px color-mix(in oklch, var(--ek-gold) 25%, transparent)"></span>
+        <span class="mono" style="font-size:11px; letter-spacing:0.2em; color:var(--ek-gold)">
+          OFERTA ACTIVA · EXPIRA EN <span class="ek-cd-d">00</span>D <span class="ek-cd-h">00</span>H <span class="ek-cd-m">00</span>M
+        </span>
+      </div>
+
+      <h1 style="font-size:92px; line-height:0.92; letter-spacing:-3px; margin:0; font-weight:400; color:var(--ek-dark-ink)">
+        Monta tu red<br>
+        <span style="color:var(--ek-gold)">desde</span>
+        <span style="font-family:var(--ek-font-mono); letter-spacing:-2px">28,50€</span>
+      </h1>
+
+      <p style="font-size:17px; color:var(--ek-dark-ink-2); max-width:480px; margin-top:26px; line-height:1.5">
+        Switch 8 puertos Gigabit + latiguillos Cat6a + conectores. Todo plug &amp; play.
+        Envío en 24/48h a toda la península con seguimiento en tiempo real.
+      </p>
+
+      <div style="margin-top:30px; display:flex; gap:14px; align-items:center">
+        <a href="/ofertas" class="ek-btn ek-btn--gold ek-btn--lg">Ver oferta →</a>
+        <a href="/catalogo" class="ek-btn ek-btn--darkOutline ek-btn--lg">Catálogo completo</a>
+      </div>
+
+      <div style="margin-top:32px; display:flex; gap:28px; font-size:12px; color:var(--ek-dark-ink-2); flex-wrap:wrap">
+        <span style="display:flex; align-items:center; gap:8px"><span style="width:6px; height:6px; border-radius:3px; background:var(--ek-ok)"></span> Envío 24/48h</span>
+        <span style="display:flex; align-items:center; gap:8px"><span style="width:6px; height:6px; border-radius:3px; background:var(--ek-ok)"></span> Garantía oficial</span>
+        <span style="display:flex; align-items:center; gap:8px"><span style="width:6px; height:6px; border-radius:3px; background:var(--ek-ok)"></span> Soporte técnico humano</span>
+      </div>
+    </div>
+
+    {# Tarjeta de producto destacado en frame "control de red" #}
+    <div class="reveal reveal-delay-2" style="background:var(--ek-dark-surface); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r-lg); padding:22px; position:relative; box-shadow:0 20px 60px -20px rgba(0,0,0,.5)">
+      <div class="mono" style="display:flex; justify-content:space-between; align-items:center; font-size:10px; letter-spacing:0.15em; color:var(--ek-dark-ink-2); margin-bottom:16px">
+        <span>PROMO · TL-SG108 · 8P GIGABIT</span>
+        <span style="display:flex; align-items:center; gap:6px">
+          <span style="width:6px; height:6px; border-radius:3px; background:var(--ek-gold)"></span>
+          DESTACADO
+        </span>
+      </div>
+
+      <div style="aspect-ratio:4/3; background:#0c1020; border-radius:var(--ek-r); overflow:hidden; border:1px solid var(--ek-dark-line); position:relative" class="ek-float">
+        {{ illu.switch('dark') }}
+        <div style="position:absolute; top:14px; right:14px; background:var(--ek-gold); color:var(--ek-ink); padding:8px 14px; border-radius:var(--ek-r-sm); font-family:var(--ek-font-mono); font-weight:500; box-shadow:0 4px 12px rgba(0,0,0,.3)">
+          <div style="font-size:9px; letter-spacing:0.12em">AHORRO</div>
+          <div style="font-size:18px; letter-spacing:-0.5px; line-height:1">-13%</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px; display:flex; justify-content:space-between; align-items:flex-end">
+        <div>
+          <div style="font-size:14px; color:var(--ek-dark-ink); margin-bottom:4px">Switch 8 puertos Gigabit</div>
+          <div class="mono" style="font-size:10px; color:var(--ek-dark-ink-2); letter-spacing:0.1em">TP-LINK · STOCK 47 UDS</div>
+        </div>
+        <div style="text-align:right">
+          <div class="mono" style="font-size:11px; color:var(--ek-dark-ink-2); text-decoration:line-through">32,90€</div>
+          <div style="font-size:36px; color:var(--ek-gold); font-weight:500; letter-spacing:-0.8px; font-family:var(--ek-font-mono); line-height:1">28,50€</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; padding-top:14px; border-top:1px dashed var(--ek-dark-line); display:grid; grid-template-columns:repeat(3, 1fr); gap:12px">
+        {% for stat in [['142', 'vendidos 7d'], ['4.8/5', 'valoración'], ['24/48h', 'entrega']] %}
+          <div>
+            <div style="font-size:15px; color:var(--ek-dark-ink); font-weight:500">{{ stat[0] }}</div>
+            <div class="mono" style="font-size:9px; color:var(--ek-dark-ink-2); letter-spacing:0.1em; margin-top:2px">{{ stat[1]|upper }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {# ─── Command bar ─── #}
+  <div class="ek-shell reveal reveal-delay-3" style="margin-top:40px; background:var(--ek-dark-surface); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r-lg); padding:6px; display:flex; align-items:center; gap:0">
+    <span class="mono" style="padding:0 18px; font-size:11px; letter-spacing:0.15em; color:var(--ek-gold)">&gt;</span>
+    <div style="flex:1; padding:14px 0; font-size:18px; color:var(--ek-dark-ink-2); font-family:var(--ek-font-mono)">
+      buscar "switch 8 puertos gigabit no gestionado"<span class="ek-blink">▌</span>
+    </div>
+    <div style="display:flex; gap:8px; padding:0 6px; flex-wrap:wrap">
+      {% for t in ['fibra','rack','sai','cable'] %}
+        <span class="mono" style="padding:6px 12px; border:1px solid var(--ek-dark-line); border-radius:100px; font-size:11px; letter-spacing:0.08em; color:var(--ek-dark-ink-2)">#{{ t }}</span>
+      {% endfor %}
+    </div>
+    <button class="ek-btn ek-btn--gold ek-btn--md" style="margin-left:6px">RUN</button>
+  </div>
+</section>
+
+{# ════════════ 2. USPs ════════════ #}
+<section style="padding:18px 40px; border-top:1px solid var(--ek-dark-line); border-bottom:1px solid var(--ek-dark-line); background:oklch(0.16 0.015 260)">
+  <div class="ek-shell" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:24px">
+    {% for n, t, d in [
+      ['01', 'ENVÍO 24/48H', 'Pedidos antes de 16h. Seguimiento en tiempo real.'],
+      ['02', 'STOCK PROPIO', '8.400 m² de almacén en Pamplona. Sin intermediarios.'],
+      ['03', 'SOPORTE TÉCNICO', 'Ingenieros de red al teléfono. Sin bots.'],
+      ['04', 'CUENTA PRO B2B', 'Condiciones, proyectos y facturación para instaladores.']
+    ] %}
+      <div class="reveal reveal-delay-{{ loop.index }}" style="display:grid; grid-template-columns:40px 1fr; gap:14px; align-items:start; padding:6px 0">
+        <div class="mono" style="font-size:11px; color:var(--ek-gold); letter-spacing:0.15em; padding-top:2px">{{ n }}</div>
+        <div>
+          <div class="mono" style="font-size:12px; color:var(--ek-dark-ink); letter-spacing:0.1em; font-weight:500">{{ t }}</div>
+          <div style="font-size:12px; color:var(--ek-dark-ink-2); margin-top:4px; line-height:1.45">{{ d }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{# ════════════ 3. CATEGORÍAS ════════════ #}
+<section style="padding:64px 40px 80px">
+  <div class="ek-shell">
+    <div class="ek-section-head reveal">
+      <div>
+        <div class="eyebrow">FAMILIAS · {{ '%02d'|format(categories|length) }}</div>
+        <div class="ek-section-head__title">Explora por tipo de componente</div>
+      </div>
+      <a href="/catalogo" class="ek-section-head__right">VER 120+ SUBCATEGORÍAS →</a>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px">
+      {% for c in categories %}
+        <a href="/{{ c.slug }}" class="reveal reveal-delay-{{ (loop.index0 % 3) + 1 }}" style="background:var(--ek-dark-surface); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r-lg); padding:24px; position:relative; overflow:hidden; min-height:220px; display:grid; grid-template-columns:1fr 140px; gap:16px; transition:border-color .2s, transform .2s">
+          <div style="display:flex; flex-direction:column; justify-content:space-between">
+            <div>
+              <div class="mono" style="font-size:10px; color:var(--ek-gold); letter-spacing:0.12em">C.{{ '%02d'|format(loop.index) }}</div>
+              <div style="font-size:22px; margin-top:36px; font-weight:500; color:var(--ek-dark-ink); letter-spacing:-0.3px">{{ c.name }}</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px">
+              <span class="mono" style="font-size:11px; color:var(--ek-dark-ink-2); letter-spacing:0.08em">{{ c.count }} REFS</span>
+              <span style="width:36px; height:36px; border-radius:50%; background:var(--ek-gold); color:var(--ek-ink); display:flex; align-items:center; justify-content:center; font-weight:500">→</span>
+            </div>
+          </div>
+          <div style="border-radius:var(--ek-r); overflow:hidden; align-self:center">
+            {{ illu.byKey(c.illu, 'dark') }}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ════════════ 4. OFERTAS FLASH ════════════ #}
+<section style="padding:0 40px 80px">
+  <div class="ek-shell reveal" style="background:linear-gradient(180deg, oklch(0.22 0.025 260) 0%, var(--ek-dark-surface) 100%); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r-lg); padding:32px; position:relative; overflow:hidden">
+    <div style="position:absolute; top:0; left:0; width:4px; height:100%; background:var(--ek-gold)"></div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:20px">
+      <div>
+        <div class="mono" style="font-size:11px; letter-spacing:0.15em; color:var(--ek-gold); display:flex; align-items:center; gap:10px">
+          <span class="ek-pulse-dot" style="width:6px; height:6px; border-radius:3px; background:var(--ek-gold)"></span>
+          FLASH · STOCK LIMITADO
+        </div>
+        <div style="font-size:32px; font-weight:500; margin-top:6px; letter-spacing:-0.7px; color:var(--ek-dark-ink)">Ofertas activas · expiran en</div>
+      </div>
+
+      <div style="display:flex; gap:10px" data-countdown="{{ flash_until }}">
+        {% for label in ['DÍAS','H','M','S'] %}
+          <div style="background:var(--ek-dark-bg); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r); padding:10px 14px; min-width:60px; text-align:center">
+            <div class="ek-cd-{{ ['d','h','m','s'][loop.index0] }}" style="font-family:var(--ek-font-mono); font-size:26px; color:var(--ek-gold); font-weight:500; line-height:1">00</div>
+            <div class="mono" style="font-size:9px; color:var(--ek-dark-ink-2); letter-spacing:0.15em; margin-top:4px">{{ label }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px">
+      {% for p in flash_offers %}
+        {% set discount = ((1 - (p.now / p.before)) * 100)|round %}
+        {% set pct = (p.stock / 50 * 100)|round %}
+        {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+        <div class="reveal reveal-delay-{{ loop.index }}" style="background:var(--ek-dark-bg); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r); padding:14px; display:flex; flex-direction:column; gap:10px">
+          <div style="position:relative; aspect-ratio:4/3; border-radius:var(--ek-r-sm); overflow:hidden">
+            {{ illu.byKey(p.illu, 'dark') }}
+            <div style="position:absolute; top:8px; left:8px; background:var(--ek-gold); color:var(--ek-ink); padding:3px 8px; border-radius:3px; font-family:var(--ek-font-mono); font-size:11px; font-weight:600">-{{ discount }}%</div>
+          </div>
+          <div class="mono" style="font-size:10px; color:var(--ek-dark-ink-2); letter-spacing:0.08em">{{ p.brand }} · {{ p.sku }}</div>
+          <div style="font-size:13px; color:var(--ek-dark-ink); min-height:34px; line-height:1.3">{{ p.title }}</div>
+          {% if p.stock > 0 %}
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:4px" class="mono">
+              <span style="color:var(--ek-dark-ink-2); letter-spacing:0.08em">STOCK</span>
+              <span style="color:{{ p.stock < 10 ? 'var(--ek-err)' : 'var(--ek-ok)' }}">{{ p.stock }} uds</span>
+            </div>
+            <div style="height:3px; background:var(--ek-dark-line); border-radius:2px; overflow:hidden">
+              <div style="width:{{ pct }}%; height:100%; background:{{ p.stock < 10 ? 'var(--ek-err)' : 'var(--ek-gold)' }}"></div>
+            </div>
+          </div>
+          {% endif %}
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto">
+            <div>
+              <div class="mono" style="font-size:11px; color:var(--ek-dark-ink-2); text-decoration:line-through">{{ p.before|number_format(2, ',', '.') }}€</div>
+              <div style="font-size:20px; color:var(--ek-gold); font-weight:500; font-family:var(--ek-font-mono); letter-spacing:-0.4px; line-height:1">{{ p.now|number_format(2, ',', '.') }}€</div>
+            </div>
+            <button class="ek-btn ek-btn--gold" style="width:32px; height:32px; border-radius:50%; padding:0">+</button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ════════════ 5. KITS PRECONFIGURADOS ════════════ #}
+<section style="padding:0 40px 80px">
+  <div class="ek-shell">
+    <div class="ek-section-head reveal">
+      <div>
+        <div class="eyebrow">KITS PRECONFIGURADOS · {{ kits|length }}</div>
+        <div class="ek-section-head__title">Monta tu red en minutos</div>
+      </div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap">
+        {% for t in ['Oficina','Hogar','Industrial','Comercio'] %}
+          <span class="mono" style="padding:6px 12px; border-radius:100px; font-size:11px; letter-spacing:0.08em; border:1px solid var(--ek-dark-line); background:{{ loop.first ? 'var(--ek-gold)' : 'transparent' }}; color:{{ loop.first ? 'var(--ek-ink)' : 'var(--ek-dark-ink-2)' }}">{{ t|upper }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px">
+      {% for k in kits %}
+        <div class="reveal reveal-delay-{{ loop.index }}" style="background:var(--ek-dark-surface); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r-lg); padding:24px; display:flex; flex-direction:column; gap:18px">
+          <div style="display:flex; justify-content:space-between">
+            <div class="mono" style="font-size:10px; color:var(--ek-gold); letter-spacing:0.15em">{{ k.code }}</div>
+            <div class="mono" style="font-size:10px; color:var(--ek-dark-ink-2); letter-spacing:0.12em">AHORRO {{ k.saves|number_format(2, ',', '.') }}€</div>
+          </div>
+          <div style="font-size:22px; font-weight:500; letter-spacing:-0.4px; line-height:1.15; color:var(--ek-dark-ink)">{{ k.name }}</div>
+          <div style="font-size:13px; color:var(--ek-dark-ink-2); line-height:1.5">{{ k.desc }}</div>
+          <div style="border-top:1px dashed var(--ek-dark-line); padding-top:14px">
+            {% for it in k.items %}
+              <div style="display:grid; grid-template-columns:28px 1fr auto; gap:10px; padding:6px 0; font-size:12px">
+                <span class="mono" style="color:var(--ek-dark-ink-2); letter-spacing:0.08em">{{ '%02d'|format(loop.index) }}</span>
+                <span style="color:var(--ek-dark-ink)">{{ it[0] }}</span>
+                <span class="mono" style="color:var(--ek-gold)">×{{ it[1] }}</span>
+              </div>
+            {% endfor %}
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; border-top:1px solid var(--ek-dark-line); padding-top:16px; margin-top:auto">
+            <div>
+              <div class="mono" style="font-size:10px; color:var(--ek-dark-ink-2); letter-spacing:0.1em">PVP KIT</div>
+              <div style="font-size:28px; color:var(--ek-gold); font-weight:500; font-family:var(--ek-font-mono); letter-spacing:-0.6px; line-height:1">{{ k.price|number_format(2, ',', '.') }}€</div>
+            </div>
+            <button class="ek-btn ek-btn--gold ek-btn--md">Añadir kit →</button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ════════════ 6. MARCAS ════════════ #}
+<section style="padding:40px 40px; border-top:1px solid var(--ek-dark-line); border-bottom:1px solid var(--ek-dark-line)">
+  <div class="ek-shell">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:24px">
+      <div class="eyebrow">DISTRIBUIDOR OFICIAL · {{ brands|length }} MARCAS</div>
+      <a href="/marcas" class="mono" style="font-size:11px; color:var(--ek-dark-ink-2); letter-spacing:0.1em">VER TODAS →</a>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(6, 1fr); gap:0">
+      {% for b in brands %}
+        <div style="padding:22px 0; border-right:{{ loop.index % 6 != 0 ? '1px solid var(--ek-dark-line)' : 'none' }}; border-bottom:{{ loop.index <= 6 and brands|length > 6 ? '1px solid var(--ek-dark-line)' : 'none' }}; text-align:center; font-family:var(--ek-font-mono); font-size:16px; letter-spacing:0.04em; color:{{ loop.index0 % 4 == 1 ? 'var(--ek-gold)' : 'var(--ek-dark-ink)' }}; font-weight:500">{{ b }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ════════════ 7. CUENTA PRO BANNER ════════════ #}
+<section style="padding:80px 40px">
+  <div class="ek-shell reveal" style="background:linear-gradient(135deg, oklch(0.22 0.025 260) 0%, oklch(0.26 0.04 270) 100%); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r-lg); padding:48px; position:relative; overflow:hidden; display:grid; grid-template-columns:1.4fr 1fr; gap:48px; align-items:center">
+    <div style="position:absolute; top:-100px; right:-100px; width:360px; height:360px; background:radial-gradient(circle, color-mix(in oklch, var(--ek-gold) 24%, transparent) 0%, transparent 60%)"></div>
+
+    <div style="position:relative">
+      <div class="eyebrow" style="margin-bottom:16px">CUENTA PRO · PARA INSTALADORES E INGENIEROS</div>
+      <div style="font-size:42px; font-weight:500; letter-spacing:-1px; line-height:1.05; margin-bottom:18px; color:var(--ek-dark-ink)">
+        Condiciones de profesional,<br>pedidos de proyecto.
+      </div>
+      <div style="font-size:15px; color:var(--ek-dark-ink-2); line-height:1.55; max-width:520px; margin-bottom:28px">
+        Precios ajustados por volumen, presupuestos en 2h, facturación unificada,
+        gestor técnico dedicado y envíos a obra. Sin cuotas.
+      </div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap">
+        <a href="/cuenta-pro" class="ek-btn ek-btn--gold ek-btn--lg">Solicitar Cuenta Pro →</a>
+        <a href="/cuenta-pro/ventajas" class="ek-btn ek-btn--darkOutline ek-btn--lg">Ver ventajas</a>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; position:relative; background:var(--ek-dark-bg); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r)">
+      {% for v, l in [['-12%','descuento medio sobre PVP'], ['2h','respuesta a presupuestos'], ['60d','crédito comercial'], ['1','gestor técnico asignado']] %}
+        <div style="padding:28px 20px; border-right:{{ loop.index0 % 2 == 0 ? '1px solid var(--ek-dark-line)' : 'none' }}; border-bottom:{{ loop.index <= 2 ? '1px solid var(--ek-dark-line)' : 'none' }}">
+          <div style="font-family:var(--ek-font-mono); font-size:32px; color:var(--ek-gold); font-weight:500; letter-spacing:-0.8px">{{ v }}</div>
+          <div style="font-size:12px; color:var(--ek-dark-ink-2); margin-top:6px; line-height:1.4">{{ l }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ════════════ 8. BLOG ════════════ #}
+<section style="padding:0 40px 80px">
+  <div class="ek-shell">
+    <div class="eyebrow" style="margin-bottom:18px">SEÑAL / BLOG TÉCNICO</div>
+    <div style="font-size:32px; font-weight:500; letter-spacing:-0.7px; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--ek-dark-line); display:flex; justify-content:space-between; align-items:baseline; color:var(--ek-dark-ink)">
+      <span>Documentación de campo</span>
+      <a href="/blog" class="mono" style="font-size:11px; color:var(--ek-dark-ink-2); letter-spacing:0.1em">VER TODOS LOS ARTÍCULOS →</a>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(2, 1fr); column-gap:40px; row-gap:0">
+      {% for post in blog_posts %}
+        <a href="/blog/{{ post.slug|default('articulo-' ~ loop.index) }}" style="padding:20px 0; border-top:{{ loop.index <= 2 ? 'none' : '1px solid var(--ek-dark-line)' }}; display:grid; grid-template-columns:40px 1fr auto auto; gap:20px; align-items:center; transition:opacity .15s">
+          <span class="mono" style="font-size:11px; color:var(--ek-dark-ink-2)">{{ '%02d'|format(loop.index) }}</span>
+          <div>
+            <span class="mono" style="font-size:10px; color:var(--ek-gold); letter-spacing:0.1em">{{ post.category }}</span>
+            <div style="font-size:19px; margin-top:6px; font-weight:400; letter-spacing:-0.3px; color:var(--ek-dark-ink)">{{ post.title }}</div>
+          </div>
+          <span class="mono" style="font-size:11px; color:var(--ek-dark-ink-2)">{{ post.minutes }}</span>
+          <span style="font-size:14px; color:var(--ek-gold)">→</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ════════════ 9. TESTIMONIO + RATING ════════════ #}
+<section style="padding:0 40px 80px">
+  <div class="ek-shell reveal" style="background:var(--ek-dark-surface); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r-lg); padding:48px; display:grid; grid-template-columns:1fr 280px; gap:48px; align-items:center">
+    <div>
+      <div class="eyebrow" style="margin-bottom:24px">CAMPO / TESTIMONIO · 01 DE 24</div>
+      <p style="font-size:32px; line-height:1.25; color:var(--ek-dark-ink); font-weight:400; letter-spacing:-0.6px; margin:0">
+        {{ reviews.testimonial.quote|raw }}
+      </p>
+      <div style="display:flex; gap:32px; margin-top:32px; align-items:center; flex-wrap:wrap">
+        <div>
+          <div style="font-size:14px; font-weight:500; color:var(--ek-dark-ink)">{{ reviews.testimonial.name }}</div>
+          <div class="mono" style="font-size:10px; color:var(--ek-dark-ink-2); letter-spacing:0.1em; margin-top:2px">{{ reviews.testimonial.role }}</div>
+        </div>
+        <div style="width:1px; height:40px; background:var(--ek-dark-line)"></div>
+        <div>
+          <div class="mono" style="font-size:10px; color:var(--ek-dark-ink-2); letter-spacing:0.1em">CLIENTE DESDE</div>
+          <div class="mono" style="font-size:14px; color:var(--ek-gold); margin-top:2px">{{ reviews.testimonial.since }}</div>
+        </div>
+        <div style="width:1px; height:40px; background:var(--ek-dark-line)"></div>
+        <div>
+          <div class="mono" style="font-size:10px; color:var(--ek-dark-ink-2); letter-spacing:0.1em">PEDIDOS</div>
+          <div class="mono" style="font-size:14px; color:var(--ek-gold); margin-top:2px">{{ reviews.testimonial.orders }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--ek-dark-bg); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r); padding:24px">
+      <div class="mono" style="font-size:10px; letter-spacing:0.12em; color:var(--ek-dark-ink-2)">VALORACIÓN GLOBAL</div>
+      <div style="font-size:48px; color:var(--ek-gold); font-family:var(--ek-font-mono); font-weight:500; letter-spacing:-1px; line-height:1; margin-top:8px">{{ reviews.global }}</div>
+      <div style="color:var(--ek-gold); font-size:14px; margin-top:4px">★★★★★</div>
+      <div style="margin-top:16px; padding-top:14px; border-top:1px dashed var(--ek-dark-line)">
+        {% for row in reviews.breakdown %}
+          <div style="display:grid; grid-template-columns:60px 1fr 30px; gap:8px; align-items:center; margin-bottom:6px">
+            <span style="font-size:11px; color:var(--ek-dark-ink-2)">{{ row[0] }}</span>
+            <div style="height:3px; background:var(--ek-dark-line); border-radius:2px; overflow:hidden">
+              <div style="width:{{ (row[1] / 5 * 100)|round }}%; height:100%; background:var(--ek-gold)"></div>
+            </div>
+            <span class="mono" style="font-size:11px; color:var(--ek-gold); text-align:right">{{ row[1] }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ════════════ 10. NEWSLETTER ════════════ #}
+<section style="padding:0 40px 80px">
+  <div class="ek-shell reveal" style="border:1px solid var(--ek-dark-line); border-radius:var(--ek-r-lg); padding:40px; display:grid; grid-template-columns:1.2fr 1fr; gap:48px; align-items:center; background:oklch(0.19 0.02 260)">
+    <div>
+      <div class="eyebrow" style="margin-bottom:14px">BOLETÍN · SEMANAL · 4.200 SUSCRIPTORES</div>
+      <div style="font-size:34px; font-weight:500; letter-spacing:-0.8px; line-height:1.1; color:var(--ek-dark-ink)">
+        Ofertas semanales<br>y notas técnicas.
+      </div>
+      <div style="font-size:14px; color:var(--ek-dark-ink-2); margin-top:14px; line-height:1.5">
+        Un email los martes. Sin spam. Cancelación al instante.
+      </div>
+    </div>
+    <form action="/newsletter/suscribir" method="post">
+      <div style="background:var(--ek-dark-bg); border:1px solid var(--ek-dark-line); border-radius:var(--ek-r); padding:4px; display:flex; align-items:center">
+        <span class="mono" style="padding:0 14px; font-size:12px; color:var(--ek-gold)">@</span>
+        <input type="email" name="email" placeholder="tu@correo.pro" required style="flex:1; background:transparent; border:0; padding:12px 0; font-size:14px; color:var(--ek-dark-ink); outline:none; font-family:inherit">
+        <button type="submit" class="ek-btn ek-btn--gold ek-btn--md">Suscribirme →</button>
+      </div>
+      <div style="margin-top:14px; display:flex; gap:16px; font-size:11px; color:var(--ek-dark-ink-2); flex-wrap:wrap">
+        <label class="mono" style="letter-spacing:0.08em; cursor:pointer"><input type="checkbox" checked style="vertical-align:middle"> OFERTAS</label>
+        <label class="mono" style="letter-spacing:0.08em; cursor:pointer"><input type="checkbox" checked style="vertical-align:middle"> NOTAS TÉCNICAS</label>
+        <label class="mono" style="letter-spacing:0.08em; cursor:pointer; opacity:0.6"><input type="checkbox" style="vertical-align:middle"> PRODUCTO NUEVO</label>
+      </div>
+    </form>
+  </div>
+</section>
+
+</div>{# end relative wrapper #}
+
+{% endblock %}
