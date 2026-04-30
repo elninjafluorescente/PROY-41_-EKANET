@@ -45,25 +45,33 @@ use Ekanet\Controllers\Admin\BannersController;
 use Ekanet\Controllers\Admin\BlogCategoriasController;
 use Ekanet\Controllers\Admin\BlogComentariosController;
 use Ekanet\Controllers\Admin\BlogPostsController;
+use Ekanet\Controllers\Admin\CatalogosController;
 use Ekanet\Controllers\Admin\CaracteristicasController;
 use Ekanet\Controllers\Admin\CategoriasController;
 use Ekanet\Controllers\Admin\ClientesController;
 use Ekanet\Controllers\Admin\ConfiguracionController;
 use Ekanet\Controllers\Admin\CuponesController;
 use Ekanet\Controllers\Admin\DashboardController;
+use Ekanet\Controllers\Admin\DestacadosController;
 use Ekanet\Controllers\Admin\DireccionesController;
 use Ekanet\Controllers\Admin\FacturasController;
+use Ekanet\Controllers\Admin\IaController;
+use Ekanet\Controllers\Admin\ImageTypesController;
+use Ekanet\Controllers\Admin\ImpuestosController;
 use Ekanet\Controllers\Admin\MarcasController;
 use Ekanet\Controllers\Admin\MetodosPagoController;
+use Ekanet\Controllers\Admin\NewsletterController;
 use Ekanet\Controllers\Admin\PedidosController;
 use Ekanet\Controllers\Admin\PixelesController;
 use Ekanet\Controllers\Admin\PreciosEspecialesController;
+use Ekanet\Controllers\Admin\PresupuestosController;
 use Ekanet\Controllers\Admin\ProductosController;
 use Ekanet\Controllers\Admin\ProveedoresController;
 use Ekanet\Controllers\Admin\RolesController;
 use Ekanet\Controllers\Admin\StockController;
 use Ekanet\Controllers\Admin\TransportistasController;
 use Ekanet\Controllers\Admin\UsuariosController;
+use Ekanet\Controllers\Admin\ZonasController;
 
 Session::start();
 Database::init($config['db']);
@@ -163,6 +171,16 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/transportistas/{id}/editar',      [TransportistasController::class, 'edit']);
     $r->post('/transportistas/{id}/editar',     [TransportistasController::class, 'update']);
     $r->post('/transportistas/{id}/eliminar',   [TransportistasController::class, 'destroy']);
+    $r->post('/transportistas/{id}/rangos/nuevo',                  [TransportistasController::class, 'addRange']);
+    $r->post('/transportistas/{id}/rangos/{type}/{rangeId}/eliminar', [TransportistasController::class, 'deleteRange']);
+
+    // Zonas geográficas
+    $r->get('/zonas',                  [ZonasController::class, 'index']);
+    $r->get('/zonas/nueva',            [ZonasController::class, 'create']);
+    $r->post('/zonas/nueva',           [ZonasController::class, 'store']);
+    $r->get('/zonas/{id}/editar',      [ZonasController::class, 'edit']);
+    $r->post('/zonas/{id}/editar',     [ZonasController::class, 'update']);
+    $r->post('/zonas/{id}/eliminar',   [ZonasController::class, 'destroy']);
 
     // Píxeles y scripts
     $r->get('/pixeles',                  [PixelesController::class, 'index']);
@@ -171,6 +189,22 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->get('/pixeles/{id}/editar',      [PixelesController::class, 'edit']);
     $r->post('/pixeles/{id}/editar',     [PixelesController::class, 'update']);
     $r->post('/pixeles/{id}/eliminar',   [PixelesController::class, 'destroy']);
+
+    // Newsletter (suscriptores + campañas)
+    $r->get('/newsletter/suscriptores',                   [NewsletterController::class, 'subscribersIndex']);
+    $r->get('/newsletter/suscriptores/nuevo',             [NewsletterController::class, 'subscriberCreate']);
+    $r->post('/newsletter/suscriptores/nuevo',            [NewsletterController::class, 'subscriberStore']);
+    $r->get('/newsletter/suscriptores/{id}/editar',       [NewsletterController::class, 'subscriberEdit']);
+    $r->post('/newsletter/suscriptores/{id}/editar',      [NewsletterController::class, 'subscriberUpdate']);
+    $r->post('/newsletter/suscriptores/{id}/eliminar',    [NewsletterController::class, 'subscriberDestroy']);
+    $r->post('/newsletter/suscriptores/importar',         [NewsletterController::class, 'subscribersImport']);
+    $r->get('/newsletter/campanas',                       [NewsletterController::class, 'campaignsIndex']);
+    $r->get('/newsletter/campanas/nueva',                 [NewsletterController::class, 'campaignCreate']);
+    $r->post('/newsletter/campanas/nueva',                [NewsletterController::class, 'campaignStore']);
+    $r->get('/newsletter/campanas/{id}/editar',           [NewsletterController::class, 'campaignEdit']);
+    $r->post('/newsletter/campanas/{id}/editar',          [NewsletterController::class, 'campaignUpdate']);
+    $r->post('/newsletter/campanas/{id}/eliminar',        [NewsletterController::class, 'campaignDestroy']);
+    $r->post('/newsletter/campanas/{id}/enviar',          [NewsletterController::class, 'campaignSend']);
 
     // Banners
     $r->get('/banners',                  [BannersController::class, 'index']);
@@ -183,6 +217,19 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     // Stock (vista masiva)
     $r->get('/stock',          [StockController::class, 'index']);
     $r->post('/stock/guardar', [StockController::class, 'bulkUpdate']);
+
+    // Presupuestos (pre-pedidos B2B)
+    $r->get('/presupuestos',                                [PresupuestosController::class, 'index']);
+    $r->get('/presupuestos/nuevo',                          [PresupuestosController::class, 'create']);
+    $r->post('/presupuestos/nuevo',                         [PresupuestosController::class, 'store']);
+    $r->get('/presupuestos/{id}/editar',                    [PresupuestosController::class, 'edit']);
+    $r->post('/presupuestos/{id}/editar',                   [PresupuestosController::class, 'update']);
+    $r->post('/presupuestos/{id}/eliminar',                 [PresupuestosController::class, 'destroy']);
+    $r->post('/presupuestos/{id}/lineas/anadir',            [PresupuestosController::class, 'addLine']);
+    $r->post('/presupuestos/{id}/lineas/{lineId}/editar',   [PresupuestosController::class, 'updateLine']);
+    $r->post('/presupuestos/{id}/lineas/{lineId}/eliminar', [PresupuestosController::class, 'deleteLine']);
+    $r->post('/presupuestos/{id}/estado',                   [PresupuestosController::class, 'changeStatus']);
+    $r->post('/presupuestos/{id}/convertir',                [PresupuestosController::class, 'convert']);
 
     // Pedidos
     $r->get('/pedidos',                       [PedidosController::class, 'index']);
@@ -278,6 +325,49 @@ $router->group(['before' => 'auth'], function (Router $r): void {
     $r->post('/caracteristicas/{id}/valores/nuevo',            [CaracteristicasController::class, 'storeValue']);
     $r->post('/caracteristicas/{id}/valores/{vid}/editar',     [CaracteristicasController::class, 'updateValue']);
     $r->post('/caracteristicas/{id}/valores/{vid}/eliminar',   [CaracteristicasController::class, 'destroyValue']);
+
+    // Catálogos PDF descargables
+    $r->get('/catalogos',                      [CatalogosController::class, 'index']);
+    $r->get('/catalogos/completo',             [CatalogosController::class, 'downloadAll']);
+    $r->get('/catalogos/categoria/{id}',       [CatalogosController::class, 'downloadCategory']);
+
+    // Destacados / Más vendidos / Novedades
+    $r->get('/destacados',                                [DestacadosController::class, 'index']);
+    $r->post('/destacados/anadir',                        [DestacadosController::class, 'add']);
+    $r->post('/destacados/{id}/eliminar',                 [DestacadosController::class, 'remove']);
+    $r->post('/destacados/{id}/mover/{direction}',        [DestacadosController::class, 'move']);
+    $r->post('/destacados/ajustes',                       [DestacadosController::class, 'saveSettings']);
+
+    // Impuestos (tab 1: tasas; tab 2: grupos de reglas)
+    $r->get('/impuestos',                                            [ImpuestosController::class, 'index']);
+    $r->get('/impuestos/nuevo',                                      [ImpuestosController::class, 'create']);
+    $r->post('/impuestos/nuevo',                                     [ImpuestosController::class, 'store']);
+    $r->get('/impuestos/{id}/editar',                                [ImpuestosController::class, 'edit']);
+    $r->post('/impuestos/{id}/editar',                               [ImpuestosController::class, 'update']);
+    $r->post('/impuestos/{id}/eliminar',                             [ImpuestosController::class, 'destroy']);
+    $r->get('/impuestos/grupos',                                     [ImpuestosController::class, 'groupsIndex']);
+    $r->get('/impuestos/grupos/nuevo',                               [ImpuestosController::class, 'groupCreate']);
+    $r->post('/impuestos/grupos/nuevo',                              [ImpuestosController::class, 'groupStore']);
+    $r->get('/impuestos/grupos/{id}/editar',                         [ImpuestosController::class, 'groupEdit']);
+    $r->post('/impuestos/grupos/{id}/editar',                        [ImpuestosController::class, 'groupUpdate']);
+    $r->post('/impuestos/grupos/{id}/eliminar',                      [ImpuestosController::class, 'groupDestroy']);
+    $r->post('/impuestos/grupos/{id}/reglas/nueva',                  [ImpuestosController::class, 'ruleAdd']);
+    $r->post('/impuestos/grupos/{id}/reglas/{ruleId}/eliminar',      [ImpuestosController::class, 'ruleDestroy']);
+
+    // Tipos de imagen (miniaturas)
+    $r->get('/tipos_imagen',                  [ImageTypesController::class, 'index']);
+    $r->get('/tipos_imagen/nuevo',            [ImageTypesController::class, 'create']);
+    $r->post('/tipos_imagen/nuevo',           [ImageTypesController::class, 'store']);
+    $r->get('/tipos_imagen/{id}/editar',      [ImageTypesController::class, 'edit']);
+    $r->post('/tipos_imagen/{id}/editar',     [ImageTypesController::class, 'update']);
+    $r->post('/tipos_imagen/{id}/eliminar',   [ImageTypesController::class, 'destroy']);
+    $r->post('/tipos_imagen/regenerar',       [ImageTypesController::class, 'regenerate']);
+
+    // IA — Configuración + endpoints AJAX para generación
+    $r->get('/ia',                          [IaController::class, 'config']);
+    $r->post('/ia/guardar',                 [IaController::class, 'saveConfig']);
+    $r->post('/ia/borrar-key',              [IaController::class, 'clearKey']);
+    $r->post('/ia/generar-articulo',        [IaController::class, 'generateBlogArticle']);
 
     // Roles
     $r->get('/roles',                [RolesController::class, 'index']);

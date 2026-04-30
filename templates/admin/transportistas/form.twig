@@ -103,6 +103,82 @@
         </div>
     </div>
 
+    {# ===== Zonas atendidas ===== #}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Zonas atendidas</h2>
+        <p class="ek-panel__hint">
+            Marca las zonas a las que este transportista hace entregas.
+            <a href="{{ admin_url('zonas') }}">Gestionar zonas →</a>
+        </p>
+        <div class="ek-form__grid">
+            {% for z in all_zones %}
+                <label class="ek-switch">
+                    <input type="checkbox" name="zones[]" value="{{ z.id_zone }}"
+                           {{ z.id_zone in carrier_zones ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">{{ z.name }}</span>
+                </label>
+            {% else %}
+                <p class="ek-field__hint">No hay zonas activas. Crea alguna en <a href="{{ admin_url('zonas') }}">Zonas geográficas</a>.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# ===== Tarifas (matriz zona × rango) ===== #}
+    {% if mode == 'edit' and range_type %}
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Tarifas por {{ range_type == 'weight' ? 'peso' : 'importe' }}</h2>
+        <p class="ek-panel__hint">
+            Define los rangos abajo y rellena el precio para cada combinación zona × rango.
+            Para tarifa plana: añade un único rango (ej. <span class="mono">0 → 99999</span>).
+            <strong>Importante:</strong> guarda primero los rangos antes de poner precios.
+        </p>
+
+        {% if ranges|length > 0 and carrier_zones|length > 0 %}
+        <div class="ek-table-wrap" style="margin-top:12px">
+            <table class="ek-table">
+                <thead>
+                    <tr>
+                        <th>Zona</th>
+                        {% for r in ranges %}
+                            <th class="mono" style="width:140px">
+                                {{ r.delimiter1|number_format(2, ',', '.') }} — {{ r.delimiter2|number_format(2, ',', '.') }}
+                                {{ range_type == 'weight' ? 'kg' : '€' }}
+                            </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for z in all_zones %}
+                        {% if z.id_zone in carrier_zones %}
+                        <tr>
+                            <td><strong>{{ z.name }}</strong></td>
+                            {% for r in ranges %}
+                                <td>
+                                    <input type="text" inputmode="decimal" class="mono"
+                                           name="prices[{{ z.id_zone }}][{{ r.id_range }}]"
+                                           value="{{ price_matrix[z.id_zone][r.id_range] is defined
+                                               ? price_matrix[z.id_zone][r.id_range]|number_format(2, '.', '')
+                                               : '' }}"
+                                           placeholder="0.00"
+                                           style="width:100px">
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="ek-field__hint" style="margin-top:12px">
+            {% if carrier_zones|length == 0 %}Marca antes alguna zona arriba.{% endif %}
+            {% if ranges|length == 0 %}Añade al menos un rango abajo.{% endif %}
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <div class="ek-form__actions">
         <a class="ek-btn ek-btn--ghost" href="{{ admin_url('transportistas') }}">Cancelar</a>
         <button type="submit" class="ek-btn ek-btn--primary">
@@ -111,12 +187,72 @@
     </div>
 </form>
 
-{% if mode == 'edit' %}
+{# ===== Gestión de rangos (formulario aparte para evitar anidamiento) ===== #}
+{% if mode == 'edit' and range_type %}
 <div class="ek-panel" style="margin-top:16px">
-    <h2>Tarifas y zonas</h2>
+    <h2>Rangos de {{ range_type == 'weight' ? 'peso' : 'importe' }} para este transportista</h2>
+
+    <div class="ek-table-wrap">
+        <table class="ek-table">
+            <thead>
+                <tr>
+                    <th style="width:60px">ID</th>
+                    <th>Desde</th>
+                    <th>Hasta</th>
+                    <th style="width:100px; text-align:right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in ranges %}
+                <tr>
+                    <td class="mono">{{ r.id_range }}</td>
+                    <td class="mono">{{ r.delimiter1|number_format(2, ',', '.') }} {{ range_type == 'weight' ? 'kg' : '€' }}</td>
+                    <td class="mono">{{ r.delimiter2|number_format(2, ',', '.') }} {{ range_type == 'weight' ? 'kg' : '€' }}</td>
+                    <td style="text-align:right">
+                        <form method="post"
+                              action="{{ admin_url('transportistas/' ~ item.id_carrier ~ '/rangos/' ~ range_type ~ '/' ~ r.id_range ~ '/eliminar') }}"
+                              style="display:inline"
+                              onsubmit="return confirm('¿Eliminar este rango y sus tarifas asociadas?');">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="ek-table__empty">No hay rangos. Añade el primero abajo.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <form method="post" class="ek-form" style="margin-top:16px"
+          action="{{ admin_url('transportistas/' ~ item.id_carrier ~ '/rangos/nuevo') }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="range_type" value="{{ range_type }}">
+        <h3 style="margin:0 0 12px 0">Añadir rango</h3>
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Desde ({{ range_type == 'weight' ? 'kg' : '€' }})</span>
+                <input type="text" name="range_from" inputmode="decimal" required value="0">
+            </label>
+            <label class="ek-field">
+                <span>Hasta ({{ range_type == 'weight' ? 'kg' : '€' }})</span>
+                <input type="text" name="range_to" inputmode="decimal" required value="99999">
+            </label>
+        </div>
+        <div class="ek-form__actions">
+            <button type="submit" class="ek-btn ek-btn--primary">+ Añadir rango</button>
+        </div>
+    </form>
+</div>
+{% elseif mode == 'edit' and not range_type %}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Tarifas</h2>
     <p class="ek-panel__hint">
-        Las tarifas por rango de peso/precio y la asignación a zonas geográficas
-        se gestionarán en una iteración futura.
+        Este transportista usa <strong>tarifa por defecto</strong> (sin escalado por peso/importe).
+        Si quieres tarifas distintas por zona, cambia "Tipo de tarifa" arriba a
+        "Por peso del pedido" o "Por importe del pedido", guarda el transportista
+        y vuelve aquí para configurar los rangos.
     </p>
 </div>
 {% endif %}

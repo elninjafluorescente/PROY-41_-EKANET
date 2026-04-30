@@ -1,0 +1,57 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Catálogos PDF descargables</h1>
+        <p class="ek-page-header__subtitle">Exporta el catálogo completo o sólo una rama del árbol de categorías.</p>
+    </div>
+</div>
+
+{# ===== Catálogo completo ===== #}
+<div class="ek-panel">
+    <h2>Catálogo completo</h2>
+    <p class="ek-panel__hint">Incluye todos los productos activos con su portada, referencia, descripción corta y precio sin IVA.</p>
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('catalogos/completo') }}">
+            ↓ Descargar catálogo completo
+        </a>
+    </div>
+</div>
+
+{# ===== Catálogo por categoría ===== #}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Catálogo por categoría</h2>
+    <p class="ek-panel__hint">Genera un PDF con los productos de la categoría seleccionada y todas sus subcategorías.</p>
+
+    <div class="ek-table-wrap">
+        <table class="ek-table">
+            <thead>
+                <tr>
+                    <th>Categoría</th>
+                    <th style="width:100px">Productos</th>
+                    <th style="width:200px; text-align:right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in categories %}
+                    {% if not c.is_root_category and c.id_category != 2 %}
+                    <tr>
+                        <td>
+                            {% if c.level_depth > 1 %}{% for _ in 2..c.level_depth %}— {% endfor %}{% endif %}
+                            <strong>{{ c.name }}</strong>
+                        </td>
+                        <td class="mono" style="font-size:12px; color:var(--ek-ink-3)">—</td>
+                        <td style="text-align:right">
+                            <a class="ek-action" href="{{ admin_url('catalogos/categoria/' ~ c.id_category) }}">↓ Descargar PDF</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% else %}
+                    <tr><td colspan="3" class="ek-table__empty">No hay categorías.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

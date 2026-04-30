@@ -1,0 +1,54 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Zonas geográficas</h1>
+        <p class="ek-page-header__subtitle">Agrupan países para tarifar el envío. Cada transportista atiende una o varias zonas.</p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('zonas/nueva') }}">+ Nueva zona</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th style="width:120px">Países</th>
+                <th style="width:90px">Estado</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for z in zones %}
+            <tr>
+                <td class="mono">{{ z.id_zone }}</td>
+                <td><strong>{{ z.name }}</strong></td>
+                <td class="mono">{{ z.country_count }}</td>
+                <td>
+                    {% if z.active %}
+                        <span class="ek-badge ek-badge--ok">Activa</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactiva</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('zonas/' ~ z.id_zone ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('zonas/' ~ z.id_zone ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar la zona \'{{ z.name }}\'? Los {{ z.country_count }} países asignados quedarán sin zona y se borrarán las tarifas relacionadas.');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="ek-table__empty">No hay zonas definidas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

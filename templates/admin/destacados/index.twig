@@ -1,0 +1,199 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Destacados de home</h1>
+        <p class="ek-page-header__subtitle">Bloques que aparecen en la portada de la tienda: destacados manuales, más vendidos y novedades.</p>
+    </div>
+</div>
+
+{# ===== Ajustes ===== #}
+<div class="ek-panel">
+    <h2>Ajustes de los bloques</h2>
+    <form method="post" action="{{ admin_url('destacados/ajustes') }}" class="ek-form">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <div class="ek-form__grid">
+            <label class="ek-field">
+                <span>Destacados — máx. a mostrar</span>
+                <input type="number" name="EKA_FEATURED_LIMIT" min="1" max="100" value="{{ settings.EKA_FEATURED_LIMIT }}">
+            </label>
+            <label class="ek-field">
+                <span>Más vendidos — ventana (días)</span>
+                <input type="number" name="EKA_BESTSELLERS_DAYS" min="1" max="3650" value="{{ settings.EKA_BESTSELLERS_DAYS }}">
+            </label>
+            <label class="ek-field">
+                <span>Más vendidos — máx. a mostrar</span>
+                <input type="number" name="EKA_BESTSELLERS_LIMIT" min="1" max="100" value="{{ settings.EKA_BESTSELLERS_LIMIT }}">
+            </label>
+            <label class="ek-field">
+                <span>Novedades — ventana (días)</span>
+                <input type="number" name="EKA_NEW_DAYS" min="1" max="3650" value="{{ settings.EKA_NEW_DAYS }}">
+            </label>
+            <label class="ek-field">
+                <span>Novedades — máx. a mostrar</span>
+                <input type="number" name="EKA_NEW_LIMIT" min="1" max="100" value="{{ settings.EKA_NEW_LIMIT }}">
+            </label>
+        </div>
+        <div class="ek-form__actions">
+            <button type="submit" class="ek-btn ek-btn--primary">Guardar ajustes</button>
+        </div>
+    </form>
+</div>
+
+{# ===== Destacados manuales ===== #}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Productos destacados <span style="color:var(--ek-ink-3); font-weight:400; font-size:14px">({{ featured|length }} / {{ settings.EKA_FEATURED_LIMIT }})</span></h2>
+    <p class="ek-panel__hint">Productos seleccionados manualmente para aparecer en la home. El orden se gestiona aquí o en el flag de cada ficha de producto.</p>
+
+    {% if featured|length > 0 %}
+    <div class="ek-table-wrap">
+        <table class="ek-table">
+            <thead>
+                <tr>
+                    <th style="width:60px">Pos.</th>
+                    <th>Nombre</th>
+                    <th style="width:120px">Referencia</th>
+                    <th style="width:100px">Precio</th>
+                    <th style="width:90px">Estado</th>
+                    <th style="width:200px; text-align:right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in featured %}
+                <tr {% if loop.index > settings.EKA_FEATURED_LIMIT %}style="opacity:0.5"{% endif %}>
+                    <td class="mono">{{ f.featured_position }}</td>
+                    <td>
+                        <a href="{{ admin_url('productos/' ~ f.id_product ~ '/editar') }}">{{ f.name|default('— sin nombre —') }}</a>
+                        {% if loop.index > settings.EKA_FEATURED_LIMIT %}
+                            <span class="ek-badge ek-badge--muted" style="margin-left:8px">No se mostrará (excede límite)</span>
+                        {% endif %}
+                    </td>
+                    <td class="mono">{{ f.reference|default('—') }}</td>
+                    <td class="mono">{{ f.price|number_format(2, ',', '.') }} €</td>
+                    <td>
+                        {% if f.active %}<span class="ek-badge ek-badge--ok">Activo</span>
+                        {% else %}<span class="ek-badge ek-badge--muted">Inactivo</span>{% endif %}
+                    </td>
+                    <td style="text-align:right">
+                        <form method="post" action="{{ admin_url('destacados/' ~ f.id_product ~ '/mover/up') }}" style="display:inline">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="ek-action" title="Subir">↑</button>
+                        </form>
+                        <form method="post" action="{{ admin_url('destacados/' ~ f.id_product ~ '/mover/down') }}" style="display:inline">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="ek-action" title="Bajar">↓</button>
+                        </form>
+                        <form method="post" action="{{ admin_url('destacados/' ~ f.id_product ~ '/eliminar') }}"
+                              style="display:inline"
+                              onsubmit="return confirm('¿Quitar de destacados?');">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="ek-action ek-action--danger">Quitar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="ek-field__hint">No hay productos destacados. Búscalos abajo y añádelos.</p>
+    {% endif %}
+
+    {# Buscador para añadir #}
+    <form method="get" action="{{ admin_url('destacados') }}" style="margin-top:20px; display:flex; gap:8px; align-items:center">
+        <input type="text" name="q" value="{{ q }}" placeholder="Buscar producto por nombre o referencia…"
+               style="flex:1; max-width:400px">
+        <button type="submit" class="ek-btn ek-btn--ghost">Buscar</button>
+    </form>
+
+    {% if candidates|length > 0 %}
+    <form method="post" action="{{ admin_url('destacados/anadir') }}" style="margin-top:12px">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <div style="display:flex; gap:8px; align-items:center">
+            <select name="id_product" required style="flex:1; max-width:500px">
+                {% for c in candidates %}
+                    <option value="{{ c.id_product }}">{{ c.name|default('— sin nombre —') }}{% if c.reference %} · {{ c.reference }}{% endif %}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="ek-btn ek-btn--primary">+ Añadir destacado</button>
+        </div>
+    </form>
+    {% elseif q != '' %}
+    <p class="ek-field__hint" style="margin-top:8px">Sin resultados para "{{ q }}".</p>
+    {% endif %}
+</div>
+
+{# ===== Más vendidos ===== #}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Más vendidos <span style="color:var(--ek-ink-3); font-weight:400; font-size:14px">(últimos {{ settings.EKA_BESTSELLERS_DAYS }} días · top {{ settings.EKA_BESTSELLERS_LIMIT }})</span></h2>
+    <p class="ek-panel__hint">Cálculo automático basado en pedidos válidos en la ventana configurada.</p>
+
+    <div class="ek-table-wrap">
+        <table class="ek-table">
+            <thead>
+                <tr>
+                    <th style="width:40px">#</th>
+                    <th>Producto</th>
+                    <th style="width:120px">Referencia</th>
+                    <th style="width:100px">Unidades</th>
+                    <th style="width:100px">Pedidos</th>
+                    <th style="width:100px">Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bestsellers %}
+                <tr>
+                    <td class="mono">{{ loop.index }}</td>
+                    <td><a href="{{ admin_url('productos/' ~ b.id_product ~ '/editar') }}">{{ b.name|default('— sin nombre —') }}</a></td>
+                    <td class="mono">{{ b.reference|default('—') }}</td>
+                    <td class="mono">{{ b.total_sold }}</td>
+                    <td class="mono">{{ b.order_count }}</td>
+                    <td class="mono">{{ b.price|number_format(2, ',', '.') }} €</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="ek-table__empty">No hay ventas en la ventana definida.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# ===== Novedades ===== #}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Novedades <span style="color:var(--ek-ink-3); font-weight:400; font-size:14px">(últimos {{ settings.EKA_NEW_DAYS }} días · top {{ settings.EKA_NEW_LIMIT }})</span></h2>
+    <p class="ek-panel__hint">Productos añadidos al catálogo en la ventana configurada.</p>
+
+    <div class="ek-table-wrap">
+        <table class="ek-table">
+            <thead>
+                <tr>
+                    <th style="width:40px">#</th>
+                    <th>Producto</th>
+                    <th style="width:120px">Referencia</th>
+                    <th style="width:160px">Alta</th>
+                    <th style="width:90px">Estado</th>
+                    <th style="width:100px">Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in new_products %}
+                <tr>
+                    <td class="mono">{{ loop.index }}</td>
+                    <td><a href="{{ admin_url('productos/' ~ n.id_product ~ '/editar') }}">{{ n.name|default('— sin nombre —') }}</a></td>
+                    <td class="mono">{{ n.reference|default('—') }}</td>
+                    <td class="mono" style="font-size:12px; color:var(--ek-ink-3)">{{ n.date_add }}</td>
+                    <td>
+                        {% if n.active %}<span class="ek-badge ek-badge--ok">Activo</span>
+                        {% else %}<span class="ek-badge ek-badge--muted">Inactivo</span>{% endif %}
+                    </td>
+                    <td class="mono">{{ n.price|number_format(2, ',', '.') }} €</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="ek-table__empty">No hay productos nuevos en la ventana.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

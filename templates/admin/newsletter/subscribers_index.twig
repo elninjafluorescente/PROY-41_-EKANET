@@ -1,0 +1,89 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_newsletter.twig' with {tab: 'subscribers'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Suscriptores</h1>
+        <p class="ek-page-header__subtitle">
+            {{ total }} suscriptor{{ total == 1 ? '' : 'es' }} externo{{ total == 1 ? '' : 's' }} ·
+            <strong>{{ customer_count }}</strong> cliente{{ customer_count == 1 ? '' : 's' }} con newsletter activo (gestionados desde su ficha).
+        </p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('newsletter/suscriptores/nuevo') }}">+ Añadir suscriptor</a>
+    </div>
+</div>
+
+<form method="get" action="{{ admin_url('newsletter/suscriptores') }}" style="margin-bottom:16px; display:flex; gap:8px">
+    <input type="text" name="q" value="{{ search }}" placeholder="Buscar por email o nombre…" style="flex:1; max-width:400px">
+    <button type="submit" class="ek-btn ek-btn--ghost">Buscar</button>
+</form>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Email</th>
+                <th>Nombre</th>
+                <th style="width:90px">Estado</th>
+                <th style="width:160px">Suscripción</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in subscribers %}
+            <tr>
+                <td class="mono">{{ s.id }}</td>
+                <td class="mono"><a href="{{ admin_url('newsletter/suscriptores/' ~ s.id ~ '/editar') }}">{{ s.email }}</a></td>
+                <td>{{ s.name|default('—') }}</td>
+                <td>
+                    {% if s.active %}<span class="ek-badge ek-badge--ok">Activo</span>
+                    {% else %}<span class="ek-badge ek-badge--muted">Baja</span>{% endif %}
+                </td>
+                <td class="mono" style="font-size:12px; color:var(--ek-ink-3)">{{ s.newsletter_date_add|default('—') }}</td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('newsletter/suscriptores/' ~ s.id ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('newsletter/suscriptores/' ~ s.id ~ '/eliminar') }}"
+                          style="display:inline" onsubmit="return confirm('¿Eliminar suscriptor?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="ek-table__empty">No hay suscriptores externos.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pages > 1 %}
+<div style="margin-top:12px; display:flex; gap:8px; justify-content:center">
+    {% for n in 1..pages %}
+        {% if n == page %}
+            <strong class="mono">{{ n }}</strong>
+        {% else %}
+            <a class="mono" href="{{ admin_url('newsletter/suscriptores') }}?p={{ n }}{% if search %}&q={{ search|url_encode }}{% endif %}">{{ n }}</a>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+{# ===== Importación masiva ===== #}
+<div class="ek-panel" style="margin-top:24px">
+    <h2>Importar emails (texto plano)</h2>
+    <p class="ek-panel__hint">Un email por línea. Opcional: <span class="mono">email,nombre</span> separado por coma.</p>
+    <form method="post" action="{{ admin_url('newsletter/suscriptores/importar') }}" class="ek-form">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <label class="ek-field ek-field--wide">
+            <textarea name="emails" rows="10" placeholder="cliente1@ejemplo.com&#10;cliente2@ejemplo.com,Juan Pérez&#10;cliente3@ejemplo.com" class="mono"></textarea>
+        </label>
+        <div class="ek-form__actions">
+            <button type="submit" class="ek-btn ek-btn--primary">Importar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

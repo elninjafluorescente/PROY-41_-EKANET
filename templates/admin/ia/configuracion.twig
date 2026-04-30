@@ -1,0 +1,107 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">IA — Configuración</h1>
+        <p class="ek-page-header__subtitle">Generación de contenido con OpenAI <span class="mono">gpt-5.4-mini</span>.</p>
+    </div>
+</div>
+
+<form method="post" action="{{ admin_url('ia/guardar') }}" class="ek-form">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>API key de OpenAI</h2>
+        <p class="ek-panel__hint">
+            Consigue tu key en <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a>.
+            Empieza por <span class="mono">sk-</span> y debe tener permisos al modelo <span class="mono">gpt-5.4-mini</span>.
+        </p>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>API key {% if key_set %}<span class="ek-badge ek-badge--ok" style="margin-left:6px">configurada · {{ key_masked }}</span>{% else %}<span class="ek-badge ek-badge--err" style="margin-left:6px">no configurada</span>{% endif %}</span>
+                <input type="password" name="api_key" autocomplete="off"
+                       placeholder="{% if key_set %}Deja vacío para mantener la actual{% else %}sk-…{% endif %}">
+                <small class="ek-field__hint">Se guarda cifrada en BBDD. Sólo se enseña enmascarada.</small>
+            </label>
+            <label class="ek-field">
+                <span>Modelo</span>
+                <input type="text" name="model" value="{{ model }}" class="mono">
+                <small class="ek-field__hint">Por defecto: <span class="mono">gpt-5.4-mini</span></small>
+            </label>
+            <label class="ek-field">
+                <span>Max tokens (output)</span>
+                <input type="number" name="max_tokens" value="{{ max_tokens }}" min="500" max="128000">
+                <small class="ek-field__hint">Para artículos completos: 12 000–16 000. Máx. modelo: 128 000.</small>
+            </label>
+        </div>
+    </div>
+
+    <div class="ek-form__actions">
+        {% if key_set %}
+        <form method="post" action="{{ admin_url('ia/borrar-key') }}" style="display:inline; margin-right:auto"
+              onsubmit="return confirm('¿Borrar la API key actual? La generación dejará de funcionar hasta configurar una nueva.');">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <button type="submit" class="ek-btn ek-btn--ghost ek-action--danger">Borrar API key</button>
+        </form>
+        {% endif %}
+        <button type="submit" class="ek-btn ek-btn--primary">Guardar configuración</button>
+    </div>
+</form>
+
+{# ===== Uso ===== #}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Uso (últimos 30 días)</h2>
+    <div class="ek-form__grid">
+        <div class="ek-field">
+            <span>Llamadas totales</span>
+            <strong style="font-size:22px">{{ usage.total }}</strong>
+            <small class="ek-field__hint">{{ usage.ok }} OK · {{ usage.fail }} fallidas</small>
+        </div>
+        <div class="ek-field">
+            <span>Tokens consumidos</span>
+            <strong style="font-size:22px">{{ (usage.tokens_in_total + usage.tokens_out_total)|number_format(0, ',', '.') }}</strong>
+            <small class="ek-field__hint">{{ usage.tokens_in_total|number_format(0, ',', '.') }} in · {{ usage.tokens_out_total|number_format(0, ',', '.') }} out</small>
+        </div>
+        <div class="ek-field">
+            <span>Coste estimado</span>
+            <strong style="font-size:22px">{{ usage.cost_total|number_format(4, ',', '.') }} $</strong>
+            <small class="ek-field__hint">A precios públicos de OpenAI</small>
+        </div>
+    </div>
+</div>
+
+{# ===== Log reciente ===== #}
+{% if recent_logs|length > 0 %}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Últimas generaciones</h2>
+    <div class="ek-table-wrap">
+        <table class="ek-table">
+            <thead>
+                <tr>
+                    <th>Propósito</th>
+                    <th>Input</th>
+                    <th style="width:90px">Estado</th>
+                    <th style="width:140px">Tokens</th>
+                    <th style="width:110px">Coste</th>
+                    <th style="width:160px">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in recent_logs %}
+                <tr>
+                    <td class="mono">{{ l.purpose }}</td>
+                    <td style="font-size:12px">{{ l.input_summary|default('—')|slice(0, 100) }}</td>
+                    <td>{% if l.success %}<span class="ek-badge ek-badge--ok">OK</span>
+                        {% else %}<span class="ek-badge ek-badge--err">Fallo</span>{% endif %}</td>
+                    <td class="mono" style="font-size:12px">{{ l.tokens_in }} → {{ l.tokens_out }}</td>
+                    <td class="mono" style="font-size:12px">{{ l.cost_usd|number_format(4, ',', '.') }} $</td>
+                    <td class="mono" style="font-size:12px">{{ l.date_add }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

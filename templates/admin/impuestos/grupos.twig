@@ -1,0 +1,56 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_impuestos.twig' with {tab: 'groups'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Grupos de reglas</h1>
+        <p class="ek-page-header__subtitle">Lo que se asigna a cada producto. Cada grupo contiene una o más reglas país → impuesto.</p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('impuestos/grupos/nuevo') }}">+ Nuevo grupo</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th style="width:90px">Estado</th>
+                <th style="width:160px">Última modificación</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for g in groups %}
+            <tr>
+                <td class="mono">{{ g.id_tax_rules_group }}</td>
+                <td><strong>{{ g.name }}</strong></td>
+                <td>
+                    {% if g.active %}
+                        <span class="ek-badge ek-badge--ok">Activo</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td class="mono" style="font-size:12px; color:var(--ek-ink-3)">{{ g.date_upd|default('—') }}</td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('impuestos/grupos/' ~ g.id_tax_rules_group ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('impuestos/grupos/' ~ g.id_tax_rules_group ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar el grupo \'{{ g.name }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="ek-table__empty">No hay grupos definidos.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

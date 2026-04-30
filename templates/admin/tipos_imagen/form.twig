@@ -1,0 +1,92 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nuevo tipo de imagen' : 'Editar tipo de imagen' }}
+        </h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">ID #{{ item.id_image_type }} · <span class="mono">{{ item.name }}</span></p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('tipos_imagen') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('tipos_imagen/nuevo')
+          : admin_url('tipos_imagen/' ~ item.id_image_type ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Identificación y dimensiones</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Nombre técnico *</span>
+                <input type="text" name="name" required maxlength="64"
+                       pattern="[a-z0-9_]{2,64}"
+                       value="{{ item.name }}"
+                       placeholder="home_default">
+                <small class="ek-field__hint">Sólo minúsculas, números y guion bajo. Se usa como sufijo en el archivo (ej: <span class="mono">45-home_default.jpg</span>).</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Ancho máx. (px) *</span>
+                <input type="number" name="width" required min="1" max="4000" value="{{ item.width }}">
+            </label>
+            <label class="ek-field">
+                <span>Alto máx. (px) *</span>
+                <input type="number" name="height" required min="1" max="4000" value="{{ item.height }}">
+            </label>
+        </div>
+        <p class="ek-field__hint" style="margin-top:8px">
+            Las imágenes se redimensionan manteniendo el aspect ratio sin recortar ni ampliar.
+            El resultado nunca excede el ancho ni el alto indicados.
+        </p>
+    </div>
+
+    <div class="ek-panel" style="margin-top:16px">
+        <h2>Aplicable a</h2>
+        <div class="ek-form__grid">
+            <label class="ek-switch">
+                <input type="checkbox" name="products" value="1" {{ item.products ? 'checked' : '' }}>
+                <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                <span class="ek-switch__label">Productos</span>
+            </label>
+            <label class="ek-switch">
+                <input type="checkbox" name="categories" value="1" {{ item.categories ? 'checked' : '' }}>
+                <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                <span class="ek-switch__label">Categorías</span>
+            </label>
+            <label class="ek-switch">
+                <input type="checkbox" name="manufacturers" value="1" {{ item.manufacturers ? 'checked' : '' }}>
+                <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                <span class="ek-switch__label">Marcas</span>
+            </label>
+            <label class="ek-switch">
+                <input type="checkbox" name="suppliers" value="1" {{ item.suppliers ? 'checked' : '' }}>
+                <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                <span class="ek-switch__label">Proveedores</span>
+            </label>
+            <label class="ek-switch">
+                <input type="checkbox" name="stores" value="1" {{ item.stores ? 'checked' : '' }}>
+                <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                <span class="ek-switch__label">Tiendas físicas</span>
+            </label>
+        </div>
+        <p class="ek-field__hint" style="margin-top:8px">
+            En Fase 1 sólo se generan miniaturas para imágenes de producto. El resto de flags se respetará cuando se añadan imágenes de categoría / marca / proveedor / tienda.
+        </p>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('tipos_imagen') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear tipo' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

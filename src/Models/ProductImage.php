@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Ekanet\Models;
 
 use Ekanet\Core\Database;
+use Ekanet\Support\ImageResizer;
 
 /**
  * Imágenes de producto (ps_image + ps_image_lang + ps_image_shop).
@@ -28,7 +29,8 @@ final class ProductImage
                 ORDER BY i.position, i.id_image';
         $rows = Database::run($sql, ['p' => $idProduct, 'lang' => $idLang])->fetchAll();
         foreach ($rows as &$r) {
-            $r['url'] = self::publicUrl($idProduct, (int)$r['id_image']);
+            $r['url']       = self::publicUrl($idProduct, (int)$r['id_image']);
+            $r['thumb_url'] = self::publicUrl($idProduct, (int)$r['id_image'], 'small_default');
         }
         return $rows;
     }
@@ -123,6 +125,14 @@ final class ProductImage
             @chmod($dest, 0644);
 
             $pdo->commit();
+
+            // Generar miniaturas (best-effort: no abortar el upload si falla)
+            try {
+                ImageResizer::generateAllForProductImage($idProduct, $idImage, $dest);
+            } catch (\Throwable $e) {
+                error_log('[ProductImage] Generación de miniaturas falló para imagen ' . $idImage . ': ' . $e->getMessage());
+            }
+
             return $idImage;
         } catch (\Throwable $e) {
             $pdo->rollBack();
@@ -213,11 +223,12 @@ final class ProductImage
             Database::run('DELETE FROM `{P}image_shop` WHERE id_image = :i', ['i' => $idImage]);
             Database::run('DELETE FROM `{P}image` WHERE id_image = :i', ['i' => $idImage]);
 
-            // Borrar archivo físico
+            // Borrar archivo físico (original + miniaturas)
             foreach (array_values(self::ACCEPTED_MIMES) as $ext) {
                 $path = self::storagePath($idProduct) . '/' . $idImage . '.' . $ext;
                 if (is_file($path)) @unlink($path);
             }
+            ImageResizer::deleteAllForProductImage($idProduct, $idImage);
 
             $pdo->commit();
         } catch (\Throwable $e) {
@@ -237,11 +248,26 @@ final class ProductImage
         }
     }
 
-    /** URL pública de la imagen (autodetecta extensión). */
-    public static function publicUrl(int $idProduct, int $idImage): string
+    /**
+     * URL pública de la imagen (autodetecta extensión).
+     * Si $size es null → original. Si es un nombre de tipo (ej. 'home_default') →
+     * devuelve la miniatura, con fallback al original si no existe.
+     */
+    public static function publicUrl(int $idProduct, int $idImage, ?string $size = null): string
     {
         $base = $GLOBALS['EK_CONFIG']['app']['base_url'] ?? '';
         $dir  = self::storagePath($idProduct);
+
+        if ($size !== null) {
+            foreach (array_values(self::ACCEPTED_MIMES) as $ext) {
+                $relative = '/img/p/' . $idProduct . '/' . $idImage . '-' . $size . '.' . $ext;
+                if (is_file($dir . '/' . $idImage . '-' . $size . '.' . $ext)) {
+                    return rtrim($base, '/') . $relative;
+                }
+            }
+            // fallback al original
+        }
+
         foreach (array_values(self::ACCEPTED_MIMES) as $ext) {
             if (is_file($dir . '/' . $idImage . '.' . $ext)) {
                 return rtrim($base, '/') . '/img/p/' . $idProduct . '/' . $idImage . '.' . $ext;

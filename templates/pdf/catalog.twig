@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>{{ title|default('Catálogo') }}</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    font-family: DejaVu Sans, sans-serif;
+    font-size: 10px;
+    color: #1a1a26;
+    margin: 0;
+    padding: 0;
+    line-height: 1.45;
+}
+.doc { padding: 28px 32px; }
+.bar {
+    height: 4px;
+    background: linear-gradient(90deg, #5a6dba 0%, #5a6dba 70%, #e09a2e 70%, #e09a2e 100%);
+    margin-bottom: 18px;
+}
+
+/* Cover page */
+.cover {
+    page-break-after: always;
+    padding: 80px 0 40px;
+    text-align: center;
+}
+.cover__shop-name {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #1a1a26;
+    letter-spacing: 0.5px;
+}
+.cover__title {
+    font-size: 22px;
+    color: #5a6dba;
+    margin: 28px 0 8px;
+}
+.cover__subtitle {
+    font-size: 14px;
+    color: #6b6e7a;
+}
+.cover__meta {
+    margin-top: 60px;
+    font-size: 10px;
+    color: #6b6e7a;
+}
+.cover__notice {
+    margin-top: 20px;
+    display: inline-block;
+    padding: 8px 14px;
+    background: #fef3e0;
+    border-left: 3px solid #e09a2e;
+    color: #6b4a13;
+    font-size: 10px;
+    text-align: left;
+}
+.cover__shop-info {
+    margin-top: 80px;
+    font-size: 10px;
+    color: #6b6e7a;
+    line-height: 1.7;
+}
+
+/* Product list */
+.cat-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #5a6dba;
+    border-bottom: 1px solid #d8dce4;
+    padding-bottom: 4px;
+    margin: 20px 0 10px;
+}
+.product {
+    display: table;
+    width: 100%;
+    margin-bottom: 14px;
+    page-break-inside: avoid;
+    border-bottom: 1px solid #ecedf0;
+    padding-bottom: 10px;
+}
+.product__img {
+    display: table-cell;
+    vertical-align: top;
+    width: 90px;
+    padding-right: 12px;
+}
+.product__img img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border: 1px solid #ecedf0;
+    background: #fff;
+}
+.product__img-empty {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #ecedf0;
+    background: #f4f5f8;
+    color: #c0c2c8;
+    font-size: 9px;
+    text-align: center;
+    line-height: 80px;
+}
+.product__body {
+    display: table-cell;
+    vertical-align: top;
+}
+.product__name {
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 3px;
+    color: #1a1a26;
+}
+.product__ref {
+    font-family: DejaVu Sans Mono, monospace;
+    font-size: 9px;
+    color: #6b6e7a;
+    margin-bottom: 4px;
+}
+.product__desc {
+    font-size: 9.5px;
+    color: #555a68;
+    margin-bottom: 4px;
+}
+.product__price {
+    font-size: 13px;
+    font-weight: bold;
+    color: #1a1a26;
+    margin-top: 4px;
+}
+.product__price .small {
+    font-size: 9px;
+    font-weight: normal;
+    color: #6b6e7a;
+    letter-spacing: 0.5px;
+}
+.foot {
+    position: fixed;
+    bottom: 16px;
+    left: 32px;
+    right: 32px;
+    border-top: 1px solid #e5e7ec;
+    padding-top: 6px;
+    font-size: 8.5px;
+    color: #6b6e7a;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+
+{# ===== Portada ===== #}
+<div class="doc">
+<div class="bar"></div>
+<div class="cover">
+    <div class="cover__shop-name">{{ shop.name }}</div>
+    <div class="cover__title">{{ title }}</div>
+    {% if subtitle %}<div class="cover__subtitle">{{ subtitle }}</div>{% endif %}
+    <div class="cover__meta">Generado el {{ generated }}</div>
+    <div class="cover__notice">
+        <strong>Aviso:</strong> Todos los precios indicados en este catálogo son <strong>sin IVA</strong>.
+    </div>
+    <div class="cover__shop-info">
+        {{ shop.cif }}<br>
+        {% if shop.addr1 %}{{ shop.addr1 }}{% if shop.addr2 %} — {{ shop.addr2 }}{% endif %}<br>{% endif %}
+        {% if shop.code or shop.city %}{{ shop.code }} {{ shop.city }}<br>{% endif %}
+        {{ shop.email }}{% if shop.phone %} · {{ shop.phone }}{% endif %}
+    </div>
+</div>
+</div>
+
+{# ===== Listado de productos ===== #}
+<div class="doc">
+{% set last_cat = '' %}
+{% for p in products %}
+    {% if p.category_name != last_cat %}
+        {% set last_cat = p.category_name %}
+        <div class="cat-title">{{ p.category_name|default('Sin categoría') }}</div>
+    {% endif %}
+    <div class="product">
+        <div class="product__img">
+            {% if p.cover_path %}
+                <img src="{{ p.cover_path }}" alt="">
+            {% else %}
+                <div class="product__img-empty">Sin imagen</div>
+            {% endif %}
+        </div>
+        <div class="product__body">
+            <div class="product__name">{{ p.name|default('— sin nombre —') }}</div>
+            {% if p.reference %}<div class="product__ref">REF: {{ p.reference }}{% if p.ean13 %} · EAN: {{ p.ean13 }}{% endif %}</div>{% endif %}
+            {% if p.description_short %}
+                <div class="product__desc">{{ p.description_short|striptags|slice(0, 240) }}{% if p.description_short|length > 240 %}…{% endif %}</div>
+            {% endif %}
+            <div class="product__price">
+                {{ p.price|number_format(2, ',', '.') }} €
+                <span class="small">SIN IVA</span>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+<div class="foot">
+    {{ shop.name }} — Catálogo generado el {{ generated }} · Precios sin IVA
+</div>
+
+</body>
+</html>

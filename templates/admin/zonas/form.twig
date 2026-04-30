@@ -1,0 +1,54 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {{ mode == 'create' ? 'Nueva zona' : 'Editar zona' }}
+        </h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">ID #{{ item.id_zone }} · {{ country_count }} país{{ country_count == 1 ? '' : 'es' }} asignado{{ country_count == 1 ? '' : 's' }}</p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('zonas') }}">← Volver</a>
+    </div>
+</div>
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('zonas/nueva')
+          : admin_url('zonas/' ~ item.id_zone ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Datos de la zona</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Nombre *</span>
+                <input type="text" name="name" required maxlength="64" value="{{ item.name }}"
+                       placeholder="Ej. Península, Baleares, Portugal…">
+            </label>
+            <label class="ek-field">
+                <span>Estado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="active" value="1" {{ item.active ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Zona activa</span>
+                </label>
+            </label>
+        </div>
+        <p class="ek-field__hint" style="margin-top:8px">
+            La asignación de países a zonas se gestiona en el catálogo de países (Fase 2).
+            Por ahora los países conservan la zona definida en el seed inicial.
+        </p>
+    </div>
+
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('zonas') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear zona' : 'Guardar cambios' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

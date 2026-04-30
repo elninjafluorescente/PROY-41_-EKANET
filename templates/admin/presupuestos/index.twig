@@ -1,0 +1,79 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Presupuestos</h1>
+        <p class="ek-page-header__subtitle">Pre-pedidos para clientes B2B. Aceptados se convierten a pedido.</p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('presupuestos/nuevo') }}">+ Nuevo presupuesto</a>
+    </div>
+</div>
+
+<form method="get" action="{{ admin_url('presupuestos') }}" class="ek-form" style="margin-bottom:16px">
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+        <input type="text" name="q" value="{{ search }}" placeholder="Buscar por ref, email, cliente, empresa…" style="flex:1; min-width:240px">
+        <select name="status">
+            <option value="">— Todos los estados —</option>
+            {% for k, label in statuses %}
+                <option value="{{ k }}" {{ status_filter == k ? 'selected' : '' }}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="ek-btn ek-btn--ghost">Filtrar</button>
+    </div>
+</form>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:100px">Ref.</th>
+                <th>Cliente</th>
+                <th style="width:120px">Estado</th>
+                <th style="width:120px">Total</th>
+                <th style="width:120px">Válido hasta</th>
+                <th style="width:120px">Creado</th>
+                <th style="width:90px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for q in quotes %}
+            <tr>
+                <td class="mono"><a href="{{ admin_url('presupuestos/' ~ q.id_quote ~ '/editar') }}">{{ q.reference }}</a></td>
+                <td>
+                    {% if q.customer_company %}<strong>{{ q.customer_company }}</strong><br>{% endif %}
+                    <span style="color:var(--ek-ink-3); font-size:12px">{{ q.customer_name }} · {{ q.customer_email }}</span>
+                </td>
+                <td>
+                    <span class="ek-badge ek-badge--{{ badges[q.status] }}">{{ statuses[q.status] }}</span>
+                    {% if q.id_order_converted %}
+                        <a href="{{ admin_url('pedidos/' ~ q.id_order_converted) }}" style="font-size:11px">→ #{{ q.id_order_converted }}</a>
+                    {% endif %}
+                </td>
+                <td class="mono">{{ q.total_paid_tax_incl|number_format(2, ',', '.') }} €</td>
+                <td class="mono" style="font-size:12px">{{ q.valid_until|default('—') }}</td>
+                <td class="mono" style="font-size:12px">{{ q.date_add|slice(0,10) }}</td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('presupuestos/' ~ q.id_quote ~ '/editar') }}">Editar</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="ek-table__empty">No hay presupuestos.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pages > 1 %}
+<div style="margin-top:12px; display:flex; gap:8px; justify-content:center">
+    {% for n in 1..pages %}
+        {% if n == page %}
+            <strong class="mono">{{ n }}</strong>
+        {% else %}
+            <a class="mono" href="{{ admin_url('presupuestos') }}?p={{ n }}{% if search %}&q={{ search|url_encode }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ n }}</a>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

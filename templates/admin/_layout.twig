@@ -20,19 +20,24 @@
             <span class="ek-node"></span> Dashboard
         </a>
 
-        <details class="ek-sidebar__section" {% if active in ['pedidos'] %}open{% endif %}>
+        <details class="ek-sidebar__section" {% if active in ['pedidos','presupuestos'] %}open{% endif %}>
             <summary class="ek-sidebar__group">Pedidos</summary>
             <a href="{{ admin_url('pedidos') }}" class="{{ active == 'pedidos' ? 'is-active' : '' }}">Pedidos y facturas</a>
+            <a href="{{ admin_url('presupuestos') }}" class="{{ active == 'presupuestos' ? 'is-active' : '' }}">Presupuestos</a>
         </details>
 
-        <details class="ek-sidebar__section" {% if active in ['productos','categorias','marcas_proveedores','descuentos','stock','atributos_caracteristicas'] %}open{% endif %}>
+        <details class="ek-sidebar__section" {% if active in ['productos','categorias','marcas_proveedores','descuentos','stock','atributos_caracteristicas','tipos_imagen','impuestos','destacados','catalogos'] %}open{% endif %}>
             <summary class="ek-sidebar__group">Catálogo</summary>
             <a href="{{ admin_url('productos') }}" class="{{ active == 'productos' ? 'is-active' : '' }}">Productos</a>
             <a href="{{ admin_url('categorias') }}" class="{{ active == 'categorias' ? 'is-active' : '' }}">Categorías</a>
             <a href="{{ admin_url('marcas') }}" class="{{ active == 'marcas_proveedores' ? 'is-active' : '' }}">Marcas y proveedores</a>
+            <a href="{{ admin_url('destacados') }}" class="{{ active == 'destacados' ? 'is-active' : '' }}">Destacados de home</a>
+            <a href="{{ admin_url('catalogos') }}" class="{{ active == 'catalogos' ? 'is-active' : '' }}">Catálogos PDF</a>
             <a href="{{ admin_url('cupones') }}" class="{{ active == 'descuentos' ? 'is-active' : '' }}">Descuentos</a>
             <a href="{{ admin_url('stock') }}" class="{{ active == 'stock' ? 'is-active' : '' }}">Stock</a>
             <a href="{{ admin_url('atributos') }}" class="{{ active == 'atributos_caracteristicas' ? 'is-active' : '' }}">Atributos y características</a>
+            <a href="{{ admin_url('impuestos') }}" class="{{ active == 'impuestos' ? 'is-active' : '' }}">Impuestos</a>
+            <a href="{{ admin_url('tipos_imagen') }}" class="{{ active == 'tipos_imagen' ? 'is-active' : '' }}">Tipos de imagen</a>
         </details>
 
         <details class="ek-sidebar__section" {% if active in ['clientes','direcciones'] %}open{% endif %}>
@@ -41,9 +46,10 @@
             <a href="{{ admin_url('direcciones') }}" class="{{ active == 'direcciones' ? 'is-active' : '' }}">Direcciones</a>
         </details>
 
-        <details class="ek-sidebar__section" {% if active in ['transportistas'] %}open{% endif %}>
+        <details class="ek-sidebar__section" {% if active in ['transportistas','zonas'] %}open{% endif %}>
             <summary class="ek-sidebar__group">Transporte</summary>
             <a href="{{ admin_url('transportistas') }}" class="{{ active == 'transportistas' ? 'is-active' : '' }}">Transportistas</a>
+            <a href="{{ admin_url('zonas') }}" class="{{ active == 'zonas' ? 'is-active' : '' }}">Zonas geográficas</a>
         </details>
 
         <details class="ek-sidebar__section" {% if active in ['metodos_pago'] %}open{% endif %}>
@@ -51,16 +57,18 @@
             <a href="{{ admin_url('metodos_pago') }}" class="{{ active == 'metodos_pago' ? 'is-active' : '' }}">Métodos de pago</a>
         </details>
 
-        <details class="ek-sidebar__section" {% if active in ['marketing','blog'] %}open{% endif %}>
+        <details class="ek-sidebar__section" {% if active in ['marketing','blog','newsletter'] %}open{% endif %}>
             <summary class="ek-sidebar__group">Marketing</summary>
             <a href="{{ admin_url('pixeles') }}" class="{{ active == 'marketing' ? 'is-active' : '' }}">Píxeles y banners</a>
+            <a href="{{ admin_url('newsletter/suscriptores') }}" class="{{ active == 'newsletter' ? 'is-active' : '' }}">Newsletter</a>
             <a href="{{ admin_url('blog') }}" class="{{ active == 'blog' ? 'is-active' : '' }}">Blog</a>
         </details>
 
-        <details class="ek-sidebar__section" {% if active in ['usuarios','roles','configuracion'] %}open{% endif %}>
+        <details class="ek-sidebar__section" {% if active in ['usuarios','roles','configuracion','ia'] %}open{% endif %}>
             <summary class="ek-sidebar__group">Administración</summary>
             <a href="{{ admin_url('usuarios') }}" class="{{ active == 'usuarios' ? 'is-active' : '' }}">Usuarios</a>
             <a href="{{ admin_url('configuracion') }}" class="{{ active == 'configuracion' ? 'is-active' : '' }}">Configuración</a>
+            <a href="{{ admin_url('ia') }}" class="{{ active == 'ia' ? 'is-active' : '' }}">IA</a>
         </details>
     </nav>
 </aside>

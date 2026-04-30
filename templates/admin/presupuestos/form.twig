@@ -1,0 +1,228 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">
+            {% if mode == 'create' %}Nuevo presupuesto
+            {% else %}Presupuesto <span class="mono">{{ item.reference }}</span>{% endif %}
+        </h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">
+                <span class="ek-badge ek-badge--{{ badges[item.status] }}">{{ statuses[item.status] }}</span>
+                · Creado {{ item.date_add|slice(0,16) }}
+                {% if item.id_order_converted %} · <a href="{{ admin_url('pedidos/' ~ item.id_order_converted) }}">Ver pedido #{{ item.id_order_converted }}</a>{% endif %}
+            </p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('presupuestos') }}">← Volver</a>
+    </div>
+</div>
+
+{# ===== Datos básicos ===== #}
+{% if mode == 'create' %}
+<form method="post" action="{{ admin_url('presupuestos/nuevo') }}" class="ek-form">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <div class="ek-panel">
+        <h2>Cliente y validez</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Cliente *</span>
+                <select name="id_customer" required>
+                    <option value="">— Selecciona cliente —</option>
+                    {% for c in customers %}
+                        <option value="{{ c.id_customer }}">
+                            {% if c.company %}{{ c.company }} — {% endif %}{{ c.firstname }} {{ c.lastname }} · {{ c.email }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="ek-field">
+                <span>Válido hasta</span>
+                <input type="date" name="valid_until" value="">
+                <small class="ek-field__hint">Vacío = +30 días por defecto.</small>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Mensaje al cliente (visible)</span>
+                <textarea name="customer_message" rows="2" placeholder="Aparecerá en el PDF del presupuesto."></textarea>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Notas internas</span>
+                <textarea name="notes" rows="2" placeholder="Sólo back office."></textarea>
+            </label>
+        </div>
+    </div>
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('presupuestos') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">Crear y añadir líneas</button>
+    </div>
+</form>
+{% else %}
+
+{# ===== Edición — datos generales ===== #}
+<form method="post" action="{{ admin_url('presupuestos/' ~ item.id_quote ~ '/editar') }}" class="ek-form">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <div class="ek-panel">
+        <h2>Cliente</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Cliente</span>
+                <input type="text" disabled
+                       value="{{ item.customer_company ? item.customer_company ~ ' — ' : '' }}{{ item.customer_name }} · {{ item.customer_email }}{{ item.customer_cif ? ' · CIF: ' ~ item.customer_cif : '' }}">
+                <small class="ek-field__hint">El cliente no se puede cambiar después de crear el presupuesto.</small>
+            </label>
+            <label class="ek-field">
+                <span>Válido hasta</span>
+                <input type="date" name="valid_until" value="{{ item.valid_until|default('') }}">
+            </label>
+            <label class="ek-field">
+                <span>Gastos de envío (€ sin IVA)</span>
+                <input type="text" name="total_shipping" inputmode="decimal" value="{{ item.total_shipping|number_format(2, '.', '') }}">
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Mensaje al cliente (visible en PDF)</span>
+                <textarea name="customer_message" rows="2">{{ item.customer_message }}</textarea>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Notas internas</span>
+                <textarea name="notes" rows="2">{{ item.notes }}</textarea>
+            </label>
+        </div>
+    </div>
+    <div class="ek-form__actions">
+        <button type="submit" class="ek-btn ek-btn--primary">Guardar datos</button>
+    </div>
+</form>
+
+{# ===== Líneas ===== #}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Líneas del presupuesto</h2>
+
+    <div class="ek-table-wrap">
+        <table class="ek-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th style="width:100px">Ref.</th>
+                    <th style="width:90px">Cantidad</th>
+                    <th style="width:140px">Precio unitario</th>
+                    <th style="width:140px">Total</th>
+                    <th style="width:120px; text-align:right">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ln in lines %}
+                <tr>
+                    <form method="post" action="{{ admin_url('presupuestos/' ~ item.id_quote ~ '/lineas/' ~ ln.id_quote_detail ~ '/editar') }}" id="line-{{ ln.id_quote_detail }}">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                    </form>
+                    <td>{{ ln.product_name }}</td>
+                    <td class="mono" style="font-size:12px">{{ ln.product_reference|default('—') }}</td>
+                    <td><input form="line-{{ ln.id_quote_detail }}" type="number" name="quantity" min="1" value="{{ ln.product_quantity }}" style="width:70px"></td>
+                    <td><input form="line-{{ ln.id_quote_detail }}" type="text" name="unit_price" inputmode="decimal" value="{{ ln.unit_price_tax_excl|number_format(2, '.', '') }}" style="width:100px" class="mono"></td>
+                    <td class="mono">{{ ln.total_price_tax_excl|number_format(2, ',', '.') }} €</td>
+                    <td style="text-align:right">
+                        <button form="line-{{ ln.id_quote_detail }}" type="submit" class="ek-action">Actualizar</button>
+                        <form method="post" action="{{ admin_url('presupuestos/' ~ item.id_quote ~ '/lineas/' ~ ln.id_quote_detail ~ '/eliminar') }}" style="display:inline" onsubmit="return confirm('¿Eliminar línea?');">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="ek-table__empty">No hay líneas. Añade abajo.</td></tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" style="text-align:right"><strong>Subtotal productos</strong></td>
+                    <td class="mono"><strong>{{ item.total_products|number_format(2, ',', '.') }} €</strong></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align:right">Envío</td>
+                    <td class="mono">{{ item.total_shipping|number_format(2, ',', '.') }} €</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align:right"><strong>TOTAL</strong></td>
+                    <td class="mono"><strong>{{ item.total_paid_tax_incl|number_format(2, ',', '.') }} €</strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    {# ===== Buscador + alta de línea ===== #}
+    <form method="get" action="{{ admin_url('presupuestos/' ~ item.id_quote ~ '/editar') }}" style="margin-top:20px; display:flex; gap:8px">
+        <input type="text" name="product_q" value="{{ product_q|default('') }}" placeholder="Buscar producto por nombre o ref…" style="flex:1; max-width:400px">
+        <button type="submit" class="ek-btn ek-btn--ghost">Buscar</button>
+    </form>
+
+    {% if product_search|length > 0 %}
+    <form method="post" action="{{ admin_url('presupuestos/' ~ item.id_quote ~ '/lineas/anadir') }}" class="ek-form" style="margin-top:12px">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Producto</span>
+                <select name="id_product" required>
+                    {% for p in product_search %}
+                        <option value="{{ p.id_product }}" data-price="{{ p.price }}">
+                            {{ p.name|default('— sin nombre —') }}{% if p.reference %} · {{ p.reference }}{% endif %} · {{ p.price|number_format(2, ',', '.') }} €
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="ek-field">
+                <span>Cantidad</span>
+                <input type="number" name="quantity" min="1" value="1">
+            </label>
+            <label class="ek-field">
+                <span>Precio unitario (€)</span>
+                <input type="text" name="unit_price" inputmode="decimal" placeholder="vacío = precio del catálogo">
+                <small class="ek-field__hint">Para precio negociado B2B.</small>
+            </label>
+        </div>
+        <div class="ek-form__actions">
+            <button type="submit" class="ek-btn ek-btn--primary">+ Añadir línea</button>
+        </div>
+    </form>
+    {% elseif product_q is defined and product_q != '' %}
+    <p class="ek-field__hint" style="margin-top:8px">Sin resultados para "{{ product_q }}".</p>
+    {% endif %}
+</div>
+
+{# ===== Cambiar estado / convertir ===== #}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Estado del presupuesto</h2>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+        <form method="post" action="{{ admin_url('presupuestos/' ~ item.id_quote ~ '/estado') }}" style="display:flex; gap:8px; align-items:center">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <select name="status">
+                {% for k, label in statuses %}
+                    {% if k != 'converted' %}
+                        <option value="{{ k }}" {{ item.status == k ? 'selected' : '' }}>{{ label }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            <button type="submit" class="ek-btn ek-btn--ghost">Cambiar estado</button>
+        </form>
+
+        {% if item.status != 'converted' and lines|length > 0 %}
+        <form method="post" action="{{ admin_url('presupuestos/' ~ item.id_quote ~ '/convertir') }}"
+              onsubmit="return confirm('¿Convertir este presupuesto en pedido manual? Esta acción no se puede deshacer.');">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <button type="submit" class="ek-btn ek-btn--primary">→ Convertir a pedido</button>
+        </form>
+        {% endif %}
+
+        <form method="post" action="{{ admin_url('presupuestos/' ~ item.id_quote ~ '/eliminar') }}" style="margin-left:auto"
+              onsubmit="return confirm('¿Eliminar definitivamente este presupuesto?');">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <button type="submit" class="ek-btn ek-btn--ghost ek-action--danger">Eliminar presupuesto</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

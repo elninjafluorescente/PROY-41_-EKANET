@@ -1,0 +1,56 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_impuestos.twig' with {tab: 'taxes'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Impuestos</h1>
+        <p class="ek-page-header__subtitle">Tasas puras (ej. IVA 21 %). Para asignar a un producto se usa un <strong>grupo de reglas</strong>.</p>
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('impuestos/nuevo') }}">+ Nuevo impuesto</a>
+    </div>
+</div>
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th style="width:120px">Tasa</th>
+                <th style="width:90px">Estado</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in taxes %}
+            <tr>
+                <td class="mono">{{ t.id_tax }}</td>
+                <td><strong>{{ t.name|default('—') }}</strong></td>
+                <td class="mono">{{ t.rate|number_format(3, ',', '.') }} %</td>
+                <td>
+                    {% if t.active %}
+                        <span class="ek-badge ek-badge--ok">Activo</span>
+                    {% else %}
+                        <span class="ek-badge ek-badge--muted">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('impuestos/' ~ t.id_tax ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('impuestos/' ~ t.id_tax ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar el impuesto \'{{ t.name }}\'?');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="ek-table__empty">No hay impuestos definidos.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

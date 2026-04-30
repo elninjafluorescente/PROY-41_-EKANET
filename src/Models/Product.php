@@ -122,6 +122,7 @@ final class Product
             Database::run(
                 'INSERT INTO `{P}product`
                  (id_supplier, id_manufacturer, id_category_default, id_shop_default,
+                  id_tax_rules_group,
                   reference, supplier_reference, ean13, mpn,
                   price, wholesale_price, weight, width, height, depth,
                   quantity, minimal_quantity, active, available_for_order, show_price,
@@ -129,6 +130,7 @@ final class Product
                   date_add, date_upd, state)
                  VALUES
                  (:id_supplier, :id_manufacturer, :id_cat, :id_shop,
+                  :id_tax_rules_group,
                   :reference, :supplier_reference, :ean13, :mpn,
                   :price, :wholesale, :weight, :width, :height, :depth,
                   :qty, :min_qty, :active, 1, 1,
@@ -139,6 +141,7 @@ final class Product
                     'id_manufacturer' => self::nz((int)$data['id_manufacturer']),
                     'id_cat'          => (int)$data['id_category_default'],
                     'id_shop'         => $idShop,
+                    'id_tax_rules_group' => max(0, (int)($data['id_tax_rules_group'] ?? 0)),
                     'reference'       => (string)($data['reference'] ?? ''),
                     'supplier_reference' => (string)($data['supplier_reference'] ?? ''),
                     'ean13'           => (string)($data['ean13'] ?? ''),
@@ -189,6 +192,7 @@ final class Product
                     id_supplier = :id_supplier,
                     id_manufacturer = :id_manufacturer,
                     id_category_default = :id_cat,
+                    id_tax_rules_group = :id_tax_rules_group,
                     reference = :reference,
                     supplier_reference = :supplier_reference,
                     ean13 = :ean13, mpn = :mpn,
@@ -207,6 +211,7 @@ final class Product
                     'id_supplier'     => self::nz((int)$data['id_supplier']),
                     'id_manufacturer' => self::nz((int)$data['id_manufacturer']),
                     'id_cat'          => (int)$data['id_category_default'],
+                    'id_tax_rules_group' => max(0, (int)($data['id_tax_rules_group'] ?? 0)),
                     'reference'       => (string)($data['reference'] ?? ''),
                     'supplier_reference' => (string)($data['supplier_reference'] ?? ''),
                     'ean13'           => (string)($data['ean13'] ?? ''),
@@ -282,6 +287,7 @@ final class Product
             'id'       => $id,
             'shop'     => $idShop,
             'id_cat'   => (int)$data['id_category_default'],
+            'id_tax_rules_group' => max(0, (int)($data['id_tax_rules_group'] ?? 0)),
             'price'    => self::normalizeDecimal($data['price'] ?? 0),
             'wholesale'=> self::normalizeDecimal($data['wholesale_price'] ?? 0),
             'active'   => !empty($data['active']) ? 1 : 0,
@@ -299,6 +305,7 @@ final class Product
             Database::run(
                 'UPDATE `{P}product_shop` SET
                    id_category_default = :id_cat,
+                   id_tax_rules_group = :id_tax_rules_group,
                    price = :price, wholesale_price = :wholesale,
                    active = :active, minimal_quantity = :min_qty,
                    visibility = :visibility, `condition` = :condition,
@@ -313,7 +320,7 @@ final class Product
                     price, wholesale_price, active, minimal_quantity,
                     visibility, `condition`, date_add, date_upd, available_for_order, show_price)
                  VALUES
-                   (:id, :shop, :id_cat, 0,
+                   (:id, :shop, :id_cat, :id_tax_rules_group,
                     :price, :wholesale, :active, :min_qty,
                     :visibility, :condition, NOW(), NOW(), 1, 1)',
                 $payload

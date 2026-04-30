@@ -17,7 +17,36 @@
     </div>
 </div>
 
-<form method="post" class="ek-form"
+<div class="ek-panel" id="ek-ai-panel" style="border-left:3px solid #e09a2e">
+    <h2>🪄 Asistente IA — Generar artículo SEO</h2>
+    <p class="ek-panel__hint">
+        Rellena estos 3 campos y pulsa "Generar". El asistente (gpt-5.4-mini) creará un artículo completo
+        optimizado para SEO + GEO siguiendo las mejores prácticas y volcará los resultados en el formulario de abajo.
+        <strong>Importante:</strong> el contenido actual se sobrescribirá. Tarda 1-3 minutos.
+    </p>
+    <div class="ek-form__grid">
+        <label class="ek-field ek-field--wide">
+            <span>Palabra clave principal *</span>
+            <input type="text" id="ek-ai-keyword" placeholder="ej. cámaras IP exterior" maxlength="100">
+        </label>
+        <label class="ek-field ek-field--wide">
+            <span>Título tentativo *</span>
+            <input type="text" id="ek-ai-title" placeholder="ej. Cómo elegir una cámara IP de exterior en 2026" maxlength="200">
+        </label>
+        <label class="ek-field ek-field--wide">
+            <span>Brief / descripción *</span>
+            <textarea id="ek-ai-desc" rows="4" maxlength="1000"
+                placeholder="Describe a quién va dirigido, ángulo del artículo, puntos clave a tratar…"></textarea>
+            <small class="ek-field__hint">El asistente puede mejorar el título si detecta que el tentativo no es óptimo para SEO.</small>
+        </label>
+    </div>
+    <div class="ek-form__actions" style="justify-content:space-between">
+        <span id="ek-ai-status" style="font-size:13px; color:var(--ek-ink-3)"></span>
+        <button type="button" id="ek-ai-go" class="ek-btn ek-btn--primary">🪄 Generar artículo</button>
+    </div>
+</div>
+
+<form method="post" class="ek-form" style="margin-top:16px"
       action="{{ mode == 'create' ? admin_url('blog/nuevo') : admin_url('blog/' ~ item.id_post ~ '/editar') }}">
     <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
 
@@ -146,6 +175,95 @@
         .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
     titleEl.addEventListener('input', () => {
         if (!touched) slugEl.value = slugify(titleEl.value);
+    });
+})();
+
+/* ========== Asistente IA — generación de artículo ========== */
+(function () {
+    const btn       = document.getElementById('ek-ai-go');
+    const statusEl  = document.getElementById('ek-ai-status');
+    const kwEl      = document.getElementById('ek-ai-keyword');
+    const titleEl   = document.getElementById('ek-ai-title');
+    const descEl    = document.getElementById('ek-ai-desc');
+    if (!btn) return;
+
+    const setField = (name, value) => {
+        const el = document.querySelector('[name="' + name + '"]');
+        if (!el) return;
+        // Si TinyMCE controla el textarea, sincronizar
+        if (window.tinymce) {
+            const inst = window.tinymce.get(el.id || el.name);
+            if (inst) { inst.setContent(value || ''); el.value = value || ''; return; }
+        }
+        el.value = value || '';
+    };
+
+    btn.addEventListener('click', async () => {
+        const keyword = (kwEl.value || '').trim();
+        const title   = (titleEl.value || '').trim();
+        const desc    = (descEl.value || '').trim();
+        if (!keyword || !title || !desc) {
+            statusEl.textContent = '⚠️ Rellena los 3 campos (keyword, título, brief).';
+            return;
+        }
+        if (!confirm('Esto sobrescribirá el contenido actual del artículo.\n\nLa generación tarda 1-3 minutos. ¿Continuar?')) return;
+
+        btn.disabled = true;
+        const originalLabel = btn.textContent;
+        btn.textContent = '⏳ Generando…';
+        statusEl.textContent = 'Llamando a OpenAI… no cierres la pestaña.';
+
+        const t0 = Date.now();
+        try {
+            const fd = new FormData();
+            fd.append('_csrf', {{ csrf_token()|json_encode|raw }});
+            fd.append('keyword', keyword);
+            fd.append('title', title);
+            fd.append('description', desc);
+
+            const res = await fetch({{ admin_url('ia/generar-articulo')|json_encode|raw }}, {
+                method: 'POST',
+                body: fd,
+                credentials: 'same-origin',
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || ('HTTP ' + res.status));
+            }
+
+            // Volcar al form
+            setField('title', titleEl.value); // mantener el título tentativo si el usuario lo prefiere
+            setField('slug', data.slug);
+            setField('excerpt', data.excerpt);
+            // Combinar content + FAQ + JSON-LD en el cuerpo HTML
+            let fullHtml = data.content || '';
+            if (Array.isArray(data.faq) && data.faq.length > 0) {
+                fullHtml += '\n\n<h2>Preguntas frecuentes</h2>\n';
+                data.faq.forEach(q => {
+                    fullHtml += '<h3>' + q.question + '</h3>\n<p>' + q.answer + '</p>\n';
+                });
+            }
+            if (data.schema_jsonld) {
+                fullHtml += '\n\n' + data.schema_jsonld;
+            }
+            setField('content', fullHtml);
+            setField('meta_title', data.meta_title);
+            setField('meta_description', data.meta_description);
+            setField('meta_keywords', data.meta_keywords);
+
+            const readingEl = document.querySelector('[name="reading_time"]');
+            if (readingEl) readingEl.value = data.reading_time;
+
+            const dt = ((Date.now() - t0) / 1000).toFixed(1);
+            statusEl.innerHTML = '✓ Artículo generado en ' + dt + 's · '
+                + data.usage.tokens_in + ' → ' + data.usage.tokens_out + ' tokens · '
+                + '$' + data.usage.cost_usd + ' · ' + data.usage.model;
+        } catch (e) {
+            statusEl.textContent = '❌ Error: ' + (e.message || e);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalLabel;
+        }
     });
 })();
 </script>

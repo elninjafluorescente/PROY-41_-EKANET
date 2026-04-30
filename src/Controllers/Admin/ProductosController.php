@@ -10,9 +10,11 @@ use Ekanet\Models\AttributeGroup;
 use Ekanet\Models\Category;
 use Ekanet\Models\Combination;
 use Ekanet\Models\Feature;
+use Ekanet\Models\Highlights;
 use Ekanet\Models\Manufacturer;
 use Ekanet\Models\Product;
 use Ekanet\Models\ProductImage;
+use Ekanet\Models\TaxRulesGroup;
 use Ekanet\Models\Supplier;
 use Ekanet\Support\CsvProductImporter;
 
@@ -55,6 +57,7 @@ final class ProductosController extends Controller
             'id_supplier'         => 0,
             'price'               => '0.00',
             'wholesale_price'     => '0.00',
+            'id_tax_rules_group'  => 0,
             'stock'               => 0,
             'minimal_quantity'    => 1,
             'description_short'   => '',
@@ -70,6 +73,7 @@ final class ProductosController extends Controller
             'condition'           => 'new',
             'product_type'        => 'standard',
             'active'              => 0,
+            'is_featured'         => 0,
         ]);
     }
 
@@ -89,6 +93,7 @@ final class ProductosController extends Controller
         }
         try {
             $id = Product::create($data);
+            Highlights::setFeatured($id, (bool)$data['is_featured']);
             Session::flash('success', "Producto \"{$data['name']}\" creado.");
             $this->redirect($this->adminPath() . "/productos/{$id}/editar");
         } catch (\Throwable $e) {
@@ -126,6 +131,7 @@ final class ProductosController extends Controller
         }
         try {
             Product::update($idInt, $data);
+            Highlights::setFeatured($idInt, (bool)$data['is_featured']);
             Session::flash('success', 'Producto actualizado.');
             $this->redirect($this->adminPath() . "/productos/{$idInt}/editar");
         } catch (\Throwable $e) {
@@ -494,6 +500,7 @@ final class ProductosController extends Controller
             'categories'    => Category::flatList(),
             'manufacturers' => Manufacturer::all(),
             'suppliers'     => Supplier::all(),
+            'tax_rules_groups' => TaxRulesGroup::all(),
             'all_features'  => $allFeatures,
             'product_features' => $featuresByProduct,
             'feature_values'   => $featureValues,
@@ -535,6 +542,7 @@ final class ProductosController extends Controller
             'id_supplier'         => (int)$this->input('id_supplier', 0),
             'price'               => (string)$this->input('price', '0'),
             'wholesale_price'     => (string)$this->input('wholesale_price', '0'),
+            'id_tax_rules_group'  => (int)$this->input('id_tax_rules_group', 0),
             'stock'               => (int)$this->input('stock', 0),
             'minimal_quantity'    => (int)$this->input('minimal_quantity', 1),
             'description_short'   => (string)$this->input('description_short', ''),
@@ -550,6 +558,7 @@ final class ProductosController extends Controller
             'condition'           => (string)$this->input('condition', 'new'),
             'product_type'        => (string)$this->input('product_type', 'standard'),
             'active'              => $this->input('active') ? 1 : 0,
+            'is_featured'         => $this->input('is_featured') ? 1 : 0,
         ];
     }
 

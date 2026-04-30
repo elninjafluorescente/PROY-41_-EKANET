@@ -1,0 +1,68 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">Tipos de imagen</h1>
+        <p class="ek-page-header__subtitle">Tamaños de miniatura generados automáticamente al subir imágenes (compatible PrestaShop 8.1.6).</p>
+    </div>
+    <div class="ek-page-header__actions">
+        <form method="post" action="{{ admin_url('tipos_imagen/regenerar') }}"
+              style="display:inline"
+              onsubmit="return confirm('Regenerar todas las miniaturas del catálogo. Puede tardar varios minutos. ¿Continuar?');">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <button type="submit" class="ek-btn ek-btn--ghost">⟳ Regenerar miniaturas</button>
+        </form>
+        <a class="ek-btn ek-btn--primary" href="{{ admin_url('tipos_imagen/nuevo') }}">+ Nuevo tamaño</a>
+    </div>
+</div>
+
+{% if not gd_available %}
+<div class="ek-alert ek-alert--err">
+    ⚠️ La extensión <strong>GD</strong> de PHP no está disponible en este servidor. Las miniaturas no se generarán.
+</div>
+{% endif %}
+
+<div class="ek-table-wrap">
+    <table class="ek-table">
+        <thead>
+            <tr>
+                <th style="width:60px">ID</th>
+                <th>Nombre</th>
+                <th style="width:120px">Tamaño</th>
+                <th>Aplicable a</th>
+                <th style="width:140px; text-align:right">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in types %}
+            <tr>
+                <td class="mono">{{ t.id_image_type }}</td>
+                <td><strong class="mono">{{ t.name }}</strong></td>
+                <td class="mono">{{ t.width }} × {{ t.height }}</td>
+                <td>
+                    {% set tags = [] %}
+                    {% if t.products      %}{% set tags = tags|merge(['Productos']) %}{% endif %}
+                    {% if t.categories    %}{% set tags = tags|merge(['Categorías']) %}{% endif %}
+                    {% if t.manufacturers %}{% set tags = tags|merge(['Marcas']) %}{% endif %}
+                    {% if t.suppliers     %}{% set tags = tags|merge(['Proveedores']) %}{% endif %}
+                    {% if t.stores        %}{% set tags = tags|merge(['Tiendas']) %}{% endif %}
+                    <span style="color: var(--ek-ink-3); font-size:12px">{{ tags|join(' · ') }}</span>
+                </td>
+                <td style="text-align:right">
+                    <a class="ek-action" href="{{ admin_url('tipos_imagen/' ~ t.id_image_type ~ '/editar') }}">Editar</a>
+                    <form method="post" action="{{ admin_url('tipos_imagen/' ~ t.id_image_type ~ '/eliminar') }}"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Eliminar el tipo \'{{ t.name }}\'? Las miniaturas existentes con este nombre quedarán huérfanas hasta la próxima regeneración.');">
+                        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                        <button type="submit" class="ek-action ek-action--danger">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="ek-table__empty">No hay tipos de imagen definidos.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

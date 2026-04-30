@@ -65,6 +65,16 @@
             </label>
 
             <label class="ek-field">
+                <span>Destacado</span>
+                <label class="ek-switch">
+                    <input type="checkbox" name="is_featured" value="1" {{ item.is_featured|default(0) ? 'checked' : '' }}>
+                    <span class="ek-switch__track"><span class="ek-switch__thumb"></span></span>
+                    <span class="ek-switch__label">Mostrar en home</span>
+                </label>
+                <small class="ek-field__hint">Aparecerá en el bloque de destacados. <a href="{{ admin_url('destacados') }}">Gestionar</a>.</small>
+            </label>
+
+            <label class="ek-field">
                 <span>Tipo</span>
                 <select name="product_type">
                     {% for k, label in product_types %}
@@ -137,6 +147,20 @@
                 <input type="text" name="wholesale_price" inputmode="decimal"
                        value="{{ item.wholesale_price|default(0)|number_format(2, '.', '') }}">
                 <small class="ek-field__hint">Precio de coste. Informativo.</small>
+            </label>
+
+            <label class="ek-field">
+                <span>Grupo de impuestos</span>
+                <select name="id_tax_rules_group">
+                    <option value="0">— Sin impuesto —</option>
+                    {% for g in tax_rules_groups %}
+                        <option value="{{ g.id_tax_rules_group }}"
+                                {{ g.id_tax_rules_group == item.id_tax_rules_group|default(0) ? 'selected' : '' }}>
+                            {{ g.name }}{{ not g.active ? ' (inactivo)' : '' }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <small class="ek-field__hint">Define qué IVA se aplica según país de envío. <a href="{{ admin_url('impuestos/grupos') }}">Gestionar grupos</a>.</small>
             </label>
 
             <label class="ek-field">
@@ -258,7 +282,7 @@
                 <div class="ek-img-card">
                     <div class="ek-img-card__preview">
                         {% if img.url %}
-                            <img src="{{ img.url }}" alt="{{ img.legend|default('') }}">
+                            <img src="{{ img.thumb_url|default(img.url) }}" alt="{{ img.legend|default('') }}" loading="lazy">
                         {% else %}
                             <span class="ek-placeholder" style="display:flex; width:100%; height:100%; align-items:center; justify-content:center">SIN IMG</span>
                         {% endif %}

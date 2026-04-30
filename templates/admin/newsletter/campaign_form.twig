@@ -1,0 +1,119 @@
+{% extends 'admin/_layout.twig' %}
+
+{% block content %}
+{% include 'admin/_partials/tabs_newsletter.twig' with {tab: 'campaigns'} %}
+
+<div class="ek-page-header">
+    <div>
+        <h1 class="ek-page-header__title">{{ mode == 'create' ? 'Nueva campaña' : 'Editar campaña' }}</h1>
+        {% if mode == 'edit' %}
+            <p class="ek-page-header__subtitle">
+                ID #{{ item.id_campaign }} ·
+                <span class="ek-badge ek-badge--{{ badges[item.status] }}">{{ statuses[item.status] }}</span>
+            </p>
+        {% endif %}
+    </div>
+    <div class="ek-page-header__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('newsletter/campanas') }}">← Volver</a>
+    </div>
+</div>
+
+{% set is_locked = mode == 'edit' and item.status != 'draft' and item.status != 'failed' %}
+
+<form method="post" class="ek-form"
+      action="{{ mode == 'create'
+          ? admin_url('newsletter/campanas/nueva')
+          : admin_url('newsletter/campanas/' ~ item.id_campaign ~ '/editar') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+    <div class="ek-panel">
+        <h2>Contenido</h2>
+        <div class="ek-form__grid">
+            <label class="ek-field ek-field--wide">
+                <span>Asunto *</span>
+                <input type="text" name="subject" required maxlength="255" value="{{ item.subject }}" {{ is_locked ? 'disabled' : '' }}>
+            </label>
+            <label class="ek-field">
+                <span>Destinatarios *</span>
+                <select name="target" {{ is_locked ? 'disabled' : '' }}>
+                    {% for k, label in targets %}
+                        <option value="{{ k }}" {{ item.target == k ? 'selected' : '' }}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="ek-field ek-field--wide">
+                <span>Cuerpo HTML *</span>
+                <textarea name="body_html" rows="14" class="ek-rich" {{ is_locked ? 'disabled' : '' }}>{{ item.body_html }}</textarea>
+                <small class="ek-field__hint">Editor enriquecido. El sistema añade cabecera y pie automáticos al enviar.</small>
+            </label>
+        </div>
+    </div>
+
+    {% if not is_locked %}
+    <div class="ek-form__actions">
+        <a class="ek-btn ek-btn--ghost" href="{{ admin_url('newsletter/campanas') }}">Cancelar</a>
+        <button type="submit" class="ek-btn ek-btn--primary">
+            {{ mode == 'create' ? 'Crear borrador' : 'Guardar borrador' }}
+        </button>
+    </div>
+    {% endif %}
+</form>
+
+{% if mode == 'edit' %}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Acciones</h2>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+        {% if item.status == 'draft' or item.status == 'failed' %}
+        <form method="post" action="{{ admin_url('newsletter/campanas/' ~ item.id_campaign ~ '/enviar') }}"
+              onsubmit="return confirm('¿Enviar la campaña ahora? El proceso puede tardar varios minutos según el número de destinatarios. NO cierres esta pestaña hasta que termine.');">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <button type="submit" class="ek-btn ek-btn--primary">📨 Enviar campaña ahora</button>
+        </form>
+        {% endif %}
+
+        {% if item.status == 'sending' %}
+        <span class="ek-badge ek-badge--info">Envío en curso… {{ item.sent_count }}/{{ item.recipients_count }}</span>
+        {% endif %}
+
+        {% if item.status == 'sent' %}
+        <span class="ek-badge ek-badge--ok">Enviada — {{ item.sent_count }}/{{ item.recipients_count }} OK · {{ item.failed_count }} fallos</span>
+        {% endif %}
+
+        <form method="post" action="{{ admin_url('newsletter/campanas/' ~ item.id_campaign ~ '/eliminar') }}"
+              style="margin-left:auto" onsubmit="return confirm('¿Eliminar campaña y todos sus logs?');">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <button type="submit" class="ek-btn ek-btn--ghost ek-action--danger">Eliminar campaña</button>
+        </form>
+    </div>
+</div>
+
+{% if logs|length > 0 %}
+<div class="ek-panel" style="margin-top:16px">
+    <h2>Log de envío (últimos {{ logs|length }})</h2>
+    <div class="ek-table-wrap">
+        <table class="ek-table">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th style="width:90px">Estado</th>
+                    <th style="width:160px">Fecha</th>
+                    <th>Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in logs %}
+                <tr>
+                    <td class="mono" style="font-size:12px">{{ l.email }}</td>
+                    <td>{% if l.status == 'ok' %}<span class="ek-badge ek-badge--ok">OK</span>
+                        {% else %}<span class="ek-badge ek-badge--err">Fallo</span>{% endif %}</td>
+                    <td class="mono" style="font-size:12px">{{ l.date_sent }}</td>
+                    <td style="font-size:12px; color:var(--ek-ink-3)">{{ l.error|default('—') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

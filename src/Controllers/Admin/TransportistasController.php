@@ -7,6 +7,8 @@ use Ekanet\Core\Controller;
 use Ekanet\Core\Csrf;
 use Ekanet\Core\Session;
 use Ekanet\Models\Carrier;
+use Ekanet\Models\Delivery;
+use Ekanet\Models\Zone;
 
 final class TransportistasController extends Controller
 {
@@ -54,7 +56,9 @@ final class TransportistasController extends Controller
         }
         try {
             $id = Carrier::create($data);
-            Session::flash('success', "Transportista \"{$data['name']}\" creado.");
+            // Persistir zonas asignadas (la matriz de tarifas se edita al volver al form)
+            Delivery::setCarrierZones($id, $this->collectZoneIds());
+            Session::flash('success', "Transportista \"{$data['name']}\" creado. Configura ahora las tarifas.");
             $this->redirect($this->adminPath() . "/transportistas/{$id}/editar");
         } catch (\Throwable $e) {
             Session::flash('error', 'Error: ' . $e->getMessage());
@@ -91,6 +95,17 @@ final class TransportistasController extends Controller
         }
         try {
             Carrier::update($idInt, $data);
+            Delivery::setCarrierZones($idInt, $this->collectZoneIds());
+
+            // Persistir matriz de tarifas si se envió (sólo si shipping_method tiene rangos)
+            $rangeType = Delivery::rangeTypeForMethod((int)$data['shipping_method']);
+            if ($rangeType !== null) {
+                $prices = $this->input('prices', []);
+                if (is_array($prices)) {
+                    Delivery::setPriceMatrix($idInt, $rangeType, $prices);
+                }
+            }
+
             Session::flash('success', 'Transportista actualizado.');
             $this->redirect($this->adminPath() . "/transportistas/{$idInt}/editar");
         } catch (\Throwable $e) {
@@ -109,22 +124,92 @@ final class TransportistasController extends Controller
         }
         try {
             Carrier::delete($idInt);
-            Session::flash('success', 'Transportista eliminado (soft-delete).');
+            Delivery::purgeForCarrier($idInt);
+            Session::flash('success', 'Transportista eliminado (soft-delete) y tarifas asociadas borradas.');
         } catch (\Throwable $e) {
             Session::flash('error', $e->getMessage());
         }
         $this->redirect($this->adminPath() . '/transportistas');
     }
 
+    public function addRange(string $id): void
+    {
+        $idCarrier = (int)$id;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/transportistas/{$idCarrier}/editar");
+            return;
+        }
+        $type = (string)$this->input('range_type', '');
+        if (!in_array($type, [Delivery::RANGE_TYPE_PRICE, Delivery::RANGE_TYPE_WEIGHT], true)) {
+            Session::flash('error', 'Tipo de rango no válido.');
+            $this->redirect($this->adminPath() . "/transportistas/{$idCarrier}/editar");
+            return;
+        }
+        $from = (float)str_replace(',', '.', (string)$this->input('range_from', '0'));
+        $to   = (float)str_replace(',', '.', (string)$this->input('range_to',   '0'));
+        if ($to <= $from) {
+            Session::flash('error', 'El "hasta" del rango debe ser mayor que el "desde".');
+            $this->redirect($this->adminPath() . "/transportistas/{$idCarrier}/editar");
+            return;
+        }
+        try {
+            Delivery::addRange($idCarrier, $type, $from, $to);
+            Session::flash('success', 'Rango añadido.');
+        } catch (\Throwable $e) {
+            Session::flash('error', 'Error al añadir rango: ' . $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/transportistas/{$idCarrier}/editar");
+    }
+
+    public function deleteRange(string $id, string $type, string $rangeId): void
+    {
+        $idCarrier = (int)$id;
+        if (!Csrf::check((string)$this->input('_csrf', ''))) {
+            Session::flash('error', 'Token CSRF inválido.');
+            $this->redirect($this->adminPath() . "/transportistas/{$idCarrier}/editar");
+            return;
+        }
+        if (!in_array($type, [Delivery::RANGE_TYPE_PRICE, Delivery::RANGE_TYPE_WEIGHT], true)) {
+            Session::flash('error', 'Tipo de rango no válido.');
+            $this->redirect($this->adminPath() . "/transportistas/{$idCarrier}/editar");
+            return;
+        }
+        try {
+            Delivery::deleteRange($idCarrier, $type, (int)$rangeId);
+            Session::flash('success', 'Rango eliminado.');
+        } catch (\Throwable $e) {
+            Session::flash('error', $e->getMessage());
+        }
+        $this->redirect($this->adminPath() . "/transportistas/{$idCarrier}/editar");
+    }
+
     private function renderForm(string $mode, array $item): void
     {
+        $idCarrier = (int)($item['id_carrier'] ?? 0);
+        $shippingMethod = (int)($item['shipping_method'] ?? 0);
+        $rangeType = Delivery::rangeTypeForMethod($shippingMethod);
+
         $this->render('admin/transportistas/form.twig', [
-            'page_title' => $mode === 'create' ? 'Nuevo transportista' : 'Editar transportista',
-            'active'     => 'transportistas',
-            'mode'       => $mode,
-            'item'       => $item,
-            'methods'    => Carrier::SHIPPING_METHODS,
+            'page_title'       => $mode === 'create' ? 'Nuevo transportista' : 'Editar transportista',
+            'active'           => 'transportistas',
+            'mode'             => $mode,
+            'item'             => $item,
+            'methods'          => Carrier::SHIPPING_METHODS,
+            'all_zones'        => Zone::all(true),
+            'carrier_zones'    => $idCarrier > 0 ? Delivery::zonesForCarrier($idCarrier) : [],
+            'range_type'       => $rangeType,
+            'ranges'           => ($idCarrier > 0 && $rangeType) ? Delivery::rangesForCarrier($idCarrier, $rangeType) : [],
+            'price_matrix'     => ($idCarrier > 0 && $rangeType) ? Delivery::priceMatrix($idCarrier, $rangeType) : [],
         ]);
+    }
+
+    /** Recoge los IDs de zona seleccionados en el form (checkboxes name="zones[]"). */
+    private function collectZoneIds(): array
+    {
+        $raw = $_POST['zones'] ?? [];
+        if (!is_array($raw)) return [];
+        return array_values(array_filter(array_map('intval', $raw), fn($z) => $z > 0));
     }
 
     private function collect(): array
